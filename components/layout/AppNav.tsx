@@ -1,0 +1,38 @@
+'use client';
+
+import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+
+export function AppNav({ userName }: { userName: string }) {
+  const router = useRouter();
+  const supabase = createClient();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  };
+
+  return (
+    <header className="fixed top-0 w-full bg-navy whitespace-nowrap z-50 py-4 px-4 sm:px-6 lg:px-8 border-b border-white/10">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <Link href="/dashboard" aria-label="Dashboard Home">
+          <Image src="/logo.svg" alt="Billdog Logo" width={140} height={40} className="w-auto h-8" />
+        </Link>
+        <div className="flex items-center gap-4 sm:gap-6">
+          <span className="text-white/80 text-sm hidden sm:inline-block">
+            {userName}
+          </span>
+          <button 
+            onClick={handleLogout}
+            className="text-sm font-medium text-orange hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange"
+          >
+            Log out
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+}

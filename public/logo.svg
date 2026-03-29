@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110" fill="none">
+  <!-- Dog body -->
+  <g>
+    <!-- Body -->
+    <ellipse cx="185" cy="62" rx="55" ry="35" fill="#0B1F3A"/>
+    <!-- Head -->
+    <circle cx="135" cy="45" r="30" fill="#0B1F3A"/>
+    <!-- Snout -->
+    <ellipse cx="112" cy="52" rx="16" ry="12" fill="#1A56DB"/>
+    <!-- Nose -->
+    <ellipse cx="100" cy="49" rx="5" ry="4" fill="#0B1F3A"/>
+    <!-- Eye -->
+    <circle cx="125" cy="38" r="4" fill="#FFFFFF"/>
+    <circle cx="126" cy="37" r="2" fill="#0B1F3A"/>
+    <!-- Ears -->
+    <path d="M148 20 Q155 5 160 22" fill="#F97316" stroke="#0B1F3A" stroke-width="2"/>
+    <path d="M138 18 Q140 2 148 18" fill="#F97316" stroke="#0B1F3A" stroke-width="2"/>
+    <!-- Tail -->
+    <path d="M240 45 Q260 20 255 50" stroke="#F97316" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <!-- Legs -->
+    <rect x="155" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
+    <rect x="170" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
+    <rect x="200" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
+    <rect x="215" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
+    <!-- Collar -->
+    <rect x="140" y="65" width="30" height="6" rx="3" fill="#F97316"/>
+    <circle cx="155" cy="73" r="3" fill="#F97316"/>
+    <!-- Envelope in mouth -->
+    <g transform="translate(82, 53) rotate(-10)">
+      <rect x="0" y="0" width="28" height="19" rx="2" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <path d="M0,0 L14,10 L28,0" fill="none" stroke="#F97316" stroke-width="1.5"/>
+    </g>
+  </g>
+  <!-- Text: BILLDOG -->
+  <text x="275" y="72" font-family="'Bebas Neue', sans-serif" font-size="62" font-weight="400" letter-spacing="4" fill="#FFFFFF">
+    <tspan>BILL</tspan><tspan fill="#F97316">DOG</tspan>
+  </text>
+</svg>
