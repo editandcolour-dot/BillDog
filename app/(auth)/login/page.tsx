@@ -1,6 +1,8 @@
 import { LoginForm } from '@/components/forms/LoginForm';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Log In | Billdog',
   description: 'Log into your Billdog account.',

@@ -1,6 +1,8 @@
 import { SignupForm } from '@/components/forms/SignupForm';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'Sign Up | Billdog',
   description: 'Create your Billdog account to dispute municipal billing errors.',
