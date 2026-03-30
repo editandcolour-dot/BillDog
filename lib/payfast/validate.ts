@@ -1,11 +1,11 @@
+import crypto from 'crypto';
+
 export function validateSignature(
   params: Record<string, string>,
   passphrase: string,
 ): boolean {
   const receivedSignature = params.signature;
   if (!receivedSignature) return false;
-
-  const crypto = require('crypto');
 
   // Build parameter string: sorted, URL-encoded, excluding 'signature'
   const paramString = Object.keys(params)

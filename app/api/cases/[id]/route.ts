@@ -97,8 +97,8 @@ export async function PATCH(
 
     return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
 
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('[Cases PATCH Error]', err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
   }
 }

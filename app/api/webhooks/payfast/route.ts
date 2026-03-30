@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateSignature, validateIp, validateWithPayFast, validatePaymentStatus, validateAmount } from '@/lib/payfast/validate';
+import { validateSignature, validateIp, validateWithPayFast, validatePaymentStatus } from '@/lib/payfast/validate';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isAlreadyProcessed } from '@/lib/payfast/idempotency';
 import { logSecurityEvent } from '@/lib/payfast/security-log';
-import { processSuccessFee } from '@/lib/payfast/charge';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {

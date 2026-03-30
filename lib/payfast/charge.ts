@@ -61,7 +61,6 @@ export async function chargeToken(params: {
         return { success: true };
     }
 
-    const errorBody = await response.text();
     console.error('[payfast/charge] Failed', {
       status: response.status,
       caseId: params.caseId,
@@ -73,8 +72,8 @@ export async function chargeToken(params: {
         ? 'Card declined — please update your card in Settings.'
         : 'Payment processing failed. Please try again.',
     };
-  } catch (err: any) {
-    return { success: false, error: err.message };
+  } catch (err: unknown) {
+    return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
   }
 }
 

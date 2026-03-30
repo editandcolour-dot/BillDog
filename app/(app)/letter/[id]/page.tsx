@@ -164,25 +164,22 @@ export default function LetterPreviewPage() {
   };
 
   const handleProceed = async () => {
-    if (hasCard) {
-      await handleSend();
-    } else {
-      setIsSending(true);
-      try {
-        const res = await fetch('/api/payfast/tokenise');
-        const data = await res.json();
-        if (data.url) {
-          window.location.href = data.url;
-        } else {
-          setSendError('Failed to initialize payment gateway.');
-          setIsSending(false);
-        }
-      } catch {
-        setSendError('Network error initializing payment gateway.');
+    setIsSending(true);
+    try {
+      const res = await fetch('/api/payfast/tokenise');
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setSendError('Failed to initialize payment gateway.');
         setIsSending(false);
       }
+    } catch {
+      setSendError('Network error initializing payment gateway.');
+      setIsSending(false);
     }
   };
+
 
   const handleRetry = () => {
     setError(null);
@@ -268,22 +265,7 @@ export default function LetterPreviewPage() {
           </p>
         </div>
 
-        {prescribedCount > 0 && (
-          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl mb-6 max-w-3xl mx-auto shadow-sm flex gap-4">
-            <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <p className="text-blue-900 font-medium text-sm leading-relaxed">
-              {prescribedCount} item{prescribedCount > 1 ? 's were' : ' was'} excluded from this letter because {prescribedCount > 1 ? 'they fall' : 'it falls'} outside the 3-year dispute window.
-            </p>
-          </div>
-        )}
 
-        {sendError && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl mb-6 max-w-3xl mx-auto shadow-sm">
-            <p className="text-red-900 font-medium text-sm">{sendError}</p>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           
@@ -340,24 +322,60 @@ export default function LetterPreviewPage() {
               </div>
             </div>
 
-            <div className="mt-10 mb-6 flex flex-col items-center">
-              <Button
-                variant="primary"
-                onClick={handleProceed}
-                disabled={isSending || isSaving}
-                className="w-full sm:w-auto h-16 px-12 text-xl font-bold uppercase tracking-wider shadow-[0_8px_24px_rgba(249,115,22,0.35)]"
-              >
-                {isSending ? 'Please Wait...' : (hasCard ? 'Send Dispute Letter →' : '💳 Add Card to Continue')}
-              </Button>
-              
-              <div className="mt-5 max-w-sm mx-auto text-center flex gap-3 text-left bg-slate-100/50 p-4 rounded-xl border border-slate-200/60">
-                <svg className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {prescribedCount > 0 && (
+              <div className="mt-8 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl shadow-sm flex gap-4">
+                <svg className="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-slate-500 text-[13px] leading-relaxed font-medium text-left">
-                  This letter is personalized to your account. Sending through Billdog ensures correct delivery, tracking and escalation if ignored.
+                <p className="text-blue-900 font-medium text-sm leading-relaxed">
+                  {prescribedCount} item{prescribedCount > 1 ? 's were' : ' was'} excluded from this letter because {prescribedCount > 1 ? 'they fall' : 'it falls'} outside the 3-year dispute window.
                 </p>
               </div>
+            )}
+
+            {sendError && (
+              <div className="mt-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl shadow-sm">
+                <p className="text-red-900 font-medium text-sm">{sendError}</p>
+              </div>
+            )}
+
+            <div className="mt-10 mb-6 flex flex-col items-center">
+              {hasCard ? (
+                <>
+                  <Button
+                    variant="primary"
+                    onClick={handleSend}
+                    disabled={isSending || isSaving}
+                    className="w-full sm:w-auto h-16 px-12 text-xl font-bold uppercase tracking-wider shadow-[0_8px_24px_rgba(249,115,22,0.35)]"
+                  >
+                    {isSending ? 'Sending Dispute...' : 'Send Dispute Letter →'}
+                  </Button>
+                  
+                  <div className="mt-5 max-w-sm mx-auto text-center flex gap-3 text-left bg-slate-100/50 p-4 rounded-xl border border-slate-200/60">
+                    <svg className="w-5 h-5 text-slate-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-slate-500 text-[13px] leading-relaxed font-medium text-left">
+                      This letter is personalized to your account. Sending through Billdog ensures correct delivery, tracking and escalation if ignored.
+                    </p>
+                  </div>
+                </>
+              ) : (
+                <div className="bg-white border border-light-grey rounded-2xl p-6 md:p-8 text-center shadow-sm w-full max-w-md">
+                  <h3 className="font-display text-2xl text-navy uppercase tracking-wide mb-3">One last step before sending</h3>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
+                    Add a payment method to send your letter. You won&apos;t be charged until we recover money for you.
+                  </p>
+                  <Button
+                    variant="primary"
+                    onClick={handleProceed}
+                    disabled={isSending}
+                    className="w-full h-14 text-lg font-bold uppercase tracking-wider shadow-md"
+                  >
+                    {isSending ? 'Please Wait...' : 'Add Payment Method →'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
