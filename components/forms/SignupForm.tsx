@@ -10,7 +10,9 @@ export function SignupForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [consent, setConsent] = useState(false);
+  const [dataConsent, setDataConsent] = useState(false);
+  const [feeConsent, setFeeConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
@@ -34,8 +36,14 @@ export function SignupForm() {
       return;
     }
 
-    if (!consent) {
-      setError('You must accept the privacy policy to continue.');
+    if (!dataConsent) {
+      setError('You must consent to data processing to use Billdog.');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!feeConsent) {
+      setError('You must agree to the success fee terms to continue.');
       setIsLoading(false);
       return;
     }
@@ -54,20 +62,18 @@ export function SignupForm() {
       if (signUpError) throw new Error(signUpError.message);
 
       if (data.user) {
-        // Create profile record since triggers aren't guaranteed
         const { error: profileError } = await supabase.from('profiles').insert({
           id: data.user.id,
           full_name: fullName,
           email,
           consent_given: true,
           consent_timestamp: new Date().toISOString(),
-          consent_version: '1.0',
+          consent_version: 'v1.0-2026-03-30',
+          marketing_consent: marketingConsent,
         });
 
         if (profileError) {
           console.error('[Auth]', profileError);
-          // Let them proceed anyway as the user auth record was created. 
-          // They can fill out name in onboarding or handle broken profile.
         }
       }
 
@@ -143,16 +149,52 @@ export function SignupForm() {
         />
       </div>
 
-      <label className="flex items-start gap-3 mt-4">
+      {/* CONSENT 1: Data processing (REQUIRED) */}
+      <label className="flex items-start gap-3 mt-4 min-h-[44px]">
         <input
           type="checkbox"
-          required
-          checked={consent}
-          onChange={(e) => setConsent(e.target.checked)}
+          checked={dataConsent}
+          onChange={(e) => setDataConsent(e.target.checked)}
           className="mt-1 min-w-4 min-h-4"
         />
         <span className="text-sm text-white/70">
-          I consent to Billdog processing my personal information including municipal bill documents to dispute billing errors on my behalf. My data may be shared with AI processing services (Anthropic), payment processors (PayFast), and email services (Resend) solely for this purpose. I understand I can request access, correction or deletion of my data at any time via privacy@billdog.co.za.
+          I consent to Billdog processing my personal information to analyse my
+          municipal bills and generate dispute letters on my behalf. This includes
+          sending my bill data to AI services (Anthropic) for analysis.{' '}
+          <a href="/privacy" className="text-orange underline" target="_blank" rel="noopener noreferrer">
+            Read our Privacy Policy
+          </a>
+        </span>
+      </label>
+
+      {/* CONSENT 2: Success fee (REQUIRED) */}
+      <label className="flex items-start gap-3 min-h-[44px]">
+        <input
+          type="checkbox"
+          checked={feeConsent}
+          onChange={(e) => setFeeConsent(e.target.checked)}
+          className="mt-1 min-w-4 min-h-4"
+        />
+        <span className="text-sm text-white/70">
+          I agree to the 20% success fee on funds recovered through disputed
+          charges, as described in our{' '}
+          <a href="/terms" className="text-orange underline" target="_blank" rel="noopener noreferrer">
+            Terms of Service
+          </a>.
+        </span>
+      </label>
+
+      {/* CONSENT 3: Marketing (OPTIONAL) */}
+      <label className="flex items-start gap-3 min-h-[44px]">
+        <input
+          type="checkbox"
+          checked={marketingConsent}
+          onChange={(e) => setMarketingConsent(e.target.checked)}
+          className="mt-1 min-w-4 min-h-4"
+        />
+        <span className="text-sm text-white/70">
+          I&apos;d like to receive email updates about my case progress and tips
+          on managing municipal bills. (Optional &mdash; you can unsubscribe any time.)
         </span>
       </label>
 
@@ -162,3 +204,4 @@ export function SignupForm() {
     </form>
   );
 }
+

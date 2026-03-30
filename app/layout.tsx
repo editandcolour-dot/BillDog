@@ -1,7 +1,7 @@
 import { Bebas_Neue, DM_Sans } from 'next/font/google';
 import './globals.css';
 
-
+import { CookieBanner } from '@/components/layout/CookieBanner';
 
 import type { Metadata, Viewport } from 'next';
 
@@ -54,7 +54,9 @@ export default function RootLayout({
     <html lang="en" className={`${bebasNeue.variable} ${dmSans.variable}`}>
       <body className="font-body antialiased bg-navy">
         {children}
+        <CookieBanner />
       </body>
     </html>
   );
 }
+

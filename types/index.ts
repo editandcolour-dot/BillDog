@@ -65,6 +65,11 @@ export interface Profile {
   account_number: string | null;
   property_type: PropertyType | null;
   payfast_token: string | null;
+  consent_given: boolean;
+  consent_timestamp: string | null;
+  consent_version: string | null;
+  marketing_consent: boolean;
+  deletion_scheduled_at: string | null;
   created_at: string;
   updated_at: string;
 }

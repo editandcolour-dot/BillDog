@@ -540,17 +540,19 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-03-30T15:07:44.184637+00:00
+> Last scanned: 2026-03-30T15:31:14.196167+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
 
 ```
 📁 (root)/
-  📄 .env  (0.3 KB)
-  📄 .env.local  (0.8 KB)
+  📄 .env  (0.2 KB)
+  📄 .env.local  (1.0 KB)
   📄 .env.local.example  (0.0 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
@@ -570,7 +572,7 @@ NODE_ENV=
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 tsconfig.json  (0.6 KB)
-  📄 tsconfig.tsbuildinfo  (182.4 KB)
+  📄 tsconfig.tsbuildinfo  (182.9 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -639,10 +641,10 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (36.2 KB)
+  📄 ARCHITECTURE.md  (36.7 KB)
   📄 FAULT_LOG.md  (0.5 KB)
   📄 PROJECT_MEMORY.md  (1.9 KB)
-  📄 STATE.md  (0.8 KB)
+  📄 STATE.md  (0.6 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -650,7 +652,7 @@ NODE_ENV=
     📄 2026-03-27.md  (0.6 KB)
     📄 2026-03-28.md  (7.2 KB)
     📄 2026-03-29.md  (0.3 KB)
-    📄 2026-03-30.md  (0.6 KB)
+    📄 2026-03-30.md  (1.1 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -671,7 +673,7 @@ NODE_ENV=
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (18.1 KB)
+        📄 page.tsx  (19.1 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\success/
@@ -806,7 +808,7 @@ NODE_ENV=
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
     📄 tokenise.ts  (2.0 KB)
-    📄 validate.ts  (3.1 KB)
+    📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
     📄 parse.ts  (1.9 KB)
@@ -871,11 +873,6 @@ NODE_ENV=
 ### Environment Variables (names only)
 
 - `FIRECRAWL_API_KEY`
-- `PAYFAST_MERCHANT_ID`
-- `PAYFAST_MERCHANT_KEY`
-- `PAYFAST_PASSPHRASE`
-- `PAYFAST_SANDBOX`
-- `PAYFAST_ITN_URL`
 
 ## SECTION 11 — DESIGN DECISIONS LOG
 
