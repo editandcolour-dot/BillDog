@@ -19,6 +19,7 @@ export default function LetterPreviewPage() {
   const [isSending, setIsSending] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
+  const [hasCard, setHasCard] = useState<boolean>(false);
 
   const generationTriggeredRef = useRef(false);
 
@@ -36,6 +37,7 @@ export default function LetterPreviewPage() {
       }
       if (data.case) {
         setCaseData(data.case);
+        setHasCard(data.hasCard);
         return data.case;
       }
     } catch {
@@ -158,6 +160,27 @@ export default function LetterPreviewPage() {
     } catch {
       setSendError('Network error while attempting to send.');
       setIsSending(false);
+    }
+  };
+
+  const handleProceed = async () => {
+    if (hasCard) {
+      await handleSend();
+    } else {
+      setIsSending(true);
+      try {
+        const res = await fetch('/api/payfast/tokenise');
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          setSendError('Failed to initialize payment gateway.');
+          setIsSending(false);
+        }
+      } catch {
+        setSendError('Network error initializing payment gateway.');
+        setIsSending(false);
+      }
     }
   };
 
@@ -320,11 +343,11 @@ export default function LetterPreviewPage() {
             <div className="mt-10 mb-6 flex flex-col items-center">
               <Button
                 variant="primary"
-                onClick={handleSend}
+                onClick={handleProceed}
                 disabled={isSending || isSaving}
                 className="w-full sm:w-auto h-16 px-12 text-xl font-bold uppercase tracking-wider shadow-[0_8px_24px_rgba(249,115,22,0.35)]"
               >
-                {isSending ? 'Sending Dispute...' : 'Send Dispute Letter →'}
+                {isSending ? 'Please Wait...' : (hasCard ? 'Send Dispute Letter →' : '💳 Add Card to Continue')}
               </Button>
               
               <div className="mt-5 max-w-sm mx-auto text-center flex gap-3 text-left bg-slate-100/50 p-4 rounded-xl border border-slate-200/60">

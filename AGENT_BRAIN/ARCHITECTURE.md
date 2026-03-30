@@ -534,17 +534,23 @@ NODE_ENV=
 
 ---
 
+---
+
+---
+
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-03-29T09:23:01.249373+00:00
+> Last scanned: 2026-03-30T15:07:44.184637+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
 
 ```
 📁 (root)/
-  📄 .env  (0.2 KB)
-  📄 .env.local  (0.5 KB)
+  📄 .env  (0.3 KB)
+  📄 .env.local  (0.8 KB)
   📄 .env.local.example  (0.0 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
@@ -560,10 +566,11 @@ NODE_ENV=
   📄 package-lock.json  (269.8 KB)
   📄 package.json  (1.0 KB)
   📄 postcss.config.mjs  (0.1 KB)
+  📄 railway.toml  (0.1 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 tsconfig.json  (0.6 KB)
-  📄 tsconfig.tsbuildinfo  (135.0 KB)
+  📄 tsconfig.tsbuildinfo  (182.4 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -632,16 +639,18 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (35.9 KB)
+  📄 ARCHITECTURE.md  (36.2 KB)
   📄 FAULT_LOG.md  (0.5 KB)
-  📄 PROJECT_MEMORY.md  (1.4 KB)
-  📄 STATE.md  (1.1 KB)
+  📄 PROJECT_MEMORY.md  (1.9 KB)
+  📄 STATE.md  (0.8 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
     📄 2026-03-26.md  (0.9 KB)
     📄 2026-03-27.md  (0.6 KB)
     📄 2026-03-28.md  (7.2 KB)
+    📄 2026-03-29.md  (0.3 KB)
+    📄 2026-03-30.md  (0.6 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -657,12 +666,12 @@ NODE_ENV=
         📄 page.tsx  (14.2 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (7.3 KB)
+        📄 page.tsx  (8.6 KB)
     📁 app\(app)\dashboard/
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (17.5 KB)
+        📄 page.tsx  (18.1 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\success/
@@ -673,7 +682,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 layout.tsx  (0.5 KB)
     📁 app\(auth)\login/
-      📄 page.tsx  (0.7 KB)
+      📄 page.tsx  (0.8 KB)
     📁 app\(auth)\signup/
       📄 page.tsx  (0.8 KB)
     📁 app\(auth)\verify-email/
@@ -691,16 +700,21 @@ NODE_ENV=
       📄 route.ts  (6.7 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (1.6 KB)
+        📄 route.ts  (3.3 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (1.9 KB)
     📁 app\api\generate-letter/
       📄 route.ts  (4.9 KB)
+    📁 app\api\payfast/
+      📁 app\api\payfast\tokenise/
+        📄 route.ts  (0.9 KB)
     📁 app\api\send-letter/
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
       📄 route.ts  (3.5 KB)
     📁 app\api\webhooks/
+      📁 app\api\webhooks\payfast/
+        📄 route.ts  (5.8 KB)
       📁 app\api\webhooks\resend-inbound/
         📄 route.ts  (4.2 KB)
   📁 app\auth/
@@ -714,6 +728,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
+    📄 ConfirmResolution.tsx  (4.0 KB)
   📁 components\dashboard/
     📄 CaseCard.tsx  (3.3 KB)
     📄 CaseTimeline.tsx  (4.6 KB)
@@ -787,6 +802,11 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
+    📄 charge.ts  (3.6 KB)
+    📄 idempotency.ts  (0.3 KB)
+    📄 security-log.ts  (0.6 KB)
+    📄 tokenise.ts  (2.0 KB)
+    📄 validate.ts  (3.1 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
     📄 parse.ts  (1.9 KB)
@@ -851,6 +871,11 @@ NODE_ENV=
 ### Environment Variables (names only)
 
 - `FIRECRAWL_API_KEY`
+- `PAYFAST_MERCHANT_ID`
+- `PAYFAST_MERCHANT_KEY`
+- `PAYFAST_PASSPHRASE`
+- `PAYFAST_SANDBOX`
+- `PAYFAST_ITN_URL`
 
 ## SECTION 11 — DESIGN DECISIONS LOG
 
