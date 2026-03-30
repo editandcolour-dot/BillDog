@@ -43,9 +43,9 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
 export function generateSignature(data: Record<string, string>, passphrase: string): string {
   const paramString = Object.entries(data)
     .filter(([key]) => key !== 'signature')
-    .map(([key, val]) => `${key}=${encodeURIComponent(val.trim()).replace(/%20/g, '+')}`)
+    .map(([key, val]) => `${key}=${encodeURIComponent((val ?? '').trim()).replace(/%20/g, '+')}`)
     .join('&');
 
-  const withPassphrase = `${paramString}&passphrase=${encodeURIComponent(passphrase.trim())}`;
+  const withPassphrase = `${paramString}&passphrase=${encodeURIComponent((passphrase ?? '').trim())}`;
   return crypto.createHash('md5').update(withPassphrase).digest('hex');
 }
