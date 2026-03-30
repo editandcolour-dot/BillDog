@@ -5,6 +5,7 @@ import { analyseBill } from '@/lib/claude/analyse-bill';
 import { checkPrescription } from '@/lib/validators/prescription';
 import type { ServiceType } from '@/types';
 
+export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow Vercel/NextJS to run up to 60s for LLM
 
 export async function POST(request: NextRequest) {

@@ -542,9 +542,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-03-30T15:31:14.196167+00:00
+> Last scanned: 2026-03-30T15:43:49.339270+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
@@ -592,6 +594,8 @@ NODE_ENV=
       📄 SKILL.md  (1.7 KB)
     📁 .agents\skills\github/
       📄 SKILL.md  (9.6 KB)
+    📁 .agents\skills\legal/
+      📄 SKILL.md  (9.8 KB)
     📁 .agents\skills\memory-writer/
       📄 SKILL.md  (1.5 KB)
     📁 .agents\skills\mobile-responsive/
@@ -641,7 +645,7 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (36.7 KB)
+  📄 ARCHITECTURE.md  (36.6 KB)
   📄 FAULT_LOG.md  (0.5 KB)
   📄 PROJECT_MEMORY.md  (1.9 KB)
   📄 STATE.md  (0.6 KB)
@@ -657,7 +661,7 @@ NODE_ENV=
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
   📄 globals.css  (2.5 KB)
-  📄 layout.tsx  (1.4 KB)
+  📄 layout.tsx  (1.5 KB)
   📄 not-found.tsx  (0.5 KB)
   📁 app\(app)/
     📄 .gitkeep  (0.0 KB)
@@ -694,6 +698,12 @@ NODE_ENV=
     📄 error.tsx  (0.6 KB)
     📄 layout.tsx  (0.4 KB)
     📄 page.tsx  (1.2 KB)
+    📁 app\(public)\popia/
+      📄 page.tsx  (12.0 KB)
+    📁 app\(public)\privacy/
+      📄 page.tsx  (15.4 KB)
+    📁 app\(public)\terms/
+      📄 page.tsx  (11.0 KB)
   📁 app\actions/
     📄 auth.ts  (1.1 KB)
   📁 app\api/
@@ -714,6 +724,11 @@ NODE_ENV=
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
       📄 route.ts  (3.5 KB)
+    📁 app\api\user/
+      📁 app\api\user\delete/
+        📄 route.ts  (2.1 KB)
+      📁 app\api\user\export/
+        📄 route.ts  (1.9 KB)
     📁 app\api\webhooks/
       📁 app\api\webhooks\payfast/
         📄 route.ts  (5.8 KB)
@@ -738,7 +753,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 LoginForm.tsx  (2.9 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
-    📄 SignupForm.tsx  (5.5 KB)
+    📄 SignupForm.tsx  (6.8 KB)
     📄 UploadForm.tsx  (3.1 KB)
   📁 components\landing/
     📄 CtaSection.tsx  (1.9 KB)
@@ -753,6 +768,7 @@ NODE_ENV=
   📁 components\layout/
     📄 .gitkeep  (0.0 KB)
     📄 AppNav.tsx  (1.3 KB)
+    📄 CookieBanner.tsx  (1.7 KB)
     📄 Footer.tsx  (2.2 KB)
     📄 Nav.tsx  (2.6 KB)
     📄 SkipLink.tsx  (0.4 KB)
@@ -840,12 +856,13 @@ NODE_ENV=
     📄 001_initial_schema.sql  (3.3 KB)
     📄 002_storage_bucket.sql  (1.0 KB)
     📄 003_case_events.sql  (0.8 KB)
+    📄 004_popia_fields.sql  (0.4 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
   📄 analysis.ts  (0.6 KB)
-  📄 index.ts  (5.1 KB)
+  📄 index.ts  (5.3 KB)
 ```
 
 ### Directive Goals
