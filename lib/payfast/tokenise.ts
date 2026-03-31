@@ -20,20 +20,27 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
     cancel_url: `${process.env['NEXT_PUBLIC_APP_URL']}/settings?card=cancelled`,
     notify_url: process.env['PAYFAST_ITN_URL']!,
     name_first: params.userName.split(' ')[0],
+    name_last: '',
     email_address: params.userEmail,
-    m_payment_id: params.userId,            // Match ITN to user
-    amount: '0.00',                          // Zero charge — tokenise only
+    m_payment_id: params.userId,
+    amount: '0.00',
     item_name: 'Billdog — Save Card',
-    subscription_type: '2',                  // Tokenisation (ad hoc)
-    email_confirmation: '0',                 // No PayFast confirmation email
+    subscription_type: '2',
   };
 
+  // PayFast signature spec states to drop trailing empty strings, but for predictable order:
+  // we will construct a clean object dropping any empty ones to avoid breaking ITNs
+  const cleanData: Record<string, string> = {};
+  for (const [k, v] of Object.entries(data)) {
+    if (v !== '') cleanData[k] = v;
+  }
+
   // Generate signature
-  const signature = generateSignature(data, process.env['PAYFAST_PASSPHRASE']!);
-  data.signature = signature;
+  const signature = generateSignature(cleanData, process.env['PAYFAST_PASSPHRASE']!);
+  cleanData.signature = signature;
 
   // Build query string
-  const queryString = Object.entries(data)
+  const queryString = Object.entries(cleanData)
     .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
     .join('&');
 
