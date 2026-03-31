@@ -16,9 +16,14 @@ export async function GET() {
       .eq('id', user.id)
       .single();
 
-    if (!process.env.PAYFAST_MERCHANT_ID || !process.env.PAYFAST_MERCHANT_KEY || !process.env.PAYFAST_PASSPHRASE) {
-      console.error('[payfast/tokenise] Missing PAYFAST env vars');
-      return NextResponse.json({ error: 'Payment gateway not configured' }, { status: 503 });
+    const missing = [];
+    if (!process.env.PAYFAST_MERCHANT_ID) missing.push('ID');
+    if (!process.env.PAYFAST_MERCHANT_KEY) missing.push('KEY');
+    if (!process.env.PAYFAST_PASSPHRASE) missing.push('PASS');
+
+    if (missing.length > 0) {
+      console.error('[payfast/tokenise] Missing PAYFAST env vars:', missing.join(', '));
+      return NextResponse.json({ error: `Payment gateway not configured. Missing: ${missing.join(', ')}` }, { status: 503 });
     }
 
     const url = generateTokeniseUrl({
