@@ -1,38 +1,68 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110" fill="none">
-  <!-- Dog body -->
-  <g>
-    <!-- Body -->
-    <ellipse cx="185" cy="62" rx="55" ry="35" fill="#0B1F3A"/>
-    <!-- Head -->
-    <circle cx="135" cy="45" r="30" fill="#0B1F3A"/>
-    <!-- Snout -->
-    <ellipse cx="112" cy="52" rx="16" ry="12" fill="#1A56DB"/>
-    <!-- Nose -->
-    <ellipse cx="100" cy="49" rx="5" ry="4" fill="#0B1F3A"/>
-    <!-- Eye -->
-    <circle cx="125" cy="38" r="4" fill="#FFFFFF"/>
-    <circle cx="126" cy="37" r="2" fill="#0B1F3A"/>
-    <!-- Ears -->
-    <path d="M148 20 Q155 5 160 22" fill="#F97316" stroke="#0B1F3A" stroke-width="2"/>
-    <path d="M138 18 Q140 2 148 18" fill="#F97316" stroke="#0B1F3A" stroke-width="2"/>
-    <!-- Tail -->
-    <path d="M240 45 Q260 20 255 50" stroke="#F97316" stroke-width="5" stroke-linecap="round" fill="none"/>
-    <!-- Legs -->
-    <rect x="155" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
-    <rect x="170" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
-    <rect x="200" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
-    <rect x="215" y="85" width="8" height="18" rx="3" fill="#0B1F3A"/>
-    <!-- Collar -->
-    <rect x="140" y="65" width="30" height="6" rx="3" fill="#F97316"/>
-    <circle cx="155" cy="73" r="3" fill="#F97316"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 100" fill="none">
+  <!-- BULLDOG — bold orange silhouette optimised for small nav display -->
+  <g transform="translate(8, 5)">
+    <!-- Bulldog head — oversized for readability -->
+    <circle cx="45" cy="42" r="32" fill="#F97316"/>
+    
+    <!-- Flat wide snout -->
+    <rect x="10" y="38" width="35" height="24" rx="10" fill="#FB923C"/>
+    
+    <!-- Underbite jaw -->
+    <rect x="14" y="52" width="28" height="12" rx="6" fill="#FFFFFF"/>
+    
+    <!-- Bottom teeth -->
+    <rect x="20" y="48" width="4" height="7" rx="1.5" fill="#FFFFFF"/>
+    <rect x="30" y="48" width="4" height="7" rx="1.5" fill="#FFFFFF"/>
+    
+    <!-- Big flat nose -->
+    <ellipse cx="27" cy="42" rx="9" ry="6" fill="#0B1F3A"/>
+    <ellipse cx="23" cy="42" rx="2.5" ry="2" fill="#F97316"/>
+    <ellipse cx="31" cy="42" rx="2.5" ry="2" fill="#F97316"/>
+    
+    <!-- Eyes — wide set, determined -->
+    <circle cx="38" cy="30" r="6" fill="#FFFFFF"/>
+    <circle cx="39" cy="29" r="3.5" fill="#0B1F3A"/>
+    <circle cx="40" cy="28" r="1.2" fill="#FFFFFF"/>
+    
+    <circle cx="56" cy="30" r="6" fill="#FFFFFF"/>
+    <circle cx="57" cy="29" r="3.5" fill="#0B1F3A"/>
+    <circle cx="58" cy="28" r="1.2" fill="#FFFFFF"/>
+    
+    <!-- Heavy brows -->
+    <path d="M30 22 Q38 17 45 22" stroke="#E05D0A" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M49 22 Q56 17 64 22" stroke="#E05D0A" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Wrinkle lines on snout -->
+    <path d="M18 36 Q25 32 35 35" stroke="#E05D0A" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    
+    <!-- Floppy ears -->
+    <ellipse cx="72" cy="22" rx="10" ry="16" fill="#FB923C" transform="rotate(15 72 22)"/>
+    <ellipse cx="18" cy="20" rx="10" ry="14" fill="#FB923C" transform="rotate(-15 18 20)"/>
+    
+    <!-- Stocky body -->
+    <ellipse cx="68" cy="58" rx="30" ry="22" fill="#F97316"/>
+    
+    <!-- White collar -->
+    <rect x="48" y="62" width="24" height="6" rx="3" fill="#FFFFFF"/>
+    <circle cx="60" cy="71" r="3" fill="#FFFFFF"/>
+    
+    <!-- Legs — short and thick -->
+    <rect x="48" y="72" width="10" height="16" rx="4" fill="#F97316"/>
+    <rect x="62" y="72" width="10" height="16" rx="4" fill="#F97316"/>
+    <rect x="76" y="72" width="10" height="16" rx="4" fill="#F97316"/>
+    
+    <!-- Stubby tail -->
+    <path d="M98 48 Q108 36 105 52" stroke="#FB923C" stroke-width="6" stroke-linecap="round" fill="none"/>
+    
     <!-- Envelope in mouth -->
-    <g transform="translate(82, 53) rotate(-10)">
-      <rect x="0" y="0" width="28" height="19" rx="2" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
-      <path d="M0,0 L14,10 L28,0" fill="none" stroke="#F97316" stroke-width="1.5"/>
+    <g transform="translate(4, 46) rotate(-5)">
+      <rect width="22" height="15" rx="2" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1"/>
+      <path d="M0,0 L11,8 L22,0" fill="none" stroke="#0B1F3A" stroke-width="1.5"/>
     </g>
   </g>
+  
   <!-- Text: BILLDOG -->
-  <text x="275" y="72" font-family="'Bebas Neue', sans-serif" font-size="62" font-weight="400" letter-spacing="4" fill="#FFFFFF">
+  <text x="128" y="68" font-family="'Bebas Neue', sans-serif" font-size="60" font-weight="400" letter-spacing="3" fill="#FFFFFF">
     <tspan>BILL</tspan><tspan fill="#F97316">DOG</tspan>
   </text>
 </svg>

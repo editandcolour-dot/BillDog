@@ -22,14 +22,17 @@ export function Footer() {
         {/* Top row: logo + links */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8">
           {/* Logo */}
-          <Link href="/" aria-label="Billdog home">
+          <Link href="/" aria-label="Billdog home" className="flex items-center gap-1">
             <Image
-              src="/logo.svg"
-              alt="Billdog logo"
-              width={144}
-              height={36}
-              className="h-[36px] w-auto"
+              src="/bulldog-mascot.png"
+              alt="Billdog mascot"
+              width={114}
+              height={114}
+              className="h-[114px] w-[114px] object-cover"
             />
+            <span className="font-display text-2xl tracking-wide text-white -ml-[18px]">
+              BILL<span className="text-orange">DOG</span>
+            </span>
           </Link>
 
           {/* Footer nav */}

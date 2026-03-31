@@ -1,5 +1,5 @@
 import React from 'react';
-import { UploadForm } from '@/components/forms/UploadForm';
+import { UploadFlow } from '@/components/forms/UploadFlow';
 
 export const metadata = {
   title: 'Upload Bill - Billdog',
@@ -17,7 +17,7 @@ export default function UploadPage() {
         </div>
         
         <div className="w-full">
-          <UploadForm />
+          <UploadFlow />
         </div>
       </div>
     </div>

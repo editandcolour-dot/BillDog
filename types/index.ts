@@ -39,6 +39,29 @@ export type ServiceType =
   | 'sundry'
   | 'unknown';
 
+/** Dispute type — primary disputed service, determines escalation path at stage 5. */
+export type DisputeType = 'water' | 'electricity' | 'rates' | 'refuse' | 'sewerage' | 'other';
+
+/** A single entry in the cases.escalation_history JSONB array. */
+export interface EscalationHistoryEntry {
+  stage: number;
+  action: string;
+  timestamp: string;
+  resend_id: string | null;
+  recipient: string;
+  error?: string;
+}
+
+/** Cron error log — maps to `cron_errors` table. */
+export interface CronError {
+  id: string;
+  case_id: string | null;
+  stage: number | null;
+  error: string;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
 /** Case event types — matches `case_events.event_type` enum. */
 export type CaseEventType =
   | 'uploaded'
@@ -48,6 +71,9 @@ export type CaseEventType =
   | 'municipality_responded'
   | 'response_received'
   | 'escalated'
+  | 'escalation_sent'
+  | 'escalation_speaker'
+  | 'case_closed_unresolved'
   | 'resolved'
   | 'payment_charged';
 
@@ -95,6 +121,15 @@ export interface Case {
   amount_recovered: number | null;
   fee_charged: number | null;
   prescription_warnings: PrescriptionWarnings | null;
+  // Escalation fields
+  escalation_stage: number;
+  next_action_at: string | null;
+  last_escalation_at: string | null;
+  escalation_history: EscalationHistoryEntry[];
+  dispute_type: DisputeType | null;
+  id_secret_id: string | null;
+  id_collected_at: string | null;
+  id_deletion_scheduled_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -118,6 +153,8 @@ export interface Municipality {
   dispute_phone: string | null;
   postal_address: string | null;
   ombudsman_email: string | null;
+  speaker_office_email: string | null;
+  speaker_name: string | null;
   nersa_applicable: boolean;
   typical_response_days: number;
   active: boolean;
@@ -189,4 +226,45 @@ export interface PrescriptionWarnings {
   hasApproaching: boolean;
   prescribedItems: PrescriptionItemWarning[];
   approachingItems: PrescriptionItemWarning[];
+}
+
+// ---------------------------------------------------------------------------
+// 3-Year Audit types
+// ---------------------------------------------------------------------------
+
+export type AuditStatus = 'pending' | 'analysing' | 'completed' | 'failed';
+export type JobStatus = 'running' | 'completed' | 'failed';
+
+/** A historical bill upload for the 3-Year Audit feature — maps to `bill_uploads` table. */
+export interface BillUpload {
+  id: string;
+  case_id: string;
+  user_id: string;
+  file_url: string;
+  billing_period: string | null;
+  overpayment_detected: boolean;
+  overpayment_amount: number | null;
+  analysis_result: AnalysisResult | null;
+  status: AuditStatus;
+  error: string | null;
+  uploaded_at: string;
+  updated_at: string;
+}
+
+/** Background job tracking for full audits — maps to `audit_jobs` table. */
+export interface AuditJob {
+  id: string;
+  case_id: string;
+  user_id: string;
+  status: JobStatus;
+  total_bills: number;
+  processed_bills: number;
+  result_summary: {
+    total_overpayment: number;
+    months_flagged: number;
+    flagged_periods: string[];
+  } | null;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
 }

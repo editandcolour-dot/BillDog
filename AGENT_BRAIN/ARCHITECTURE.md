@@ -105,6 +105,7 @@ billdog/
 │       ├── cases/route.ts           ← GET/POST: list + create cases
 │       ├── cases/[id]/route.ts      ← GET/PATCH: single case
 │       ├── municipalities/route.ts  ← GET: municipality contact lookup
+│       ├── cron/escalate/route.ts   ← POST: nightly escalation cron (Railway)
 │       └── webhooks/
 │           └── payfast/route.ts     ← PayFast ITN webhook handler
 ├── components/
@@ -123,6 +124,9 @@ billdog/
 │   │   └── generate-letter.ts       ← Letter generation prompt + API call
 │   ├── resend/
 │   │   └── send-dispute.ts          ← Send letter email to municipality
+│   ├── escalation/
+│   │   ├── stage-config.ts          ← 7-stage escalation config + templates
+│   │   └── escalate-dispute.ts      ← Core escalation engine
 │   ├── payfast/
 │   │   └── charge.ts                ← Card-on-file charge on success
 │   ├── pdf/
@@ -182,6 +186,11 @@ response_notes  text                          -- municipality response summary
 resolved_at     timestamptz
 amount_recovered numeric(12,2)               -- confirmed by user on resolution
 fee_charged     numeric(12,2)                 -- 20% of amount_recovered
+escalation_stage  int DEFAULT 1               -- current stage (1-7)
+next_action_at    timestamptz                  -- when next escalation fires
+last_escalation_at timestamptz                -- prevents double-sends
+escalation_history jsonb DEFAULT '[]'          -- audit trail of all sends
+dispute_type      text                         -- water|electricity|rates|refuse|sewerage|other
 created_at      timestamptz DEFAULT now()
 updated_at      timestamptz DEFAULT now()
 ```
@@ -210,6 +219,16 @@ ombudsman_email text
 nersa_applicable boolean DEFAULT true
 typical_response_days int DEFAULT 30
 active          boolean DEFAULT true
+created_at      timestamptz DEFAULT now()
+```
+
+### `cron_errors`
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+case_id         uuid REFERENCES cases(id) ON DELETE SET NULL
+stage           int
+error           text NOT NULL
+metadata        jsonb
 created_at      timestamptz DEFAULT now()
 ```
 
@@ -399,15 +418,15 @@ NODE_ENV=
 | ScrollReveal | complete | components/ui/ScrollReveal.tsx | Intersection Observer fade-in |
 | Prescription validation | complete | lib/validators/prescription.ts | SA Prescription Act Section 11. Per-service-type periods. 41 unit tests. |
 | Test infrastructure | complete | vitest.config.ts, tests/setup.ts | Vitest, 70% coverage thresholds, env vars, mock reset |
-| How It Works page | planned | app/(public)/how-it-works/ | |
-| Pricing page | planned | app/(public)/pricing/ | |
-| Real Cases page | planned | app/(public)/real-cases/ | Use sourced news stories only |
-| FAQ page | planned | app/(public)/faq/ | |
-| About page | planned | app/(public)/about/ | |
-| Contact page | planned | app/(public)/contact/ | |
-| Privacy Policy | planned | app/(public)/privacy/ | POPIA compliant |
-| Terms of Service | planned | app/(public)/terms/ | |
-| POPIA Statement | planned | app/(public)/popia/ | |
+| How It Works page | complete | app/(public)/how-it-works/ | 5-step process, hero, trust bar, CTA |
+| Pricing page | complete | app/(public)/pricing/ | Success fee card, worked example, comparison table |
+| Real Cases page | complete | app/(public)/real-cases/ | 6 sourced news stories, disclaimer |
+| FAQ page | complete | app/(public)/faq/ | 4 categories: General, Pricing, Legal, Privacy |
+| About page | complete | app/(public)/about/ | Mission, AI transparency, values |
+| Contact page | complete | app/(public)/contact/ api/contact/ | Form wired to Resend + contact cards |
+| Privacy Policy | complete | app/(public)/privacy/ | POPIA compliant |
+| Terms of Service | complete | app/(public)/terms/ | |
+| POPIA Statement | complete | app/(public)/popia/ | |
 | Supabase Auth | complete | app/(auth)/ lib/supabase/ | |
 | Onboarding flow | complete | app/(app)/onboarding/ | |
 | Bill upload | complete | app/(app)/upload/ api/upload/ | PDF + image support |
@@ -421,11 +440,12 @@ NODE_ENV=
 | Municipality database | planned | lib/municipalities/ supabase/seed.sql | All SA metros |
 | Cases dashboard | complete | app/(app)/dashboard/ | |
 | Case detail page | complete | app/(app)/case/[id]/ | Timeline view |
-| PayFast card on file | planned | lib/payfast/ | Tokenise only — charge on success |
+| PayFast card on file | complete | lib/payfast/ api/payfast/tokenise/ app/(app)/letter/[id]/ | Tokenise pre-send, charge on resolution |
 | Legislation RAG | complete | supabase/ (pgvector) | Voyage AI embeddings |
 | Success page | complete | app/(app)/success/ | |
 | Settings page | planned | app/(app)/settings/ | |
-| PayFast webhook | planned | api/webhooks/payfast/ | ITN handler |
+| PayFast webhook | complete | api/webhooks/payfast/ | ITN handler with signature validation |
+| Escalation cron | complete | api/cron/escalate/ lib/escalation/ | 7-stage automated follow-up engine, Railway cron |
 | Commercial v2 | future | — | Not in scope for v1 |
 | Class action module | future | — | Community complaint aggregation |
 | WhatsApp sharing | future | — | Viral loop feature |
@@ -546,9 +566,13 @@ NODE_ENV=
 
 ---
 
+---
+
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-03-30T16:33:45.980715+00:00
+> Last scanned: 2026-03-31T06:13:28.567905+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
@@ -556,7 +580,7 @@ NODE_ENV=
 ```
 📁 (root)/
   📄 .env  (0.2 KB)
-  📄 .env.local  (1.0 KB)
+  📄 .env.local  (1.1 KB)
   📄 .env.local.example  (0.0 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
@@ -569,14 +593,14 @@ NODE_ENV=
   📄 middleware.ts  (2.6 KB)
   📄 next-env.d.ts  (0.2 KB)
   📄 next.config.mjs  (0.2 KB)
-  📄 package-lock.json  (269.8 KB)
+  📄 package-lock.json  (270.6 KB)
   📄 package.json  (1.1 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 tsconfig.json  (0.6 KB)
-  📄 tsconfig.tsbuildinfo  (182.9 KB)
+  📄 tsconfig.tsbuildinfo  (182.8 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -647,10 +671,10 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (37.1 KB)
-  📄 FAULT_LOG.md  (0.5 KB)
-  📄 PROJECT_MEMORY.md  (1.9 KB)
-  📄 STATE.md  (0.6 KB)
+  📄 ARCHITECTURE.md  (39.5 KB)
+  📄 FAULT_LOG.md  (1.3 KB)
+  📄 PROJECT_MEMORY.md  (2.0 KB)
+  📄 STATE.md  (1.0 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -659,6 +683,7 @@ NODE_ENV=
     📄 2026-03-28.md  (7.2 KB)
     📄 2026-03-29.md  (0.3 KB)
     📄 2026-03-30.md  (1.1 KB)
+    📄 2026-03-31.md  (1.2 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -674,12 +699,12 @@ NODE_ENV=
         📄 page.tsx  (14.2 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (8.6 KB)
+        📄 page.tsx  (8.9 KB)
     📁 app\(app)\dashboard/
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.1 KB)
+        📄 page.tsx  (19.2 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\success/
@@ -700,12 +725,22 @@ NODE_ENV=
     📄 error.tsx  (0.6 KB)
     📄 layout.tsx  (0.4 KB)
     📄 page.tsx  (1.2 KB)
+    📁 app\(public)\about/
+      📄 page.tsx  (8.2 KB)
     📁 app\(public)\contact/
-      📄 page.tsx  (5.7 KB)
+      📄 page.tsx  (9.7 KB)
+    📁 app\(public)\faq/
+      📄 page.tsx  (9.8 KB)
+    📁 app\(public)\how-it-works/
+      📄 page.tsx  (8.7 KB)
     📁 app\(public)\popia/
       📄 page.tsx  (12.0 KB)
+    📁 app\(public)\pricing/
+      📄 page.tsx  (10.1 KB)
     📁 app\(public)\privacy/
       📄 page.tsx  (15.4 KB)
+    📁 app\(public)\real-cases/
+      📄 page.tsx  (7.2 KB)
     📁 app\(public)\terms/
       📄 page.tsx  (11.0 KB)
   📁 app\actions/
@@ -719,6 +754,19 @@ NODE_ENV=
         📄 route.ts  (3.3 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (1.9 KB)
+      📁 app\api\cases\create-from-vision/
+        📄 route.ts  (3.4 KB)
+      📁 app\api\cases\submit-id/
+        📄 route.ts  (2.0 KB)
+    📁 app\api\contact/
+      📄 route.ts  (1.6 KB)
+    📁 app\api\cron/
+      📁 app\api\cron\delete-ids/
+        📄 route.ts  (1.3 KB)
+      📁 app\api\cron\escalate/
+        📄 route.ts  (2.2 KB)
+    📁 app\api\extract-vision/
+      📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
       📄 route.ts  (4.9 KB)
     📁 app\api\payfast/
@@ -750,14 +798,17 @@ NODE_ENV=
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
+    📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
     📄 CaseCard.tsx  (3.3 KB)
     📄 CaseTimeline.tsx  (4.6 KB)
   📁 components\forms/
     📄 .gitkeep  (0.0 KB)
+    📄 CameraCapture.tsx  (11.0 KB)
     📄 LoginForm.tsx  (2.9 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
     📄 SignupForm.tsx  (6.8 KB)
+    📄 UploadFlow.tsx  (2.9 KB)
     📄 UploadForm.tsx  (3.1 KB)
   📁 components\landing/
     📄 CtaSection.tsx  (1.9 KB)
@@ -773,8 +824,8 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 AppNav.tsx  (1.3 KB)
     📄 CookieBanner.tsx  (1.7 KB)
-    📄 Footer.tsx  (2.2 KB)
-    📄 Nav.tsx  (2.6 KB)
+    📄 Footer.tsx  (2.4 KB)
+    📄 Nav.tsx  (2.8 KB)
     📄 SkipLink.tsx  (0.4 KB)
     📄 index.ts  (0.1 KB)
   📁 components\ui/
@@ -817,9 +868,13 @@ NODE_ENV=
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (6.8 KB)
+    📄 analyse-vision.ts  (3.5 KB)
     📄 client.ts  (0.3 KB)
     📄 generate-letter.ts  (3.9 KB)
     📄 vision.ts  (1.2 KB)
+  📁 lib\escalation/
+    📄 escalate-dispute.ts  (15.2 KB)
+    📄 stage-config.ts  (12.6 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\payfast/
@@ -848,9 +903,11 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
+    📄 sa-id.ts  (1.6 KB)
 📁 public/
   📄 .gitkeep  (0.0 KB)
-  📄 logo.svg  (1.8 KB)
+  📄 bulldog-mascot.png  (576.2 KB)
+  📄 logo.svg  (2.9 KB)
 📁 scripts/
   📄 generate_test_bill.py  (10.9 KB)
   📄 test-bill.pdf  (4.4 KB)
@@ -861,12 +918,15 @@ NODE_ENV=
     📄 002_storage_bucket.sql  (1.0 KB)
     📄 003_case_events.sql  (0.8 KB)
     📄 004_popia_fields.sql  (0.4 KB)
+    📄 005_escalation.sql  (2.6 KB)
+    📄 006_seed_speaker_emails.sql  (1.3 KB)
+    📄 008_encrypted_id.sql  (2.3 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
   📄 analysis.ts  (0.6 KB)
-  📄 index.ts  (5.3 KB)
+  📄 index.ts  (7.5 KB)
 ```
 
 ### Directive Goals

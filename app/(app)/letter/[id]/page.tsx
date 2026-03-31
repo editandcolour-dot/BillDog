@@ -165,9 +165,15 @@ export default function LetterPreviewPage() {
 
   const handleProceed = async () => {
     setIsSending(true);
+    setSendError(null);
     try {
       const res = await fetch('/api/payfast/tokenise');
       const data = await res.json();
+      if (!res.ok) {
+        setSendError(data.error || 'Payment gateway returned an error. Please try again.');
+        setIsSending(false);
+        return;
+      }
       if (data.url) {
         window.location.href = data.url;
       } else {

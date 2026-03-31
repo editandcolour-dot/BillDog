@@ -5,21 +5,22 @@
 ## What Has Been Built
 - **Phase 1-3:** Auth, Database RLS, Onboarding, Prescription validation.
 - **Phase 4:** File upload and basic persistence pipeline.
-- **Phase 5 & 6:** Built end-to-end Claude-powered PDF analysis and dispute letter generation. Refaced `pdf-parse` for Edge/Next.js compatibility. Implemented strict JSON schema analysis rules blocking legitimate municipal fees (e.g. Electricity HU charges). Built RAG fallback mechanism for SA legislation.
-- **Phase 7:** Integrated Resend email sending and completely functioning Inbound Webhooks (`api/webhooks/resend-inbound`) using `svix` to automate case status updates. 
-- **Phase 9:** Dashboard layout with responsive server-components and a detailed Case tracking timeline mapping events directly off `case_events`.
-- **Infrastructure:** Live deployment pipeline to Railway via `nixpacks.toml` configured to Next.js dynamic node server on injected `$PORT`.
+- **Phase 5 & 6:** End-to-end Claude PDF analysis and dispute letter generation. Edge-compatible `pdf-parse`. Strict JSON schema blocking legitimate fees. RAG fallback for SA legislation.
+- **Phase 7:** Resend email sending and Inbound Webhooks (`api/webhooks/resend-inbound`) using `svix` to automate case status updates.
+- **Phase 9:** Dashboard layout with responsive server-components and Case tracking timeline off `case_events`.
+- **Phase 10:** PayFast card-on-file tokenisation (pre-send gate on letter page), ITN webhook handler (`api/webhooks/payfast`), success-fee charging on resolution confirmation. Pushed to main (commit 1267abf, 2026-03-30).
+- **Legal / POPIA:** Privacy Policy, Terms of Service, and POPIA Statement pages routed under `(public)` and deployed. Cookie consent banner. User data export + delete APIs.
+- **Escalation / Compliance:** Built a dedicated Stage 5 Public Protector workflow integrating securely with Supabase Vault / pgsodium to store SA IDs using an AES-256-GCM architecture before scrubbing them routinely after exactly 30 days via cron.
+- **Infrastructure:** Railway deployment via `nixpacks.toml` → Next.js dynamic node server on injected `$PORT`.
 
 ## Key Architectural Decisions
-- Removed standalone PayFast integration from the onboarding step to avoid blocking the core upload loop. Tokenization moved to Pre-send.
-- Moved Supabase data mutations to Server Actions (`app/actions/auth.ts`) instead of client-side requests to guarantee cookie reliability and session integrity natively via Edge.
-- Letter generation gracefully degrades to `user.email` and case record data if the Supabase `profiles` table is unpopulated.
+- Removed standalone PayFast integration from onboarding to avoid blocking core upload loop. Tokenization moved to pre-send step on letter preview.
+- Supabase data mutations go through Server Actions (`app/actions/auth.ts`) for cookie/session reliability.
+- Letter generation gracefully degrades to `user.email` and case record data if `profiles` table is unpopulated.
 
 ## Current Project State
-- E2E dispute pipeline from User Upload all the way to Municipal Email response is securely online on `billdog.co.za`. 
-- **Phase 10 (PayFast Pre-Authorization & Tokenisation) is built and undergoing local/sandbox testing.**
-
-## Tech Stack Overview
-- Added backend/action architecture.
-- Full deployment of @supabase/ssr across server rendering contexts.
-- Local E2E testing relies on `reportlab` generated PDFs to simulate Cape Town municipal bills.
+- E2E dispute pipeline (Upload → Analyse → Letter → Send → Track → Resolve → Charge) is live on `billdog.co.za`.
+- PayFast integration built and pushed — awaiting sandbox end-to-end verification.
+- Public content pages (How It Works, Pricing, FAQ, About, Real Cases) still planned.
+- Settings page still planned.
+- Municipality seed data not yet loaded into Supabase.

@@ -5,6 +5,7 @@ import { Case, CaseEvent } from '@/types';
 import Link from 'next/link';
 import { ArrowLeft, ExternalLink, ShieldAlert } from 'lucide-react';
 import { ConfirmResolution } from '@/components/cases/ConfirmResolution';
+import { PublicProtectorModal } from '@/components/cases/PublicProtectorModal';
 
 export default async function CaseDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -82,6 +83,12 @@ export default async function CaseDetailPage({ params }: { params: { id: string 
           
           {/* Main Timeline Column */}
           <div className="lg:col-span-2">
+            {c.escalation_stage === 5 && !c.id_secret_id && (
+              <div className="mb-8">
+                <PublicProtectorModal caseId={c.id} />
+              </div>
+            )}
+            
             <div className="bg-white border border-light-grey rounded-3xl p-8 md:p-10 mb-8">
               <h2 className="font-display text-2xl md:text-3xl text-navy uppercase tracking-wide mb-8">
                 Execution Timeline

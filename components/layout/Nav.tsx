@@ -31,15 +31,18 @@ export async function Nav() {
       >
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-[6%] h-[72px] flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" aria-label="Billdog home">
+          <Link href="/" aria-label="Billdog home" className="flex items-center gap-1">
             <Image
-              src="/logo.svg"
-              alt="Billdog logo"
-              width={168}
-              height={42}
+              src="/bulldog-mascot.png"
+              alt="Billdog mascot"
+              width={64}
+              height={64}
               priority
-              className="h-[36px] w-auto sm:h-[42px]"
+              className="h-[55px] w-[55px] sm:h-[64px] sm:w-[64px] object-cover"
             />
+            <span className="font-display text-2xl sm:text-3xl tracking-wide text-white -ml-[10px]">
+              BILL<span className="text-orange">DOG</span>
+            </span>
           </Link>
 
           {/* Desktop nav links */}
