@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     return NextResponse.json({ success: true });
-  } catch (err) {
+  } catch {
     return NextResponse.json({ error: 'Invalid JSON request' }, { status: 400 });
   }
 }
