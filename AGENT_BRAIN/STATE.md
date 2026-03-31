@@ -21,5 +21,6 @@
 - Production smoke testing of full dispute pipeline on billdog.co.za.
 
 ## Agent Notes
+- Session successfully paused.
 - Feature Registry in ARCHITECTURE.md needs PayFast items updated to `complete`.
 - Legal pages need registry update to `complete`.

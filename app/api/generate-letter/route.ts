@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // 7. Generate letter via Claude
     const letterResult = await generateDisputeLetter({
-      accountHolder: profile?.full_name?.trim() ? profile.full_name.trim() : 'Account Holder',
+      accountHolder: profile?.full_name?.trim() ? profile.full_name.trim() : (user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Account Holder')),
       address: profile?.address || 'Address on file',
       accountNumber: profile?.account_number || caseRecord.account_number || '',
       municipality: profile?.municipality || caseRecord.municipality || '',

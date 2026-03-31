@@ -35,6 +35,9 @@ export function AppNav({ userName }: { userName: string }) {
           <span className="text-white/80 text-sm hidden sm:inline-block">
             {userName}
           </span>
+          <Link href="/settings" className="text-sm font-medium text-white/80 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange rounded-sm">
+            Settings
+          </Link>
           <button 
             onClick={handleLogout}
             className="text-sm font-medium text-orange hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange"
