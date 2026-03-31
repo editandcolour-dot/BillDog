@@ -7,18 +7,18 @@ interface TokeniseParams {
 }
 
 export function generateTokeniseUrl(params: TokeniseParams): string {
-  const baseUrl = process.env.PAYFAST_SANDBOX === 'true'
+  const baseUrl = process.env['PAYFAST_SANDBOX'] === 'true'
     ? 'https://sandbox.payfast.co.za/eng/process'
     : 'https://www.payfast.co.za/eng/process';
 
   // Using PAYFAST_SANDBOX because the skill states PAYFAST_MODE, but the user's .env.local uses PAYFAST_SANDBOX=true
 
   const data: Record<string, string> = {
-    merchant_id: process.env.PAYFAST_MERCHANT_ID!,
-    merchant_key: process.env.PAYFAST_MERCHANT_KEY!,
-    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?card=saved`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?card=cancelled`,
-    notify_url: process.env.PAYFAST_ITN_URL!,
+    merchant_id: process.env['PAYFAST_MERCHANT_ID']!,
+    merchant_key: process.env['PAYFAST_MERCHANT_KEY']!,
+    return_url: `${process.env['NEXT_PUBLIC_APP_URL']}/dashboard?card=saved`,
+    cancel_url: `${process.env['NEXT_PUBLIC_APP_URL']}/settings?card=cancelled`,
+    notify_url: process.env['PAYFAST_ITN_URL']!,
     name_first: params.userName.split(' ')[0],
     email_address: params.userEmail,
     m_payment_id: params.userId,            // Match ITN to user
@@ -29,7 +29,7 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
   };
 
   // Generate signature
-  const signature = generateSignature(data, process.env.PAYFAST_PASSPHRASE!);
+  const signature = generateSignature(data, process.env['PAYFAST_PASSPHRASE']!);
   data.signature = signature;
 
   // Build query string

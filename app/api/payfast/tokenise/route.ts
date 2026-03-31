@@ -16,10 +16,14 @@ export async function GET() {
       .eq('id', user.id)
       .single();
 
+    const merchantId = process.env['PAYFAST_MERCHANT_ID'];
+    const merchantKey = process.env['PAYFAST_MERCHANT_KEY'];
+    const passphrase = process.env['PAYFAST_PASSPHRASE'];
+
     const missing = [];
-    if (!process.env.PAYFAST_MERCHANT_ID) missing.push('ID');
-    if (!process.env.PAYFAST_MERCHANT_KEY) missing.push('KEY');
-    if (!process.env.PAYFAST_PASSPHRASE) missing.push('PASS');
+    if (!merchantId) missing.push('ID');
+    if (!merchantKey) missing.push('KEY');
+    if (!passphrase) missing.push('PASS');
 
     if (missing.length > 0) {
       console.error('[payfast/tokenise] Missing PAYFAST env vars:', missing.join(', '));
