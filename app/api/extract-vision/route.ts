@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       tempPaths.push(path);
       base64Images.push({
         data: buffer.toString('base64'),
-        mimeType: file.type as any,
+        mimeType: file.type as 'image/jpeg' | 'image/png' | 'image/webp',
       });
     }
 
