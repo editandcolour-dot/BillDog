@@ -20,6 +20,10 @@ export default function LetterPreviewPage() {
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [sendError, setSendError] = useState<string | null>(null);
   const [hasCard, setHasCard] = useState<boolean>(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoMessage, setPromoMessage] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isPromoLoading, setIsPromoLoading] = useState(false);
 
   const generationTriggeredRef = useRef(false);
 
@@ -186,6 +190,31 @@ export default function LetterPreviewPage() {
     }
   };
 
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setIsPromoLoading(true);
+    setPromoError(null);
+    setPromoMessage(null);
+    try {
+      const res = await fetch(`/api/cases/${caseId}/promo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promoCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPromoError(data.error || 'Failed to apply promo code.');
+      } else {
+        setPromoMessage('🎉 First dispute free! No payment needed.');
+        await fetchCase();
+      }
+    } catch {
+      setPromoError('Network error applying promo code.');
+    } finally {
+      setIsPromoLoading(false);
+    }
+  };
+
 
   const handleRetry = () => {
     setError(null);
@@ -346,7 +375,7 @@ export default function LetterPreviewPage() {
             )}
 
             <div className="mt-10 mb-6 flex flex-col items-center">
-              {hasCard ? (
+              {hasCard || caseData?.promo_free ? (
                 <>
                   <Button
                     variant="primary"
@@ -372,6 +401,36 @@ export default function LetterPreviewPage() {
                   <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
                     Add a payment method to send your letter. You won&apos;t be charged until we recover money for you.
                   </p>
+
+                  {promoMessage ? (
+                    <div className="mb-6 p-3 bg-green-50 text-green-800 rounded-lg text-sm font-medium border border-green-200">
+                      {promoMessage}
+                    </div>
+                  ) : (
+                    <div className="mb-6 px-1">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(e) => setPromoCode(e.target.value)}
+                          placeholder="Promo code (optional)"
+                          className="flex-1 rounded-md border border-slate-300 px-3 text-sm focus:outline-none focus:ring-1 focus:ring-orange focus:border-orange"
+                          disabled={isPromoLoading}
+                        />
+                        <Button
+                          variant="outline-dark"
+                          onClick={handleApplyPromo}
+                          disabled={isPromoLoading || !promoCode}
+                          className="h-10 px-4 text-xs font-bold uppercase pointer-events-auto"
+                        >
+                          {isPromoLoading ? '...' : 'Apply'}
+                        </Button>
+                      </div>
+                      {promoError && (
+                        <p className="text-red-500 text-xs mt-2 text-left font-medium">{promoError}</p>
+                      )}
+                    </div>
+                  )}
                   <Button
                     variant="primary"
                     onClick={handleProceed}

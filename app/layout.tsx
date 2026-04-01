@@ -35,13 +35,22 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_APP_URL || 'https://billdog.co.za',
   ),
   openGraph: {
-    title: 'Billdog — Fight Your Municipal Bill',
-    description:
-      'Your municipality got it wrong. We\u2019ll make it right. AI-powered analysis, human-reviewed letters.',
+    title: 'Are you owed money by your municipality?',
+    description: 'South African homeowners are owed billions in overcharged rates & electricity. No win, no fee. Find out in minutes.',
+    url: 'https://billdog.co.za',
     type: 'website',
-    locale: 'en_ZA',
     siteName: 'Billdog',
-    images: ['/og-image.png'],
+    images: [
+      {
+        url: 'https://billdog.co.za/og-image.jpg',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Are you owed money by your municipality?',
+    description: 'No win, no fee. Let Billdog fight your municipal billing dispute.',
+    images: ['https://billdog.co.za/og-image.jpg'],
   },
 };
 

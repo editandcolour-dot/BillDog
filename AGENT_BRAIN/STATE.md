@@ -1,26 +1,26 @@
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-03-31 06:05
+> **Last Updated:** 2026-03-31 19:03
 > **⚠️ If this file's date does not match today's date, discard all values and treat every field as empty.**
 
 ## Currently In Progress
 - None — session just started.
 
 ## Blocked
-- None.
+- PayFast sandbox acceptance — waiting on PayFast to approve the merchant application before end-to-end tokenise → charge can be verified.
 
 ## Just Completed
-- Successfully built physical Billdog camera capabilities (compression -> Claude Vision JSON parsing).
-- Executed the Stage 5 Public Protector automation workflow involving robust AES pgsodium DB vault encryption for the mandatory SA IDs.
+- Settings page built and deployed (profile editing, card management placeholder, notifications).
+- Profile API (`api/user/profile`) — GET/PUT.
+- Dispute letter signature fix (uses user's actual full name).
+- ESLint Railway build fixes pushed and deployed.
+- Production smoke test passed — full dispute pipeline verified on billdog.co.za.
 
 ## Next Up
-- PayFast sandbox end-to-end verification (tokenise → charge cycle).
-- Public content pages (How It Works, Pricing, FAQ, About, Real Cases, Contact form backend).
-- Settings page (profile editing, card management, notifications).
+- PayFast sandbox end-to-end verification once acceptance is granted.
 - Municipality seed data loaded into Supabase.
-- Production smoke testing of full dispute pipeline on billdog.co.za.
+- Settings page card management wired to PayFast tokens (post-acceptance).
 
 ## Agent Notes
-- Session successfully paused.
-- Feature Registry in ARCHITECTURE.md needs PayFast items updated to `complete`.
-- Legal pages need registry update to `complete`.
+- Memory was NOT saved at end of last session — reconstructed retroactively from git commits and conversation artifacts.
+- Feature Registry in ARCHITECTURE.md needs Settings page marked as `complete`.

@@ -10,7 +10,9 @@
 - **Phase 9:** Dashboard layout with responsive server-components and Case tracking timeline off `case_events`.
 - **Phase 10:** PayFast card-on-file tokenisation (pre-send gate on letter page), ITN webhook handler (`api/webhooks/payfast`), success-fee charging on resolution confirmation. Pushed to main (commit 1267abf, 2026-03-30).
 - **Legal / POPIA:** Privacy Policy, Terms of Service, and POPIA Statement pages routed under `(public)` and deployed. Cookie consent banner. User data export + delete APIs.
-- **Escalation / Compliance:** Built a dedicated Stage 5 Public Protector workflow integrating securely with Supabase Vault / pgsodium to store SA IDs using an AES-256-GCM architecture before scrubbing them routinely after exactly 30 days via cron.
+- **Escalation / Compliance:** Stage 5 Public Protector workflow with Supabase Vault / pgsodium AES-256-GCM encryption for SA IDs. Automated 30-day purge cron.
+- **Public Pages:** How It Works, Pricing, FAQ, About, Real Cases, Contact (with working form → Resend).
+- **Settings Page:** Profile editing (name, phone, address), card management placeholder, notification preferences. Profile API (`api/user/profile`).
 - **Infrastructure:** Railway deployment via `nixpacks.toml` → Next.js dynamic node server on injected `$PORT`.
 
 ## Key Architectural Decisions
@@ -20,7 +22,6 @@
 
 ## Current Project State
 - E2E dispute pipeline (Upload → Analyse → Letter → Send → Track → Resolve → Charge) is live on `billdog.co.za`.
-- PayFast integration built and pushed — awaiting sandbox end-to-end verification.
-- Public content pages (How It Works, Pricing, FAQ, About, Real Cases) still planned.
-- Settings page still planned.
+- Production smoke test completed — all user flows verified working.
+- PayFast integration built and pushed — **awaiting PayFast sandbox acceptance** (blocked on their side).
 - Municipality seed data not yet loaded into Supabase.

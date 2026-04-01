@@ -73,24 +73,66 @@ export async function PATCH(
     const { status, amount_recovered } = body;
 
     if (status === 'resolved' && amount_recovered !== undefined) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('payfast_token')
-        .eq('id', user.id)
+      // Fetch case to check promo status
+      const { data: caseRecord } = await supabase
+        .from('cases')
+        .select('promo_code, promo_free')
+        .eq('id', caseId)
+        .eq('user_id', user.id)
         .single();
-      
-      if (!profile?.payfast_token) {
-        return NextResponse.json({ error: 'No payment method saved.' }, { status: 400 });
+        
+      if (!caseRecord) {
+        return NextResponse.json({ error: 'Case not found' }, { status: 404 });
       }
 
-      await supabase
-        .from('cases')
-        .update({ status: 'resolved', amount_recovered, resolved_at: new Date().toISOString() })
-        .eq('id', caseId)
-        .eq('user_id', user.id);
+      if (!caseRecord.promo_free) {
+        // Handle standard fee flow
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('payfast_token')
+          .eq('id', user.id)
+          .single();
+        
+        if (!profile?.payfast_token) {
+          return NextResponse.json({ error: 'No payment method saved.' }, { status: 400 });
+        }
 
-      // Process success fee asynchronously or await it
-      await processSuccessFee(caseId, amount_recovered, profile.payfast_token);
+        await supabase
+          .from('cases')
+          .update({ status: 'resolved', amount_recovered, resolved_at: new Date().toISOString() })
+          .eq('id', caseId)
+          .eq('user_id', user.id);
+
+        // Process success fee asynchronously
+        await processSuccessFee(caseId, amount_recovered, profile.payfast_token);
+      } else {
+        // Free promo flow
+        await supabase
+          .from('cases')
+          .update({ status: 'resolved', amount_recovered, fee_charged: 0, resolved_at: new Date().toISOString() })
+          .eq('id', caseId)
+          .eq('user_id', user.id);
+          
+        // Increment promo code resolved limits
+        if (caseRecord.promo_code) {
+          const { data: promoData } = await supabase
+            .from('promo_codes')
+            .select('resolved_count, max_free')
+            .eq('code', caseRecord.promo_code)
+            .single();
+            
+          if (promoData) {
+            const newCount = promoData.resolved_count + 1;
+            await supabase
+              .from('promo_codes')
+              .update({ 
+                resolved_count: newCount,
+                active: newCount < promoData.max_free 
+              })
+              .eq('code', caseRecord.promo_code);
+          }
+        }
+      }
 
       return NextResponse.json({ success: true, status: 'resolved' });
     }

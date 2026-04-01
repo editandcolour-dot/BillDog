@@ -191,8 +191,21 @@ next_action_at    timestamptz                  -- when next escalation fires
 last_escalation_at timestamptz                -- prevents double-sends
 escalation_history jsonb DEFAULT '[]'          -- audit trail of all sends
 dispute_type      text                         -- water|electricity|rates|refuse|sewerage|other
+promo_code        text                         -- applied promo code string
+promo_applied     boolean DEFAULT false
+promo_free        boolean DEFAULT false
 created_at      timestamptz DEFAULT now()
 updated_at      timestamptz DEFAULT now()
+```
+
+### `promo_codes`
+```sql
+id              uuid PRIMARY KEY DEFAULT gen_random_uuid()
+code            text UNIQUE NOT NULL
+max_free        integer NOT NULL DEFAULT 10
+resolved_count  integer NOT NULL DEFAULT 0
+active          boolean DEFAULT true
+created_at      timestamptz DEFAULT now()
 ```
 
 ### `case_events`
@@ -446,6 +459,7 @@ NODE_ENV=
 | Settings page | planned | app/(app)/settings/ | |
 | PayFast webhook | complete | api/webhooks/payfast/ | ITN handler with signature validation |
 | Escalation cron | complete | api/cron/escalate/ lib/escalation/ | 7-stage automated follow-up engine, Railway cron |
+| Promo codes     | complete | api/cases/[id]/promo/ | FIRSTTEN logic, bypasses standard fee |
 | Commercial v2 | future | — | Not in scope for v1 |
 | Class action module | future | — | Community complaint aggregation |
 | WhatsApp sharing | future | — | Viral loop feature |
@@ -570,9 +584,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-03-31T06:13:28.567905+00:00
+> Last scanned: 2026-04-01T04:50:32.498599+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
@@ -589,6 +605,7 @@ NODE_ENV=
   📄 CLAUDE.md  (7.7 KB)
   📄 TECH_DEBT.md  (0.3 KB)
   📄 build-error.log  (2.4 KB)
+  📄 build-log.txt  (1.6 KB)
   📄 build.log  (1.9 KB)
   📄 middleware.ts  (2.6 KB)
   📄 next-env.d.ts  (0.2 KB)
@@ -597,10 +614,13 @@ NODE_ENV=
   📄 package.json  (1.1 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
+  📄 railway_test.js  (1.2 KB)
+  📄 setup_test_data.js  (2.0 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
+  📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.6 KB)
-  📄 tsconfig.tsbuildinfo  (182.8 KB)
+  📄 tsconfig.tsbuildinfo  (187.9 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -671,10 +691,10 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (39.5 KB)
+  📄 ARCHITECTURE.md  (40.3 KB)
   📄 FAULT_LOG.md  (1.3 KB)
-  📄 PROJECT_MEMORY.md  (2.0 KB)
-  📄 STATE.md  (1.0 KB)
+  📄 PROJECT_MEMORY.md  (2.3 KB)
+  📄 STATE.md  (1.2 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -683,12 +703,13 @@ NODE_ENV=
     📄 2026-03-28.md  (7.2 KB)
     📄 2026-03-29.md  (0.3 KB)
     📄 2026-03-30.md  (1.1 KB)
-    📄 2026-03-31.md  (1.2 KB)
+    📄 2026-03-31.md  (3.7 KB)
+    📄 2026-04-01.md  (0.6 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
   📄 globals.css  (2.5 KB)
-  📄 layout.tsx  (1.5 KB)
+  📄 layout.tsx  (1.8 KB)
   📄 not-found.tsx  (0.5 KB)
   📁 app\(app)/
     📄 .gitkeep  (0.0 KB)
@@ -704,16 +725,18 @@ NODE_ENV=
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.2 KB)
+        📄 page.tsx  (21.7 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
+    📁 app\(app)\settings/
+      📄 page.tsx  (13.3 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
       📄 page.tsx  (0.8 KB)
   📁 app\(auth)/
     📄 .gitkeep  (0.0 KB)
-    📄 layout.tsx  (0.5 KB)
+    📄 layout.tsx  (0.8 KB)
     📁 app\(auth)\login/
       📄 page.tsx  (0.8 KB)
     📁 app\(auth)\signup/
@@ -751,9 +774,11 @@ NODE_ENV=
       📄 route.ts  (6.7 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (3.3 KB)
+        📄 route.ts  (4.7 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (1.9 KB)
+        📁 app\api\cases\[id]\promo/
+          📄 route.ts  (2.3 KB)
       📁 app\api\cases\create-from-vision/
         📄 route.ts  (3.4 KB)
       📁 app\api\cases\submit-id/
@@ -762,16 +787,16 @@ NODE_ENV=
       📄 route.ts  (1.6 KB)
     📁 app\api\cron/
       📁 app\api\cron\delete-ids/
-        📄 route.ts  (1.3 KB)
+        📄 route.ts  (1.2 KB)
       📁 app\api\cron\escalate/
         📄 route.ts  (2.2 KB)
     📁 app\api\extract-vision/
       📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
-      📄 route.ts  (4.9 KB)
+      📄 route.ts  (5.0 KB)
     📁 app\api\payfast/
       📁 app\api\payfast\tokenise/
-        📄 route.ts  (1.2 KB)
+        📄 route.ts  (1.5 KB)
     📁 app\api\send-letter/
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
@@ -781,6 +806,8 @@ NODE_ENV=
         📄 route.ts  (2.1 KB)
       📁 app\api\user\export/
         📄 route.ts  (1.9 KB)
+      📁 app\api\user\profile/
+        📄 route.ts  (1.1 KB)
     📁 app\api\webhooks/
       📁 app\api\webhooks\payfast/
         📄 route.ts  (5.8 KB)
@@ -816,13 +843,13 @@ NODE_ENV=
     📄 HeroSection.tsx  (4.2 KB)
     📄 HowItWorksSection.tsx  (2.9 KB)
     📄 RealCasesSection.tsx  (3.9 KB)
-    📄 StatsSection.tsx  (2.0 KB)
+    📄 StatsSection.tsx  (2.2 KB)
     📄 TestimonialsSection.tsx  (3.4 KB)
     📄 TrustBar.tsx  (3.0 KB)
     📄 index.ts  (0.4 KB)
   📁 components\layout/
     📄 .gitkeep  (0.0 KB)
-    📄 AppNav.tsx  (1.3 KB)
+    📄 AppNav.tsx  (1.9 KB)
     📄 CookieBanner.tsx  (1.7 KB)
     📄 Footer.tsx  (2.4 KB)
     📄 Nav.tsx  (2.8 KB)
@@ -868,13 +895,13 @@ NODE_ENV=
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (6.8 KB)
-    📄 analyse-vision.ts  (3.5 KB)
+    📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 generate-letter.ts  (3.9 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\escalation/
-    📄 escalate-dispute.ts  (15.2 KB)
-    📄 stage-config.ts  (12.6 KB)
+    📄 escalate-dispute.ts  (15.7 KB)
+    📄 stage-config.ts  (12.7 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\payfast/
@@ -882,7 +909,7 @@ NODE_ENV=
     📄 charge.ts  (3.6 KB)
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (2.0 KB)
+    📄 tokenise.ts  (2.1 KB)
     📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
@@ -893,6 +920,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 client.ts  (0.3 KB)
     📄 inbound.ts  (1.6 KB)
+    📄 promo.ts  (1.2 KB)
     📄 send-dispute.ts  (1.3 KB)
   📁 lib\supabase/
     📄 .gitkeep  (0.0 KB)
@@ -903,11 +931,12 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
-    📄 sa-id.ts  (1.6 KB)
+    📄 sa-id.ts  (1.5 KB)
 📁 public/
   📄 .gitkeep  (0.0 KB)
   📄 bulldog-mascot.png  (576.2 KB)
   📄 logo.svg  (2.9 KB)
+  📄 og-image.jpg  (72.5 KB)
 📁 scripts/
   📄 generate_test_bill.py  (10.9 KB)
   📄 test-bill.pdf  (4.4 KB)
@@ -921,6 +950,7 @@ NODE_ENV=
     📄 005_escalation.sql  (2.6 KB)
     📄 006_seed_speaker_emails.sql  (1.3 KB)
     📄 008_encrypted_id.sql  (2.3 KB)
+    📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
