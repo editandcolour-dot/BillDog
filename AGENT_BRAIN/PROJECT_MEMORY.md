@@ -8,7 +8,7 @@
 - **Phase 5 & 6:** End-to-end Claude PDF analysis and dispute letter generation. Edge-compatible `pdf-parse`. Strict JSON schema blocking legitimate fees. RAG fallback for SA legislation.
 - **Phase 7:** Resend email sending and Inbound Webhooks (`api/webhooks/resend-inbound`) using `svix` to automate case status updates.
 - **Phase 9:** Dashboard layout with responsive server-components and Case tracking timeline off `case_events`.
-- **Phase 10:** PayFast card-on-file tokenisation (pre-send gate on letter page), ITN webhook handler (`api/webhooks/payfast`), success-fee charging on resolution confirmation. Pushed to main (commit 1267abf, 2026-03-30).
+- **Phase 10:** PayFast card-on-file tokenisation (pre-send gate on letter page), ITN webhook handler (`api/webhooks/payfast`), success-fee charging on resolution confirmation. Pushed to main (commit 1267abf, 2026-03-30). Promo campaigns (e.g. `FIRSTTEN`) bypass success fees with `promo_codes` allocation gating.
 - **Legal / POPIA:** Privacy Policy, Terms of Service, and POPIA Statement pages routed under `(public)` and deployed. Cookie consent banner. User data export + delete APIs.
 - **Escalation / Compliance:** Stage 5 Public Protector workflow with Supabase Vault / pgsodium AES-256-GCM encryption for SA IDs. Automated 30-day purge cron.
 - **Public Pages:** How It Works, Pricing, FAQ, About, Real Cases, Contact (with working form → Resend).

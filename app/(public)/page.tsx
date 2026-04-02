@@ -5,7 +5,6 @@ import {
   HowItWorksSection,
   RealCasesSection,
   StatsSection,
-  TestimonialsSection,
   TrustBar,
 } from '@/components/landing';
 
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
 /**
  * Landing page — the first thing users see (Step 1 of user flow).
  * Section order: Hero → Trust → Stats → How It Works → Real Cases →
- * Testimonials → FAQ → Final CTA
+ * FAQ → Final CTA
  */
 export default function HomePage() {
   return (
@@ -37,7 +36,7 @@ export default function HomePage() {
       <StatsSection />
       <HowItWorksSection />
       <RealCasesSection />
-      <TestimonialsSection />
+
       <FaqSection />
       <CtaSection />
     </>
