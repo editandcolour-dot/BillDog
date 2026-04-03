@@ -12,8 +12,8 @@ const required = [
   'UPSTASH_REDIS_REST_TOKEN',
 ];
 
-// Only validate in production
-if (process.env.NODE_ENV === 'production') {
+// Only validate during runtime, not during build
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
   required.forEach(key => {
     if (!process.env[key]) {
       throw new Error(`Missing required env var: ${key}`);
