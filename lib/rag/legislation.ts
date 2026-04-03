@@ -44,7 +44,6 @@ export async function getLegislationContext(
       // 1. Embed query using Voyage AI
       // 2. Query supabase pgvector legislation table
       // 3. Return top 3 most relevant chunks
-      console.log('[RAG] Voyage AI key found but legislation table not yet populated. Using fallback.');
     } catch (ragError) {
       console.error('[RAG] Query failed, falling back to hardcoded legislation:', ragError);
     }
