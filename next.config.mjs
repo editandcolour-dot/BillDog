@@ -1,5 +1,25 @@
 /** @type {import('next').NextConfig} */
-import './lib/env.ts';
+const required = [
+  'ANTHROPIC_API_KEY',
+  'NEXT_PUBLIC_SUPABASE_URL',
+  'NEXT_PUBLIC_SUPABASE_ANON_KEY', 
+  'SUPABASE_SERVICE_ROLE_KEY',
+  'PAYFAST_MERCHANT_ID',
+  'PAYFAST_MERCHANT_KEY',
+  'PAYFAST_PASSPHRASE',
+  'RESEND_API_KEY',
+  'UPSTASH_REDIS_REST_URL',
+  'UPSTASH_REDIS_REST_TOKEN',
+];
+
+// Only validate in production
+if (process.env.NODE_ENV === 'production') {
+  required.forEach(key => {
+    if (!process.env[key]) {
+      throw new Error(`Missing required env var: ${key}`);
+    }
+  });
+}
 
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },

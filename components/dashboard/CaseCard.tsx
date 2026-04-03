@@ -12,7 +12,8 @@ function getStatusLabel(status: CaseStatus): string {
     escalating: 'Escalating',
     resolved: 'Resolved',
     escalated: 'Escalated',
-    closed: 'Closed'
+    closed: 'Closed',
+    send_failed: 'Send Failed',
   };
   return map[status] || status;
 }
@@ -28,7 +29,8 @@ function getStatusClasses(status: CaseStatus): string {
     escalating: 'bg-orange/10 text-orange',
     resolved: 'bg-success/10 text-success',
     escalated: 'bg-orange/10 text-orange', // Map says orange/15 but standard tailwind is orange/10
-    closed: 'bg-grey/10 text-grey'
+    closed: 'bg-grey/10 text-grey',
+    send_failed: 'bg-red-500/10 text-red-500',
   };
   return map[status] || 'bg-light-grey text-navy';
 }
