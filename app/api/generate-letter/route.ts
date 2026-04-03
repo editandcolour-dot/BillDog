@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateDisputeLetter } from '@/lib/claude/generate-letter';
 import { getLegislationContext } from '@/lib/rag/legislation';
+import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+
+const generateLimiter = getRateLimiter(20, '1 h');
 
 export const maxDuration = 60;
 
@@ -14,6 +17,9 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
     }
+
+    const { success } = await generateLimiter.limit(`generate_${user.id}`);
+    if (!success) return rateLimitExceededResponse();
 
     // 2. Parse request
     let body;

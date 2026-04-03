@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import './lib/env.ts';
+
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -9,9 +11,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['pdf-parse'],
-  },
+  serverExternalPackages: ['pdf-parse'],
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },

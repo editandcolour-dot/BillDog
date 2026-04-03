@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Secure encryption failed. ID not saved.' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, caseId, secretId }, { status: 200 });
+    return NextResponse.json({ success: true, caseId }, { status: 200 });
 
   } catch (error) {
     console.error('[Submit ID Api]', error);

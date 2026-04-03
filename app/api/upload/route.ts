@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { v4 as uuidv4 } from 'uuid';
+import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+
+const uploadLimiter = getRateLimiter(20, '1 h');
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_MIME_TYPES = [
@@ -19,6 +22,9 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'AUTH_ERROR' }, { status: 401 });
     }
+
+    const { success } = await uploadLimiter.limit(`upload_${user.id}`);
+    if (!success) return rateLimitExceededResponse();
 
     // 2. Extract file from form data
     const formData = await request.formData();

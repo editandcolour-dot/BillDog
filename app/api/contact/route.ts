@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+
+const contactLimiter = getRateLimiter(10, '1 h');
 
 export const dynamic = 'force-dynamic';
 
@@ -14,18 +17,41 @@ interface ContactRequest {
 
 export async function POST(request: Request) {
   try {
+    const ip = request.headers.get('x-forwarded-for') ?? 'anonymous';
+    const { success } = await contactLimiter.limit(`contact_${ip}`);
+    if (!success) return rateLimitExceededResponse();
+
     const body = (await request.json()) as ContactRequest;
 
+    // Trim and sanitize basic inputs
+    const name = body.name?.trim() || '';
+    const email = body.email?.trim() || '';
+    const subject = body.subject?.trim() || 'General Enquiry';
+    const message = body.message?.trim() || '';
+
     // Validate required fields
-    if (!body.name || !body.email || !body.message) {
+    if (!name || !email || !message) {
       return NextResponse.json(
         { error: 'Name, email, and message are required.' },
         { status: 400 },
       );
     }
 
+    // HIGH-03 Fix contact form lengths and sanitize
+    if (subject.length > 200) {
+      return NextResponse.json({ error: 'Subject cannot exceed 200 characters.' }, { status: 400 });
+    }
+    if (message.length > 2000) {
+      return NextResponse.json({ error: 'Message cannot exceed 2000 characters.' }, { status: 400 });
+    }
+    
+    // Simple sanitization to strip illegal HTML tags
+    const sanitizeHtml = (str: string) => str.replace(/<[^>]*>?/gm, '');
+    const cleanSubject = sanitizeHtml(subject);
+    const cleanMessage = sanitizeHtml(message);
+
     // Basic email format check
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Invalid email address.' },
         { status: 400 },
@@ -36,15 +62,15 @@ export async function POST(request: Request) {
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za',
       to: 'support@billdog.co.za',
-      replyTo: body.email,
-      subject: `[Contact] ${body.subject || 'General Enquiry'} — ${body.name}`,
+      replyTo: email,
+      subject: `[Contact] ${cleanSubject} — ${name}`,
       text: [
-        `Name: ${body.name}`,
-        `Email: ${body.email}`,
-        `Subject: ${body.subject || 'General Enquiry'}`,
+        `Name: ${name}`,
+        `Email: ${email}`,
+        `Subject: ${cleanSubject}`,
         '',
         'Message:',
-        body.message,
+        cleanMessage,
       ].join('\n'),
     });
 

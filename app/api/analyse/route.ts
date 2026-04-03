@@ -4,6 +4,9 @@ import { parseBillFile } from '@/lib/pdf/parse';
 import { analyseBill } from '@/lib/claude/analyse-bill';
 import { checkPrescription } from '@/lib/validators/prescription';
 import type { ServiceType } from '@/types';
+import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+
+const analyseLimiter = getRateLimiter(20, '1 h');
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow Vercel/NextJS to run up to 60s for LLM
@@ -17,6 +20,9 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
     }
+
+    const { success } = await analyseLimiter.limit(`analyse_${user.id}`);
+    if (!success) return rateLimitExceededResponse();
 
     // 2. Parse request
     let body;
