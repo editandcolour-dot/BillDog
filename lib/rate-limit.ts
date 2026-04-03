@@ -4,8 +4,13 @@ import { NextResponse } from 'next/server';
 
 // Create a new ratelimiter, that allows up to X requests per set window
 export function getRateLimiter(requests: number, window: `${number} s` | `${number} m` | `${number} h` | `${number} d`) {
+  console.log('Redis URL present:', !!process.env.UPSTASH_REDIS_REST_URL);
+
   const limiter = new Ratelimit({
-    redis: Redis.fromEnv(),
+    redis: new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL || '',
+      token: process.env.UPSTASH_REDIS_REST_TOKEN || ''
+    }),
     limiter: Ratelimit.slidingWindow(requests, window),
     analytics: true,
   });
