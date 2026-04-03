@@ -123,15 +123,16 @@ async function callWithTimeout<T>(operation: () => Promise<T>, timeoutMs: number
   }
 }
 
-async function callWithRetry<T>(operation: () => Promise<T>, maxRetries: number = 1): Promise<T> {
+async function callWithRetry<T>(operation: () => Promise<T>, maxRetries: number = 3, attempt: number = 1): Promise<T> {
   try {
     return await operation();
   } catch (error: unknown) {
     const apiError = error as { status?: number; name?: string };
     if (apiError.status === 429 && maxRetries > 0) {
-      console.warn('[claude] Rate limited, retrying in 60s');
-      await new Promise(resolve => setTimeout(resolve, 60_000));
-      return callWithRetry(operation, maxRetries - 1);
+      const waitTime = Math.pow(2, attempt) * 1000;
+      console.warn(`[claude] Rate limited, retrying in ${waitTime}ms (attempt ${attempt})`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      return callWithRetry(operation, maxRetries - 1, attempt + 1);
     }
     throw error;
   }

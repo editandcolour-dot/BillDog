@@ -24,7 +24,8 @@ export type CaseStatus =
   | 'escalating'
   | 'resolved'
   | 'escalated'
-  | 'closed';
+  | 'closed'
+  | 'send_failed';
 
 /** Property type — matches `profiles.property_type` CHECK constraint. */
 export type PropertyType = 'residential' | 'commercial' | 'industrial';
