@@ -69,7 +69,7 @@ const LEGAL_FAQ = [
   {
     question: 'Does Billdog use AI to generate the letters?',
     answer:
-      'Yes — and we\'re transparent about it. "AI-powered analysis, human-reviewed letters" is our approach. Our AI generates the dispute letter using a specialised legal template, citing relevant South African legislation. The result is a formal, legally compliant dispute letter.',
+      'Yes — and we\'re transparent about it. "AI-powered analysis, legally-templated letters" is our approach. Our AI generates the dispute letter using a specialised legal template, citing relevant South African legislation. The result is a formal, legally compliant dispute letter.',
   },
   {
     question: 'What happens if the municipality ignores my dispute?',

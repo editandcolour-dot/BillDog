@@ -9,6 +9,7 @@ function getStatusLabel(status: CaseStatus): string {
     letter_ready: 'Letter Ready',
     sent: 'Sent',
     acknowledged: 'Acknowledged',
+    escalating: 'Escalating',
     resolved: 'Resolved',
     escalated: 'Escalated',
     closed: 'Closed'
@@ -24,6 +25,7 @@ function getStatusClasses(status: CaseStatus): string {
     letter_ready: 'bg-orange/10 text-orange',
     sent: 'bg-blue/10 text-blue',
     acknowledged: 'bg-blue/10 text-blue', // Map says blue/15 but standard tailwind is blue/10 unless custom defined
+    escalating: 'bg-orange/10 text-orange',
     resolved: 'bg-success/10 text-success',
     escalated: 'bg-orange/10 text-orange', // Map says orange/15 but standard tailwind is orange/10
     closed: 'bg-grey/10 text-grey'

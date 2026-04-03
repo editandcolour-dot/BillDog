@@ -51,7 +51,7 @@ export function HeroSection() {
               </Button>
             </div>
             <p className="mt-4 text-white/40 text-sm">
-              AI-powered analysis, human-reviewed letters
+              AI-powered analysis, legally-templated letters
             </p>
           </div>
 

@@ -21,7 +21,7 @@ const FAQ_ITEMS = [
   {
     question: 'How long does it take?',
     answer:
-      'Bill analysis takes under 2 minutes. Once your dispute letter is sent, municipalities have 30 days to respond under Section 102. Most corrections happen within 2-4 weeks. We track your case and notify you at every step.',
+      'Bill analysis takes under 2 minutes. Once your dispute letter is sent, municipalities are generally expected to respond within 30 days. Most corrections happen within 2-4 weeks. We track your case and notify you at every step.',
   },
   {
     question: 'What types of bills can I dispute?',

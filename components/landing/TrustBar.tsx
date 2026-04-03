@@ -48,7 +48,7 @@ function CurrencyIcon() {
 const TRUST_ITEMS = [
   { icon: ShieldIcon, label: 'Section 102 Compliant' },
   { icon: BoltIcon, label: 'AI-Powered Analysis' },
-  { icon: ScaleIcon, label: 'Human-Reviewed Letters' },
+  { icon: ScaleIcon, label: 'Legally-Templated Letters' },
   { icon: LockIcon, label: 'POPIA Compliant' },
   { icon: CurrencyIcon, label: 'No Win, No Fee' },
 ] as const;

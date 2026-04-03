@@ -7,7 +7,9 @@ import { ArrowLeft, ExternalLink, ShieldAlert } from 'lucide-react';
 import { ConfirmResolution } from '@/components/cases/ConfirmResolution';
 import { PublicProtectorModal } from '@/components/cases/PublicProtectorModal';
 
-export default async function CaseDetailPage({ params }: { params: { id: string } }) {
+export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const caseId = resolvedParams.id;
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -19,7 +21,7 @@ export default async function CaseDetailPage({ params }: { params: { id: string 
   const { data: caseRecord, error: caseError } = await supabase
     .from('cases')
     .select('*')
-    .eq('id', params.id)
+    .eq('id', caseId)
     .single();
 
   if (caseError || !caseRecord || caseRecord.user_id !== user.id) {
@@ -30,7 +32,7 @@ export default async function CaseDetailPage({ params }: { params: { id: string 
   const { data: events } = await supabase
     .from('case_events')
     .select('*')
-    .eq('case_id', params.id)
+    .eq('case_id', caseId)
     .order('created_at', { ascending: true });
 
   const caseEventsData = (events || []) as CaseEvent[];

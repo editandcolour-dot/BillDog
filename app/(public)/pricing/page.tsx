@@ -163,7 +163,7 @@ export default function PricingPage() {
                       { feature: 'Upfront cost', billdog: 'R0', diy: 'R0', attorney: 'R2,000+' },
                       { feature: 'Legal accuracy', billdog: 'AI + legislation', diy: 'Guesswork', attorney: 'Expert' },
                       { feature: 'Bill tracking', billdog: 'Automated', diy: 'Manual', attorney: 'Manual' },
-                      { feature: 'Success rate', billdog: '94%', diy: '< 30%', attorney: '85%' },
+                      { feature: 'Legal basis', billdog: 'Section 102 cited', diy: 'None', attorney: 'Expert' },
                     ].map(({ feature, billdog, diy, attorney }) => (
                       <tr key={feature} className="border-b border-light-grey">
                         <td className="py-4 pr-4 text-navy font-medium">{feature}</td>
@@ -188,7 +188,7 @@ export default function PricingPage() {
               FOUND MONEY <span className="text-orange">WAITING</span>
             </h2>
             <p className="mt-4 text-white/60 text-lg max-w-lg mx-auto">
-              Most South Africans overpay their municipality without knowing it. Find out in under 2 minutes.
+              Many South Africans overpay their municipality without knowing it. Find out in under 2 minutes.
             </p>
             <div className="mt-8">
               <a

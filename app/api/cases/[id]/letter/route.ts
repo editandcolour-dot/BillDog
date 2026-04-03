@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const supabase = await createClient();
 
@@ -13,6 +13,9 @@ export async function PATCH(
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorised' }, { status: 401 });
     }
+
+    const resolvedParams = await params;
+    const caseId = resolvedParams.id;
 
     // 2. Parse body
     let body;
@@ -33,7 +36,7 @@ export async function PATCH(
     const { data: caseRecord, error: dbError } = await supabase
       .from('cases')
       .select('user_id')
-      .eq('id', params.id)
+      .eq('id', caseId)
       .single();
 
     if (dbError || !caseRecord || caseRecord.user_id !== user.id) {
@@ -44,7 +47,7 @@ export async function PATCH(
     const { error: updateError } = await supabase
       .from('cases')
       .update({ letter_content })
-      .eq('id', params.id);
+      .eq('id', caseId);
 
     if (updateError) {
       console.error('[API/Letter PATCH] Update failed:', updateError);

@@ -72,13 +72,13 @@ const STEPS = [
     title: 'You Get Paid',
     description:
       'When the municipality corrects your bill, you save money. We only take 20% of what we recover — if we don\'t win, you don\'t pay. Ever.',
-    detail: 'Average recovery: R4,200 per successful dispute.',
+    detail: 'You only pay 20% of what we recover — nothing if we don\'t win.',
   },
 ] as const;
 
 const TRUST_POINTS = [
   { label: 'Section 102 compliant', icon: '⚖️' },
-  { label: 'AI-powered, human-reviewed', icon: '🤖' },
+  { label: 'AI-powered, legally-templated', icon: '🤖' },
   { label: 'POPIA compliant', icon: '🔒' },
   { label: 'No upfront cost', icon: '💰' },
 ];

@@ -21,6 +21,7 @@ export type CaseStatus =
   | 'letter_ready'
   | 'sent'
   | 'acknowledged'
+  | 'escalating'
   | 'resolved'
   | 'escalated'
   | 'closed';
@@ -120,6 +121,10 @@ export interface Case {
   resolved_at: string | null;
   amount_recovered: number | null;
   fee_charged: number | null;
+  // Phase 11 — Case Resolution Detection
+  bill_2_file_url: string | null;
+  needs_manual_review: boolean;
+  escalation_sent_at: string | null;
   prescription_warnings: PrescriptionWarnings | null;
   // Escalation fields
   escalation_stage: number;

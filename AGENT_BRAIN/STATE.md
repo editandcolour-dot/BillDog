@@ -17,6 +17,7 @@
 ## Next Up
 - PayFast sandbox end-to-end verification once acceptance is granted.
 - Municipality seed data loaded into Supabase.
+- Phase 11: Background Job Queue (BullMQ + Redis) & Case Resolution Detection (Email Parsing + Bill 2 Comparison). *Planned: build when user count > 200/month.*
 
 ## Agent Notes
 - Session paused accurately. Pick up from here once PayFast sandbox credentials clear.

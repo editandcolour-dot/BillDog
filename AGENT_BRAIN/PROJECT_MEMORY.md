@@ -25,3 +25,4 @@
 - Production smoke test completed — all user flows verified working.
 - PayFast integration built and pushed — **awaiting PayFast sandbox acceptance** (blocked on their side).
 - Municipality seed data not yet loaded into Supabase.
+- **Phase 11 (Planned — build when users > 200/month):** (1) Async Bill Analysis Queue (BullMQ + Railway Redis). SWR polling, `@bull-board/ui` observability, Claude backoff retries. (2) Case Resolution Detection: Inbound municipality email parsing via Claude to detect credits and trigger auto-charges. (3) 30-Day Resolution Check: Automated Resend reminder to upload Bill 2. Claude diffs Bill 1 vs Bill 2 to confirm resolution. Includes self-reporting bounds (blocks < 30% estimated, flags > 200%). (4) POPIA cron: `POST /api/cron/popia-purge`.

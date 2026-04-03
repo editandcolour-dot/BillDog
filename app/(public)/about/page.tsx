@@ -52,7 +52,7 @@ export default function AboutPage() {
             BUILT FOR <span className="text-orange">SOUTH AFRICA</span>
           </h1>
           <p className="mt-6 text-white/60 text-lg leading-relaxed max-w-2xl mx-auto">
-            Millions of South Africans overpay their municipality every month. Most don&apos;t know.
+            Many South Africans overpay their municipality every month. Most don&apos;t know.
             The ones who do can&apos;t face the queue. Billdog fixes that.
           </p>
         </div>
@@ -93,7 +93,7 @@ export default function AboutPage() {
             <div className="text-center mb-12">
               <span className="text-orange text-xs font-bold uppercase tracking-[2px] mb-3 block">Our Technology</span>
               <h2 className="font-display text-navy tracking-wide text-[clamp(2.2rem,4vw,3.5rem)]">
-                AI-POWERED. HUMAN-REVIEWED.
+                AI-POWERED. LEGALLY-TEMPLATED.
               </h2>
               <p className="mt-4 text-grey text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 We believe AI should be disclosed as a feature, not hidden as a shortcut.

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { extractCaseId, sanitizeEmailPreview, verifyResendWebhook } from '@/lib/resend/inbound';
+import { parseMunicipalityResponse } from '@/lib/claude/parse-municipality-response';
+import { processSuccessFee, calculateFee } from '@/lib/payfast/charge';
+import { sendResolutionSuccessEmail, sendResolutionConfirmEmail } from '@/lib/resend/notifications';
 
 /**
  * Validates the inbound webhook signature.
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Verify case exists
     const { data: caseRecord, error: fetchError } = await supabase
       .from('cases')
-      .select('id, status')
+      .select('id, status, user_id')
       .eq('id', caseId)
       .single();
 
@@ -74,20 +77,59 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ status: 'case_not_found' }, { status: 200 });
     }
 
-    const updates: { status?: string } = {};
+    const updates: { status?: string; amount_recovered?: number; resolved_at?: string } = {};
 
-    // Only advance the state to acknowledged if it was currently sent
-    if (caseRecord.status === 'sent') {
-      updates.status = 'acknowledged';
+    // Parse the email body
+    const resolution = await parseMunicipalityResponse(text || '');
+
+    if (resolution.amount_found && resolution.confidence === 'high' && resolution.amount && resolution.amount > 0) {
+      // FEAT A1: High confidence auto-resolve
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('payfast_token, email')
+        .eq('id', caseRecord.user_id)
+        .single();
       
-      const { error: updateError } = await supabase
-        .from('cases')
-        .update(updates)
-        .eq('id', caseId);
+      if (profile && profile.payfast_token) {
+        updates.status = 'resolved';
+        updates.amount_recovered = resolution.amount;
+        updates.resolved_at = new Date().toISOString();
 
-      if (updateError) {
-        console.error(`[API/ResendInbound] Failed to update case status for ${caseId}:`, updateError);
-        // Continue to log the event even if status update failed
+        await supabase.from('cases').update(updates).eq('id', caseId);
+        await supabase.from('case_events').insert({
+          case_id: caseId,
+          event_type: 'resolved',
+          note: `Municipality email parsed with high confidence. Recovered R${resolution.amount.toFixed(2)}.`,
+        });
+
+        // Trigger charge
+        await processSuccessFee(caseId, resolution.amount, profile.payfast_token);
+        const { fee } = calculateFee(resolution.amount);
+
+        // Email user
+        await sendResolutionSuccessEmail(profile.email, resolution.amount, fee, caseId);
+
+        return NextResponse.json({ status: 'ok', resolved: true }, { status: 200 });
+      } else {
+         // High confidence but no card on file -> fallback to low confidence flow
+         resolution.confidence = 'low';
+      }
+    }
+
+    if (resolution.amount_found && resolution.confidence === 'low') {
+      // FEAT A2: Low confidence verify
+       updates.status = 'acknowledged';
+       await supabase.from('cases').update(updates).eq('id', caseId);
+
+       const { data: profile } = await supabase.from('profiles').select('email').eq('id', caseRecord.user_id).single();
+       if (profile?.email) {
+          await sendResolutionConfirmEmail(profile.email, caseId, resolution.amount);
+       }
+    } else {
+      // FEAT A3: No amount found -> just acknowledge
+      if (caseRecord.status === 'sent') {
+        updates.status = 'acknowledged';
+        await supabase.from('cases').update(updates).eq('id', caseId);
       }
     }
 
@@ -102,6 +144,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           from_email: from || 'Unknown Sender',
           subject: subject || 'No Subject',
           preview: sanitizeEmailPreview(text, 500),
+          parsed_amount: resolution.amount,
+          parsed_confidence: resolution.confidence,
           received_at: new Date().toISOString()
         }
       });
