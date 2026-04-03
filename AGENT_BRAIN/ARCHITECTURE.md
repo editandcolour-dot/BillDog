@@ -586,18 +586,20 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-01T04:50:32.498599+00:00
+> Last scanned: 2026-04-03T10:02:37.632215+00:00
 > Project root: `C:\Users\Jason\Desktop\BillDog`
 
 ### Directory Inventory
 
 ```
 📁 (root)/
-  📄 .env  (0.2 KB)
-  📄 .env.local  (1.1 KB)
-  📄 .env.local.example  (0.0 KB)
+  📄 .env  (0.1 KB)
+  📄 .env.local  (1.2 KB)
+  📄 .env.local.example  (0.6 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
   📄 .prettierrc  (0.2 KB)
@@ -609,9 +611,9 @@ NODE_ENV=
   📄 build.log  (1.9 KB)
   📄 middleware.ts  (2.6 KB)
   📄 next-env.d.ts  (0.2 KB)
-  📄 next.config.mjs  (0.2 KB)
-  📄 package-lock.json  (270.6 KB)
-  📄 package.json  (1.1 KB)
+  📄 next.config.mjs  (1.5 KB)
+  📄 package-lock.json  (287.5 KB)
+  📄 package.json  (1.2 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
   📄 railway_test.js  (1.2 KB)
@@ -619,8 +621,8 @@ NODE_ENV=
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 test_seed.js  (1.6 KB)
-  📄 tsconfig.json  (0.6 KB)
-  📄 tsconfig.tsbuildinfo  (187.9 KB)
+  📄 tsconfig.json  (0.7 KB)
+  📄 tsconfig.tsbuildinfo  (215.8 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -691,10 +693,10 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.1 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (40.3 KB)
+  📄 ARCHITECTURE.md  (40.7 KB)
   📄 FAULT_LOG.md  (1.3 KB)
-  📄 PROJECT_MEMORY.md  (2.3 KB)
-  📄 STATE.md  (1.2 KB)
+  📄 PROJECT_MEMORY.md  (3.0 KB)
+  📄 STATE.md  (0.7 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -704,7 +706,9 @@ NODE_ENV=
     📄 2026-03-29.md  (0.3 KB)
     📄 2026-03-30.md  (1.1 KB)
     📄 2026-03-31.md  (3.7 KB)
-    📄 2026-04-01.md  (0.6 KB)
+    📄 2026-04-01.md  (1.2 KB)
+    📄 2026-04-02.md  (1.5 KB)
+    📄 2026-04-03.md  (2.7 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -720,12 +724,14 @@ NODE_ENV=
         📄 page.tsx  (14.2 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (8.9 KB)
+        📄 page.tsx  (9.0 KB)
+        📁 app\(app)\case\[id]\verify/
+          📄 page.tsx  (3.3 KB)
     📁 app\(app)\dashboard/
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (21.7 KB)
+        📄 page.tsx  (19.2 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
@@ -747,7 +753,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 error.tsx  (0.6 KB)
     📄 layout.tsx  (0.4 KB)
-    📄 page.tsx  (1.2 KB)
+    📄 page.tsx  (1.1 KB)
     📁 app\(public)\about/
       📄 page.tsx  (8.2 KB)
     📁 app\(public)\contact/
@@ -771,21 +777,23 @@ NODE_ENV=
   📁 app\api/
     📄 .gitkeep  (0.0 KB)
     📁 app\api\analyse/
-      📄 route.ts  (6.7 KB)
+      📄 route.ts  (7.0 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (4.7 KB)
+        📄 route.ts  (5.7 KB)
         📁 app\api\cases\[id]\letter/
-          📄 route.ts  (1.9 KB)
-        📁 app\api\cases\[id]\promo/
-          📄 route.ts  (2.3 KB)
+          📄 route.ts  (2.0 KB)
+        📁 app\api\cases\[id]\verify/
+          📄 route.ts  (4.2 KB)
       📁 app\api\cases\create-from-vision/
         📄 route.ts  (3.4 KB)
       📁 app\api\cases\submit-id/
         📄 route.ts  (2.0 KB)
     📁 app\api\contact/
-      📄 route.ts  (1.6 KB)
+      📄 route.ts  (2.6 KB)
     📁 app\api\cron/
+      📁 app\api\cron\bill-2-reminder/
+        📄 route.ts  (2.1 KB)
       📁 app\api\cron\delete-ids/
         📄 route.ts  (1.2 KB)
       📁 app\api\cron\escalate/
@@ -793,14 +801,14 @@ NODE_ENV=
     📁 app\api\extract-vision/
       📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
-      📄 route.ts  (5.0 KB)
+      📄 route.ts  (5.2 KB)
     📁 app\api\payfast/
       📁 app\api\payfast\tokenise/
         📄 route.ts  (1.5 KB)
     📁 app\api\send-letter/
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
-      📄 route.ts  (3.5 KB)
+      📄 route.ts  (3.7 KB)
     📁 app\api\user/
       📁 app\api\user\delete/
         📄 route.ts  (2.1 KB)
@@ -812,7 +820,7 @@ NODE_ENV=
       📁 app\api\webhooks\payfast/
         📄 route.ts  (5.8 KB)
       📁 app\api\webhooks\resend-inbound/
-        📄 route.ts  (4.2 KB)
+        📄 route.ts  (6.2 KB)
   📁 app\auth/
     📁 app\auth\callback/
       📄 route.ts  (0.8 KB)
@@ -827,7 +835,7 @@ NODE_ENV=
     📄 ConfirmResolution.tsx  (4.0 KB)
     📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
-    📄 CaseCard.tsx  (3.3 KB)
+    📄 CaseCard.tsx  (3.4 KB)
     📄 CaseTimeline.tsx  (4.6 KB)
   📁 components\forms/
     📄 .gitkeep  (0.0 KB)
@@ -844,9 +852,8 @@ NODE_ENV=
     📄 HowItWorksSection.tsx  (2.9 KB)
     📄 RealCasesSection.tsx  (3.9 KB)
     📄 StatsSection.tsx  (2.2 KB)
-    📄 TestimonialsSection.tsx  (3.4 KB)
     📄 TrustBar.tsx  (3.0 KB)
-    📄 index.ts  (0.4 KB)
+    📄 index.ts  (0.3 KB)
   📁 components\layout/
     📄 .gitkeep  (0.0 KB)
     📄 AppNav.tsx  (1.9 KB)
@@ -892,12 +899,16 @@ NODE_ENV=
 📁 hooks/
   📄 use-scroll-reveal.ts  (0.8 KB)
 📁 lib/
+  📄 env.ts  (0.4 KB)
+  📄 rate-limit.ts  (0.7 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
-    📄 analyse-bill.ts  (6.8 KB)
+    📄 analyse-bill.ts  (6.9 KB)
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
+    📄 compare-bills.ts  (2.6 KB)
     📄 generate-letter.ts  (3.9 KB)
+    📄 parse-municipality-response.ts  (2.1 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\escalation/
     📄 escalate-dispute.ts  (15.7 KB)
@@ -915,12 +926,13 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 parse.ts  (1.9 KB)
   📁 lib\rag/
-    📄 legislation.ts  (2.3 KB)
+    📄 legislation.ts  (2.2 KB)
   📁 lib\resend/
     📄 .gitkeep  (0.0 KB)
+    📄 bill2-reminder.ts  (0.8 KB)
     📄 client.ts  (0.3 KB)
     📄 inbound.ts  (1.6 KB)
-    📄 promo.ts  (1.2 KB)
+    📄 notifications.ts  (1.4 KB)
     📄 send-dispute.ts  (1.3 KB)
   📁 lib\supabase/
     📄 .gitkeep  (0.0 KB)
@@ -950,13 +962,16 @@ NODE_ENV=
     📄 005_escalation.sql  (2.6 KB)
     📄 006_seed_speaker_emails.sql  (1.3 KB)
     📄 008_encrypted_id.sql  (2.3 KB)
+    📄 009_case_resolution.sql  (0.8 KB)
+    📄 010_fix_poppi_ownership.sql  (0.9 KB)
+    📄 011_fix_status_constraint.sql  (0.4 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
   📄 analysis.ts  (0.6 KB)
-  📄 index.ts  (7.5 KB)
+  📄 index.ts  (7.7 KB)
 ```
 
 ### Directive Goals
@@ -980,10 +995,6 @@ NODE_ENV=
 | `scan_architecture.py` | Architecture Scanner — Deterministic filesystem scanner for BillDog. |
 | `scrape_brand_firecrawl.py` | (no docstring found) |
 | `script_boiler_plate.py` | (no docstring found) |
-
-### Environment Variables (names only)
-
-- `FIRECRAWL_API_KEY`
 
 ## SECTION 11 — DESIGN DECISIONS LOG
 
