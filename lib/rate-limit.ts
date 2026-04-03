@@ -4,11 +4,23 @@ import { NextResponse } from 'next/server';
 
 // Create a new ratelimiter, that allows up to X requests per set window
 export function getRateLimiter(requests: number, window: `${number} s` | `${number} m` | `${number} h` | `${number} d`) {
-  return new Ratelimit({
+  const limiter = new Ratelimit({
     redis: Redis.fromEnv(),
     limiter: Ratelimit.slidingWindow(requests, window),
     analytics: true,
   });
+
+  return {
+    limit: async (identifier: string) => {
+      try {
+        return await limiter.limit(identifier);
+      } catch (error) {
+        console.warn('[rate-limit] Upstash Redis unavailable, failing open:', error);
+        // Fail open by spoofing a successful limit response
+        return { success: true };
+      }
+    }
+  };
 }
 
 // Fixed generic 429 response message per the spec

@@ -19,4 +19,6 @@
 - Municipality seed data loaded into Supabase.
 
 ## Agent Notes
-- Session paused accurately. Pick up from here once PayFast sandbox credentials clear.
+- Session paused accurately (⏸). 
+- Next step for user: Add Upstash keys to Railway to fix the start crash.
+- Next step for agent: Wait for Payfast credentials to clear to verify Phase 10 end-to-end.
