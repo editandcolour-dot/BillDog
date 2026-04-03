@@ -12,14 +12,7 @@ const required = [
   'UPSTASH_REDIS_REST_TOKEN',
 ];
 
-// Only validate during runtime, not during build
-if (process.env.NEXT_PHASE !== 'phase-production-build') {
-  required.forEach(key => {
-    if (!process.env[key]) {
-      throw new Error(`Missing required env var: ${key}`);
-    }
-  });
-}
+
 
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
@@ -37,4 +30,15 @@ const nextConfig = {
   },
 };
 
-export default nextConfig;
+export default (phase) => {
+  // Only validate during runtime, not during build
+  if (phase !== 'phase-production-build' && process.env.NODE_ENV === 'production') {
+    required.forEach(key => {
+      if (!process.env[key]) {
+        throw new Error(`Missing required env var: ${key}`);
+      }
+    });
+  }
+
+  return nextConfig;
+};
