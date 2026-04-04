@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { validateSignature, validateIp, validateWithPayFast, validatePaymentStatus } from '@/lib/payfast/validate';
+import { validateSignature, validateIp, validateWithPayFast, validatePaymentStatus, validateAmount } from '@/lib/payfast/validate';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { isAlreadyProcessed } from '@/lib/payfast/idempotency';
 import { logSecurityEvent } from '@/lib/payfast/security-log';
@@ -63,6 +63,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         m_payment_id: params.m_payment_id,
       });
       return new NextResponse('OK', { status: 200 });
+    }
+
+    // ──────────────────────────────────────────────
+    // CHECK 4: Validate amount
+    // ──────────────────────────────────────────────
+    let expectedAmount = 0; // Default for tokenisation (0.00)
+    if (params.item_name !== 'Billdog — Save Card') {
+      const supabaseAdmin = createAdminClient();
+      const { data: caseRecord } = await supabaseAdmin
+        .from('cases')
+        .select('fee_charged')
+        .eq('id', params.m_payment_id)
+        .single();
+      if (caseRecord?.fee_charged) {
+        expectedAmount = caseRecord.fee_charged;
+      }
+    }
+
+    const amountValid = validateAmount(params.amount_gross, expectedAmount);
+    if (!amountValid) {
+      await logSecurityEvent('amount_mismatch', {
+        amount: params.amount_gross,
+        expected: expectedAmount,
+        m_payment_id: params.m_payment_id,
+      });
+      return new NextResponse('Amount mismatch', { status: 400 });
     }
 
     // ──────────────────────────────────────────────
