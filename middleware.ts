@@ -38,6 +38,7 @@ export async function middleware(request: NextRequest) {
   
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/signup');
   const isOnboardingRoute = pathname.startsWith('/onboarding');
+  const isAdminRoute = pathname.startsWith('/admin');
   
   // Protected routes require authentication
   const isProtectedPath = 
@@ -49,9 +50,16 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/success') ||
     pathname.startsWith('/settings');
 
-  if (!user && (isProtectedPath || isOnboardingRoute)) {
+  if (!user && (isProtectedPath || isOnboardingRoute || isAdminRoute)) {
     const url = new URL('/login', request.url)
     return NextResponse.redirect(url)
+  }
+
+  if (user && isAdminRoute) {
+    if (user.email !== process.env.ADMIN_EMAIL) {
+      const url = new URL('/dashboard', request.url)
+      return NextResponse.redirect(url)
+    }
   }
 
   // Redirect logged-in users away from auth pages
@@ -87,7 +95,8 @@ export const config = {
     '/case/:path*',
     '/success/:path*',
     '/settings/:path*',
-    '/login', 
+    '/admin/:path*',
+    '/login',  
     '/signup'
   ]
 }
