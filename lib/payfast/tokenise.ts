@@ -13,18 +13,21 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
 
   // Using PAYFAST_SANDBOX because the skill states PAYFAST_MODE, but the user's .env.local uses PAYFAST_SANDBOX=true
 
+  let appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://www.billdog.co.za';
+  if (appUrl.endsWith('/')) appUrl = appUrl.slice(0, -1);
+
   const data: Record<string, string> = {
     merchant_id: process.env['PAYFAST_MERCHANT_ID']!,
     merchant_key: process.env['PAYFAST_MERCHANT_KEY']!,
-    return_url: `${process.env['NEXT_PUBLIC_APP_URL']}/dashboard?card=saved`,
-    cancel_url: `${process.env['NEXT_PUBLIC_APP_URL']}/settings?card=cancelled`,
+    return_url: `${appUrl}/dashboard?card=saved`,
+    cancel_url: `${appUrl}/settings?card=cancelled`,
     notify_url: process.env['PAYFAST_ITN_URL']!,
     name_first: params.userName.split(' ')[0],
     name_last: '',
     email_address: params.userEmail,
     m_payment_id: params.userId,
     amount: '0.00',
-    item_name: 'Billdog — Save Card',
+    item_name: 'Billdog - Save Card',
     subscription_type: '2',
   };
 
