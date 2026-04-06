@@ -75,13 +75,16 @@ export default function SettingsPage() {
 
   const handleAddPayment = async () => {
     try {
-      const res = await fetch('/api/payfast/tokenise');
+      const res = await fetch('/api/payfast/tokenise', { method: 'POST' });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
+      } else {
+        setMessage({ text: data.error || 'Failed to initialize payment gateway.', type: 'error' });
       }
     } catch (err) {
       console.error('Failed to get tokenise url', err);
+      setMessage({ text: 'Network error initializing payment gateway.', type: 'error' });
     }
   };
 
