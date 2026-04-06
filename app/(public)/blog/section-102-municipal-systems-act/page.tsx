@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Section 102 Municipal Systems Act Explained | Billdog',
   description: 'Understand how Section 102 of the Municipal Systems Act protects South African ratepayers during billing disputes.',
-  alternates: { canonical: 'https://billdog.co.za/blog/section-102-municipal-systems-act' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/section-102-municipal-systems-act' }
 };
 
 export default function Page() {

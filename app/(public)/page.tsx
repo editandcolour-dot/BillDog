@@ -29,8 +29,21 @@ export const metadata: Metadata = {
  * FAQ → Final CTA
  */
 export default function HomePage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Billdog',
+    url: 'https://billdog.co.za',
+    logo: 'https://billdog.co.za/logo.svg',
+    description: 'AI-powered municipal billing dispute service for South African property owners.',
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <HeroSection />
       <TrustBar />
       <StatsSection />

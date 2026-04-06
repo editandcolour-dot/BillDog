@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Can the Municipality Disconnect My Services? | Billdog',
   description: 'Know your rights. Learn exactly when it is illegal for a South African municipality to disconnect your water or electricity.',
-  alternates: { canonical: 'https://billdog.co.za/blog/municipality-disconnection-rights' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/municipality-disconnection-rights' }
 };
 
 export default function Page() {

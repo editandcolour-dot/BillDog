@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'How to Dispute a Municipal Bill in South Africa',
     description: 'The definitive 2026 guide to fighting municipal overcharges and protecting your utilities under Section 102.',
-    url: 'https://billdog.co.za/blog/how-to-dispute-municipal-bill-south-africa',
+    url: 'https://www.billdog.co.za/blog/how-to-dispute-municipal-bill-south-africa',
   },
   alternates: {
-    canonical: 'https://billdog.co.za/blog/how-to-dispute-municipal-bill-south-africa',
+    canonical: 'https://www.billdog.co.za/blog/how-to-dispute-municipal-bill-south-africa',
   }
 };
 

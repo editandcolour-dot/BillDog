@@ -1,24 +1,20 @@
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-04-03 11:25
+> **Last Updated:** 2026-04-05 11:28
 > **⚠️ If this file's date does not match today's date, discard all values and treat every field as empty.**
 
 ## Currently In Progress
-- None.
+- Waiting for the user to test the PayFast Live Tokenisation after the recent push.
 
 ## Blocked
-- PayFast sandbox acceptance.
+- None for now, pending the outcome of the PayFast live URL test.
 
 ## Just Completed
-- Phase 11 Features implemented (Case Resolution Detection, Email Parsing, Bill 2 comparisons).
-- Comprehensive Security Audit fixes integrated (Next.js 15 update, Upstash Ratelimiting, DB constraints).
-- Pushed to main branch after build verification.
+- Diagnosed the 500 Server error as a PayFast specific live infrastructure error.
+- Stripped trailing slashes and em-dashes from Ad-hoc Tokenisation request payload in `lib/payfast/tokenise.ts`.
 
 ## Next Up
-- PayFast sandbox end-to-end verification once acceptance is granted.
-- Municipality seed data loaded into Supabase.
+- Check the PayFast live tokenization outcome. If it fails, the user must contact PayFast to enable Ad-Hoc tokenisation on their live account.
 
 ## Agent Notes
-- Session paused accurately (⏸). 
-- Next step for user: Add Upstash keys to Railway to fix the start crash.
-- Next step for agent: Wait for Payfast credentials to clear to verify Phase 10 end-to-end.
+- Session paused on 2026-04-05 at 11:28. The Next.js Action 500 error in the backend was a red herring. The frontend issue where PayFast showed "Whoops" occurred due to PayFast Live rejecting the generated token URL payload. Fix has been pushed and awaits user testing on the live environment.

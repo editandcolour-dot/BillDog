@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Property Rates Valuation Disputes | Billdog',
   description: 'Step-by-step guide on how to object to your municipal property valuation and lower your monthly rates.',
-  alternates: { canonical: 'https://billdog.co.za/blog/rates-valuation-dispute' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/rates-valuation-dispute' }
 };
 
 export default function Page() {

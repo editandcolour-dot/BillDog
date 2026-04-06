@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Disputing Estimated Readings in South Africa | Billdog',
   description: 'How to legally stop municipalities from charging you based on consecutive estimated meter readings.',
-  alternates: { canonical: 'https://billdog.co.za/blog/estimated-readings-south-africa' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/estimated-readings-south-africa' }
 };
 
 export default function Page() {

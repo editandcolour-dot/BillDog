@@ -27,3 +27,12 @@
 **Fix Applied:** (1) Added `NEXT_PUBLIC_APP_URL=http://localhost:3000` to `.env.local`. (2) Updated `handleProceed` to check `res.ok` and surface actual server error.
 **Fix Confirmed:** Yes — tsc --noEmit passes with 0 errors.
 **Recurrence Risk:** Medium — production Railway must also have `NEXT_PUBLIC_APP_URL` set to `https://billdog.co.za`.
+
+## FAULT: 2026-04-05 11:06
+**Error Code:** Failed to find Server Action "e035eea6"
+**Source:** [x] App Code  [ ] API Endpoint  [ ] Device/Android  [ ] Network  [ ] Auth/Token
+**Evidence:** Railway deploy log: `Error: Failed to find Server Action "e035eea6". This request might be from an older or newer deployment.`
+**Context:** User clicked "Add payment method" after Phase 12 deployed, while holding a stale client session tab open.
+**Fix Applied:** Advised user to hard refresh the browser to fetch new deployment hashes. No code change necessary.
+**Fix Confirmed:** Pending user confirmation.
+**Recurrence Risk:** Low (only occurs transiently when deploying over active sessions).

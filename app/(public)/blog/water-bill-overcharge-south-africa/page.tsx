@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Water Bill Overcharges in South Africa | Billdog',
   description: 'How to dispute an impossibly high water bill caused by leaks, meter errors, or municipal failures.',
-  alternates: { canonical: 'https://billdog.co.za/blog/water-bill-overcharge-south-africa' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/water-bill-overcharge-south-africa' }
 };
 
 export default function Page() {

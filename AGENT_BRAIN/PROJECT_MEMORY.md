@@ -6,9 +6,7 @@
 - **Phase 1-3:** Auth, Database RLS, Onboarding, Prescription validation.
 - **Phase 4:** File upload and basic persistence pipeline.
 - **Phase 5 & 6:** End-to-end Claude PDF analysis and dispute letter generation. Edge-compatible `pdf-parse`. Strict JSON schema blocking legitimate fees. RAG fallback for SA legislation.
-- **Phase 7:** Resend email sending and Inbound Webhooks (`api/webhooks/resend-inbound`) using `svix` to automate case status updates.
-- **Phase 9:** Dashboard layout with responsive server-components and Case tracking timeline off `case_events`.
-- **Phase 10:** PayFast card-on-file tokenisation (pre-send gate on letter page), ITN webhook handler (`api/webhooks/payfast`), success-fee charging on resolution confirmation. Pushed to main (commit 1267abf, 2026-03-30). Promo campaigns (e.g. `FIRSTTEN`) bypass success fees with `promo_codes` allocation gating.
+- **Phase 7, 9, 10 & 11:** Production-ready case lifecycle. Resend email parsing & automated resolution triggers. Full PayFast integration (tokenisation & success-fee charging on resolution). Timeline dashboard.
 - **Legal / POPIA:** Privacy Policy, Terms of Service, and POPIA Statement pages routed under `(public)` and deployed. Cookie consent banner. User data export + delete APIs.
 - **Escalation / Compliance:** Stage 5 Public Protector workflow with Supabase Vault / pgsodium AES-256-GCM encryption for SA IDs. Automated 30-day purge cron.
 - **Public Pages:** How It Works, Pricing, FAQ, About, Real Cases, Contact (with working form → Resend).
@@ -25,5 +23,5 @@
 - Production smoke test completed — all user flows verified working.
 - PayFast integration built and pushed — **awaiting PayFast sandbox acceptance** (blocked on their side).
 - Municipality seed data not yet loaded into Supabase.
-- **Phase 11 (Built):** Case Resolution Detection. Inbound municipality email parsing via Claude to detect credits and trigger auto-charges. 30-Day Resolution Check: Automated Resend reminder to upload Bill 2. Claude diffs Bill 1 vs Bill 2 to confirm resolution. Includes self-reporting bounds (blocks < 30% estimated, flags > 200%).
+- **Phase 12 (Built):** Complete SEO Infrastructure. 8 static municipality landing pages + 9-page Blog Pillar Content Cluster. Dynamic `sitemap.ts`. Dedicated `api/cron/social-monitor` (triggered by Railway cron) scanning Reddit/News to generate AI-drafted responses for lead generation. Weekly SEO pulse report cron. Admin routes secured in middleware.
 - **Security & Compliance:** Implemented comprehensive platform-wide security hardening (Next.js 15 update, Upstash Ratelimiting on critical paths, strict HTTP headers, DB ownership constraints).

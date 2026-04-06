@@ -23,6 +23,16 @@ const securityHeaders = [
 
 const nextConfig = {
   serverExternalPackages: ['pdf-parse'],
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'billdog.co.za' }],
+        destination: 'https://www.billdog.co.za/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     return [{ source: '/(.*)', headers: securityHeaders }];
   },

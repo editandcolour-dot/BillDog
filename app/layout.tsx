@@ -31,9 +31,10 @@ export const metadata: Metadata = {
   },
   description:
     'AI-powered municipal billing dispute service for South African property owners. No lawyers. No queues. No nonsense. Just results.',
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || 'https://billdog.co.za',
-  ),
+  metadataBase: new URL('https://www.billdog.co.za'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: 'Are you owed money by your municipality?',
     description: 'South African homeowners are owed billions in overcharged rates & electricity. No win, no fee. Find out in minutes.',

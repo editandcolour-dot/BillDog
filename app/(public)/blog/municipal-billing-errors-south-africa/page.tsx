@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Common Municipal Billing Errors in SA | Billdog',
   description: 'Discover the most frequent municipal billing errors in South Africa and how to challenge them legally.',
-  alternates: { canonical: 'https://billdog.co.za/blog/municipal-billing-errors-south-africa' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/municipal-billing-errors-south-africa' }
 };
 
 export default function Page() {

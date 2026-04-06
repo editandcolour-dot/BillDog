@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'How to Read Your Municipal Bill | Billdog',
   description: 'A step-by-step guide to decoding complex South African municipality bills and identifying overcharges.',
-  alternates: { canonical: 'https://billdog.co.za/blog/how-to-read-municipal-bill' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/how-to-read-municipal-bill' }
 };
 
 export default function Page() {

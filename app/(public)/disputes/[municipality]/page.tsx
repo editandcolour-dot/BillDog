@@ -24,10 +24,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${data.name} Billing Disputes | Billdog`,
       description: `Dispute ${data.name} bills without a lawyer. Section 102 compliant.`,
-      url: `https://billdog.co.za/disputes/${data.slug}`,
+      url: `https://www.billdog.co.za/disputes/${data.slug}`,
     },
     alternates: {
-      canonical: `https://billdog.co.za/disputes/${data.slug}`,
+      canonical: `https://www.billdog.co.za/disputes/${data.slug}`,
     }
   };
 }
@@ -55,7 +55,7 @@ export default async function MunicipalitySEOPage({ params }: PageProps) {
     '@context': 'https://schema.org',
     '@type': 'LegalService',
     name: 'Billdog',
-    url: `https://billdog.co.za/disputes/${data.slug}`,
+    url: `https://www.billdog.co.za/disputes/${data.slug}`,
     description: data.heroSubheadline,
     areaServed: {
       '@type': 'City',

@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // 2. Invoke Claude to generate the SEO report
     const claude = getClaudeClient();
     const response = await claude.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-20250514',
       max_tokens: 1000,
       system: `You are an expert SEO Analyst for Billdog (a South African municipal billing dispute platform). 
 Generate a Weekly SEO & Social pulse report for the founder, Jason.

@@ -7,7 +7,7 @@ export async function generateStaticParams() { return []; }
 export const metadata: Metadata = {
   title: 'Municipal Complaint Ignored? Escalate It | Billdog',
   description: 'What to do when your South African municipality ignores your formal billing dispute.',
-  alternates: { canonical: 'https://billdog.co.za/blog/municipality-complaint-not-resolved' }
+  alternates: { canonical: 'https://www.billdog.co.za/blog/municipality-complaint-not-resolved' }
 };
 
 export default function Page() {
