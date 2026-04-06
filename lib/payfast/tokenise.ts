@@ -29,6 +29,7 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
     amount: '0.00',
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
+    email_confirmation: '0',
   };
 
   // PayFast signature spec states to drop trailing empty strings, but for predictable order:
@@ -44,7 +45,7 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
 
   // Build query string
   const queryString = Object.entries(cleanData)
-    .map(([key, val]) => `${key}=${encodeURIComponent(val)}`)
+    .map(([key, val]) => `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}`)
     .join('&');
 
   return `${baseUrl}?${queryString}`;
