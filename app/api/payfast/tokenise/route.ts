@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { generateTokeniseUrl } from '@/lib/payfast/tokenise';
+import { generateTokeniseFormData } from '@/lib/payfast/tokenise';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,15 +30,15 @@ export async function POST() {
       return NextResponse.json({ error: `Payment gateway not configured. Missing: ${missing.join(', ')}` }, { status: 503 });
     }
 
-    const url = generateTokeniseUrl({
+    const formData = generateTokeniseFormData({
       userId: user.id,
       userEmail: user.email ?? '',
       userName: profile?.full_name ?? 'User',
     });
 
-    return NextResponse.json({ url });
+    return NextResponse.json(formData);
   } catch (error) {
-    console.error('[payfast/tokenise] Error generating url', error);
-    return NextResponse.json({ error: 'Failed to generate payment url' }, { status: 500 });
+    console.error('[payfast/tokenise] Error generating form data', error);
+    return NextResponse.json({ error: 'Failed to generate payment form' }, { status: 500 });
   }
 }

@@ -6,8 +6,18 @@ interface TokeniseParams {
   userName: string;
 }
 
-export function generateTokeniseUrl(params: TokeniseParams): string {
-  const baseUrl = String(process.env['PAYFAST_SANDBOX']).trim() === 'true'
+export interface TokeniseFormData {
+  action: string;
+  fields: Record<string, string>;
+}
+
+/**
+ * Generates PayFast tokenisation form data for POST submission.
+ * PayFast production requires HTML form POST — GET redirects are blocked by CloudFront.
+ */
+export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormData {
+  const isSandbox = String(process.env['PAYFAST_SANDBOX']).trim() === 'true';
+  const action = isSandbox
     ? 'https://sandbox.payfast.co.za/eng/process'
     : 'https://www.payfast.co.za/eng/process';
 
@@ -30,8 +40,7 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
     email_confirmation: '0',
   };
 
-  // PayFast signature spec states to drop trailing empty strings, but for predictable order:
-  // we will construct a clean object dropping any empty ones to avoid breaking ITNs
+  // Drop empty or undefined values to avoid breaking signature
   const cleanData: Record<string, string> = {};
   for (const [k, v] of Object.entries(data)) {
     if (v !== '' && v !== 'undefined') cleanData[k] = v;
@@ -41,12 +50,7 @@ export function generateTokeniseUrl(params: TokeniseParams): string {
   const signature = generateSignature(cleanData, String(process.env['PAYFAST_PASSPHRASE']).trim());
   cleanData.signature = signature;
 
-  // Build query string
-  const queryString = Object.entries(cleanData)
-    .map(([key, val]) => `${key}=${encodeURIComponent(val).replace(/%20/g, '+')}`)
-    .join('&');
-
-  return `${baseUrl}?${queryString}`;
+  return { action, fields: cleanData };
 }
 
 export function generateSignature(data: Record<string, string>, passphrase: string): string {

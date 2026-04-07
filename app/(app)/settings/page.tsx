@@ -77,13 +77,25 @@ export default function SettingsPage() {
     try {
       const res = await fetch('/api/payfast/tokenise', { method: 'POST' });
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.action && data.fields) {
+        // PayFast requires HTML form POST — GET redirects are blocked by CloudFront
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = data.action;
+        for (const [key, value] of Object.entries(data.fields)) {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value as string;
+          form.appendChild(input);
+        }
+        document.body.appendChild(form);
+        form.submit();
       } else {
         setMessage({ text: data.error || 'Failed to initialize payment gateway.', type: 'error' });
       }
     } catch (err) {
-      console.error('Failed to get tokenise url', err);
+      console.error('Failed to get tokenise form data', err);
       setMessage({ text: 'Network error initializing payment gateway.', type: 'error' });
     }
   };

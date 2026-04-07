@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find C:/Users/Jason/Desktop -name *.html)"
+      "Bash(find C:/Users/Jason/Desktop -name *.html)",
+      "Bash(grep -n \"window.location\" /e/BillDog/app/\\\\\\(app\\\\\\)/letter/[id]/page.tsx -A 5 -B 5)"
     ]
   }
 }
