@@ -107,12 +107,28 @@ export async function GET() {
       item_name: 'Billdog Test',
     };
 
+    // ============ VARIANT 6: SANDBOX with PayFast test credentials ============
+    const sandboxData: Record<string, string> = {
+      merchant_id: '10000100',
+      merchant_key: '46f0cd694581a',
+      return_url: `${appUrl}/dashboard?card=saved`,
+      cancel_url: `${appUrl}/settings?card=cancelled`,
+      notify_url: `${appUrl}/api/webhooks/payfast`,
+      name_first: firstName,
+      email_address: user.email ?? '',
+      amount: '5.00',
+      item_name: 'Sandbox Test',
+      subscription_type: '2',
+    };
+    sandboxData.signature = sign(sandboxData, 'jt7NOE43FZPn');
+
     const variants = [
-      { name: '1: Tokenisation + passphrase', data: data1, color: '#333' },
-      { name: '2: Tokenisation + NO passphrase', data: data2, color: '#1A56DB' },
-      { name: '3: Basic payment + passphrase', data: data3, color: '#F97316' },
-      { name: '4: Basic payment + NO passphrase', data: data4, color: '#10B981' },
-      { name: '5: Basic payment + NO signature at all', data: data5, color: '#EF4444' },
+      { name: '1: Tokenisation + passphrase', data: data1, color: '#333', action },
+      { name: '2: Tokenisation + NO passphrase', data: data2, color: '#1A56DB', action },
+      { name: '3: Basic payment + passphrase', data: data3, color: '#F97316', action },
+      { name: '4: Basic payment + NO passphrase', data: data4, color: '#10B981', action },
+      { name: '5: Basic payment + NO signature at all', data: data5, color: '#EF4444', action },
+      { name: '6: ✅ SANDBOX (PayFast test credentials) — proves our code works', data: sandboxData, color: '#7C3AED', action: 'https://sandbox.payfast.co.za/eng/process' },
     ];
 
     const diagHtml = Object.entries(diag)
@@ -130,7 +146,7 @@ export async function GET() {
         <div style="border:2px solid ${v.color};border-radius:12px;padding:16px;margin-bottom:12px">
           <h3 style="margin:0 0 4px 0;color:${v.color}">${v.name}</h3>
           <p style="margin:0 0 8px 0;font-size:11px;color:#666">${fieldList}</p>
-          <form method="POST" action="${action}">
+          <form method="POST" action="${v.action}">
             ${fields}
             <button type="submit" style="background:${v.color};color:white;border:none;padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:bold">
               Submit →
