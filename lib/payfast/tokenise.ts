@@ -34,7 +34,7 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     name_first: String(params.userName).split(' ')[0].trim(),
     email_address: String(params.userEmail).trim(),
     m_payment_id: String(params.userId).trim(),
-    amount: '0.00',
+    amount: '5.00',                          // PayFast R5 minimum — auto-refunded on tokenisation
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
     email_confirmation: '0',
