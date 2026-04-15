@@ -59,6 +59,6 @@ export function generateSignature(data: Record<string, string>, passphrase: stri
     .map(([key, val]) => `${key}=${encodeURIComponent((val ?? '').trim()).replace(/%20/g, '+')}`)
     .join('&');
 
-  const withPassphrase = `${paramString}&passphrase=${encodeURIComponent((passphrase ?? '').trim())}`;
+  const withPassphrase = `${paramString}&passphrase=${(passphrase ?? '').trim()}`;
   return crypto.createHash('md5').update(withPassphrase).digest('hex');
 }
