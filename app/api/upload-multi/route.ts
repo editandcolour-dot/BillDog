@@ -1,18 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { v4 as uuidv4 } from 'uuid';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
 
 const uploadLimiter = getRateLimiter(5, '1 h');
-
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB per file
 const MAX_BILLS = 36;
-const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-  'image/heic',
-];
 
 export const dynamic = 'force-dynamic';
 
@@ -29,16 +20,15 @@ export async function POST(request: NextRequest) {
     const { success } = await uploadLimiter.limit(`upload_multi_${user.id}`);
     if (!success) return rateLimitExceededResponse();
 
-    // 2. Parse form data
-    const formData = await request.formData();
-    const files = formData.getAll('files') as File[];
-    const existingCaseId = formData.get('caseId') as string | null;
+    // 2. Parse JSON body instead of FormData
+    const body = await request.json();
+    const { caseId, existingCaseId, files } = body;
 
-    if (!files.length) {
+    if (!files || !files.length) {
       return NextResponse.json({ error: 'No files provided' }, { status: 400 });
     }
 
-    // 3. If adding to existing case, check total won't exceed 36
+    // 3. Prevent exceeding MAX_BILLS limit
     let existingCount = 0;
     if (existingCaseId) {
       const { count } = await supabase
@@ -54,30 +44,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // 4. Validate each file
-    for (const file of files) {
-      if (file.size > MAX_FILE_SIZE) {
-        return NextResponse.json(
-          { error: `"${file.name}" exceeds the 10MB limit.` },
-          { status: 400 },
-        );
-      }
-      if (file.size === 0) {
-        return NextResponse.json(
-          { error: `"${file.name}" is empty.` },
-          { status: 400 },
-        );
-      }
-      const isHeic = file.name.toLowerCase().endsWith('.heic');
-      if (!ALLOWED_MIME_TYPES.includes(file.type) && !isHeic) {
-        return NextResponse.json(
-          { error: `"${file.name}": only PDF, JPG, PNG, or HEIC allowed.` },
-          { status: 400 },
-        );
-      }
-    }
-
-    // 5. Profile check
+    // 4. Validate user profile is fully onboarded
     const { data: profile } = await supabase
       .from('profiles')
       .select('municipality, account_number')
@@ -91,12 +58,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 6. Create case if new
-    const caseId = existingCaseId || uuidv4();
+    // 5. Create or retrieve Case
+    const finalCaseId = existingCaseId || caseId;
 
     if (!existingCaseId) {
       const { error: caseError } = await supabase.from('cases').insert({
-        id: caseId,
+        id: finalCaseId,
         user_id: user.id,
         status: 'uploading',
         municipality: profile.municipality,
@@ -109,73 +76,46 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // 7. Upload each file sequentially + create case_bills rows
-    const uploaded: { id: string; filename: string }[] = [];
+    // 6. Bulk Insert database records natively mapping to the frontend-uploaded files
     const failed: { filename: string; error: string }[] = [];
+    const uploaded: { id: string; filename: string }[] = [];
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const billId = uuidv4();
-      const sanitizedName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-      const storagePath = `${user.id}/${caseId}/${billId}_${sanitizedName}`;
+      const fileData = files[i];
+      const { error: rowError } = await supabase.from('case_bills').insert({
+        id: fileData.id,
+        case_id: finalCaseId,
+        bill_url: fileData.bill_url,
+        original_filename: fileData.original_filename,
+        file_size_bytes: fileData.file_size_bytes,
+        mime_type: fileData.mime_type,
+        sort_order: existingCount + i,
+        parse_status: 'pending',
+        analysis_status: 'pending',
+      });
 
-      try {
-        const buffer = Buffer.from(await file.arrayBuffer());
-
-        const { error: uploadError } = await supabase.storage
-          .from('bills')
-          .upload(storagePath, buffer, {
-            contentType: file.type,
-            upsert: false,
-          });
-
-        if (uploadError) {
-          console.error(`[upload-multi] Storage error for ${file.name}:`, uploadError);
-          failed.push({ filename: file.name, error: 'Storage upload failed' });
-          continue;
-        }
-
-        const { error: rowError } = await supabase.from('case_bills').insert({
-          id: billId,
-          case_id: caseId,
-          bill_url: storagePath,
-          original_filename: file.name,
-          file_size_bytes: file.size,
-          mime_type: file.type,
-          sort_order: existingCount + i,
-          parse_status: 'pending',
-          analysis_status: 'pending',
-        });
-
-        if (rowError) {
-          console.error(`[upload-multi] DB insert error for ${file.name}:`, rowError);
-          failed.push({ filename: file.name, error: 'Database insert failed' });
-          continue;
-        }
-
-        uploaded.push({ id: billId, filename: file.name });
-      } catch (err) {
-        console.error(`[upload-multi] Unexpected error for ${file.name}:`, err);
-        failed.push({
-          filename: file.name,
-          error: err instanceof Error ? err.message : 'Unknown error',
-        });
+      if (rowError) {
+        console.error(`[upload-multi] DB insert error for ${fileData.original_filename}:`, rowError);
+        failed.push({ filename: fileData.original_filename, error: 'Database insert failed' });
+      } else {
+        uploaded.push({ id: fileData.id, filename: fileData.original_filename });
       }
     }
 
-    // 8. If nothing uploaded at all, clean up
+    // 7. Cleanup if absolutely nothing injected cleanly
     if (uploaded.length === 0) {
       if (!existingCaseId) {
-        await supabase.from('cases').delete().eq('id', caseId);
+        await supabase.from('cases').delete().eq('id', finalCaseId);
       }
       return NextResponse.json({
-        error: 'All uploads failed.',
+        error: 'All database inserts failed.',
         failed,
       }, { status: 500 });
     }
 
     return NextResponse.json({
-      caseId,
+      caseId: finalCaseId,
       uploaded: uploaded.length,
       failed: failed.length,
       total: existingCount + uploaded.length,
@@ -185,7 +125,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[upload-multi] Global error:', error);
     return NextResponse.json(
-      { error: 'An unexpected error occurred during upload.' },
+      { error: 'An unexpected error occurred finalizing the upload.' },
       { status: 500 },
     );
   }

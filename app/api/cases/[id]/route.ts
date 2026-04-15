@@ -48,8 +48,20 @@ export async function GET(
       .single();
     const hasCard = !!profile?.payfast_token;
 
-    // Return the full record
-    return NextResponse.json({ case: caseRecord, userEmail: user.email, hasCard }, { status: 200 });
+    // 6. Fetch related bills if it's a multi-bill case
+    const { data: caseBills } = await supabase
+      .from('case_bills')
+      .select('id, bill_period, errors_found, total_billed, recoverable')
+      .eq('case_id', caseId)
+      .order('sort_order', { ascending: true });
+
+    // Return the full record + bills
+    return NextResponse.json({ 
+      case: caseRecord, 
+      bills: caseBills || [],
+      userEmail: user.email, 
+      hasCard 
+    }, { status: 200 });
 
   } catch (error) {
     console.error('[Cases API] Unexpected error:', error);

@@ -4,6 +4,8 @@ import React, { useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X, FileText, AlertCircle, CheckCircle2, Loader2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { createClient } from '@/lib/supabase/client';
+import { v4 as uuidv4 } from 'uuid';
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 const MAX_BILLS = 36;
@@ -35,19 +37,25 @@ export function MultiFileUploader() {
     }
 
     const validated: QueuedFile[] = [];
+    const errors: string[] = [];
+
     for (const file of incoming) {
-      const isHeic = file.name.toLowerCase().endsWith('.heic');
-      if (!ALLOWED_TYPES.includes(file.type) && !isHeic) {
-        setGlobalError(`"${file.name}" is not a supported format. Use PDF, JPG, PNG, or HEIC.`);
-        return;
+      const ext = file.name.toLowerCase().split('.').pop() || '';
+      const validExts = ['pdf', 'jpg', 'jpeg', 'png', 'heic'];
+      
+      const isAllowedType = ALLOWED_TYPES.includes(file.type) || validExts.includes(ext);
+
+      if (!isAllowedType) {
+        errors.push(`"${file.name}" is unsupported.`);
+        continue;
       }
       if (file.size > MAX_FILE_SIZE) {
-        setGlobalError(`"${file.name}" exceeds 10MB.`);
-        return;
+        errors.push(`"${file.name}" exceeds 10MB.`);
+        continue;
       }
       if (file.size === 0) {
-        setGlobalError(`"${file.name}" is empty.`);
-        return;
+        errors.push(`"${file.name}" is empty.`);
+        continue;
       }
       validated.push({
         id: `${Date.now()}_${Math.random().toString(36).slice(2)}`,
@@ -56,7 +64,16 @@ export function MultiFileUploader() {
       });
     }
 
-    setFiles(prev => [...prev, ...validated]);
+    if (errors.length > 0) {
+      setGlobalError(errors.join(' '));
+    }
+
+    if (validated.length > 0) {
+      setFiles(prev => {
+        const newFiles = [...prev, ...validated];
+        return newFiles.slice(0, MAX_BILLS); // Hard cap just in case
+      });
+    }
   }, [files.length]);
 
   const removeFile = useCallback((id: string) => {
@@ -79,22 +96,77 @@ export function MultiFileUploader() {
     setIsUploading(true);
     setGlobalError(null);
 
-    const formData = new FormData();
-    files.forEach(f => formData.append('files', f.file));
-    if (caseId) formData.append('caseId', caseId);
-
-    // Mark all as uploading
-    setFiles(prev => prev.map(f => ({ ...f, status: 'uploading' as const })));
+    // Mark all pending as uploading
+    setFiles(prev => prev.map(f => f.status === 'queued' ? { ...f, status: 'uploading' as const } : f));
 
     try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setGlobalError('Session expired. Please log in again.');
+        setFiles(prev => prev.map(f => f.status === 'uploading' ? { ...f, status: 'failed' as const } : f));
+        setIsUploading(false);
+        return;
+      }
+
+      const activeCaseId = caseId || uuidv4();
+      const uploadedFiles: Array<{ id: string; original_filename: string; file_size_bytes: number; mime_type: string; bill_url: string }> = [];
+      let failureCount = 0;
+
+      // 1. Upload files directly to Supabase Storage
+      for (const f of files) {
+        if (f.status === 'done') continue; // skip already uploaded if adding more
+
+        const billId = uuidv4();
+        const sanitizedName = f.file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+        const storagePath = `${user.id}/${activeCaseId}/${billId}_${sanitizedName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('bills')
+          .upload(storagePath, f.file, {
+            contentType: f.file.type || 'application/octet-stream',
+            upsert: false,
+          });
+
+        if (uploadError) {
+          console.error(`[MultiFileUploader] Storage error for ${f.file.name}:`, uploadError);
+          failureCount++;
+          setFiles(prev => prev.map(fileItem => 
+            fileItem.id === f.id ? { ...fileItem, status: 'failed' as const, error: 'Storage upload failed' } : fileItem
+          ));
+        } else {
+          uploadedFiles.push({
+            id: billId,
+            original_filename: f.file.name,
+            file_size_bytes: f.file.size,
+            mime_type: f.file.type || 'application/octet-stream',
+            bill_url: storagePath
+          });
+          setFiles(prev => prev.map(fileItem => 
+            fileItem.id === f.id ? { ...fileItem, status: 'done' as const } : fileItem
+          ));
+        }
+      }
+
+      if (uploadedFiles.length === 0) {
+        setGlobalError('All file uploads failed. Check your connection.');
+        setIsUploading(false);
+        return;
+      }
+
+      // 2. Transmit metadata to the API Route
       const res = await fetch('/api/upload-multi', {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          caseId: activeCaseId,
+          existingCaseId: caseId,
+          files: uploadedFiles
+        }),
       });
 
       if (res.status === 401) {
         setGlobalError('Session expired. Please log in again.');
-        setFiles(prev => prev.map(f => ({ ...f, status: 'failed' as const })));
         setIsUploading(false);
         return;
       }
@@ -102,30 +174,23 @@ export function MultiFileUploader() {
       const data = await res.json();
 
       if (!res.ok) {
-        setGlobalError(data.error || 'Upload failed');
-        setFiles(prev => prev.map(f => ({ ...f, status: 'failed' as const })));
+        setGlobalError(data.error || 'Database registration failed');
+        setFiles(prev => prev.map(f => f.status === 'uploading' ? { ...f, status: 'failed' as const } : f));
         setIsUploading(false);
         return;
       }
 
-      // Mark successful uploads
-      const uploadedIds = new Set((data.bills || []).map((b: { filename: string }) => b.filename));
-      setFiles(prev => prev.map(f => ({
-        ...f,
-        status: uploadedIds.has(f.file.name) ? 'done' as const : 'failed' as const,
-        error: !uploadedIds.has(f.file.name) ? 'Upload failed' : undefined,
-      })));
-
       setCaseId(data.caseId);
       setUploadComplete(true);
 
-      if (data.failures?.length) {
-        setGlobalError(`${data.failures.length} file(s) failed to upload.`);
+      if (failureCount > 0 || (data.failures && data.failures.length > 0)) {
+        const totalFailures = failureCount + (data.failures?.length || 0);
+        setGlobalError(`${totalFailures} file(s) failed. You can add more and try again.`);
       }
     } catch (err) {
       console.error('[MultiFileUploader]', err);
       setGlobalError('Upload failed. Check your connection and try again.');
-      setFiles(prev => prev.map(f => ({ ...f, status: 'failed' as const })));
+      setFiles(prev => prev.map(f => f.status === 'uploading' ? { ...f, status: 'failed' as const } : f));
     }
 
     setIsUploading(false);

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import { BillTimeline } from '@/components/reports/BillTimeline';
 
 export default function AnalysisResultsPage() {
   const params = useParams();
@@ -11,6 +12,8 @@ export default function AnalysisResultsPage() {
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [caseData, setCaseData] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [bills, setBills] = useState<any[]>([]);
   const [status, setStatus] = useState<'uploading' | 'analysing' | 'letter_ready' | 'closed' | 'error'>('uploading');
   const [error, setError] = useState<string | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -23,7 +26,7 @@ export default function AnalysisResultsPage() {
       
       if (response.status === 401 || response.status === 403) {
         setError('Unauthorised. Please log in again.');
-        return 'error';
+        return { status: 'error', isMulti: false };
       }
 
       if (!response.ok) {
@@ -34,8 +37,12 @@ export default function AnalysisResultsPage() {
       
       if (data.case && data.case.status) {
         setCaseData(data.case);
+        if (data.bills) setBills(data.bills);
         setStatus(data.case.status);
-        return data.case.status;
+        return { 
+          status: data.case.status, 
+          isMulti: !data.case.bill_url && data.bills && data.bills.length > 0 
+        };
       }
     } catch (err) {
       console.error('[Analysis] Polling error:', err);
@@ -43,12 +50,13 @@ export default function AnalysisResultsPage() {
     return null;
   };
 
-  const triggerAnalysis = async () => {
+  const triggerAnalysis = async (isMulti: boolean = false) => {
     if (analysisTriggeredRef.current) return;
     analysisTriggeredRef.current = true;
     
     try {
-      const res = await fetch('/api/analyse', {
+      const endpoint = isMulti ? '/api/analyse-multi' : '/api/analyse';
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ caseId })
@@ -73,18 +81,21 @@ export default function AnalysisResultsPage() {
     let intervalId: NodeJS.Timeout | undefined = undefined;
 
     const initAndPoll = async () => {
-      const currentStatus = await fetchCase();
+      const result = await fetchCase();
+      if (!result) return;
+      
+      const { status: currentStatus, isMulti } = result;
       
       // Fire analysis on first mount if uploading
       if (currentStatus === 'uploading' && !analysisTriggeredRef.current) {
-        triggerAnalysis();
+        triggerAnalysis(isMulti);
       }
 
       // If we are actively processing, start polling
       if (currentStatus === 'uploading' || currentStatus === 'analysing') {
         intervalId = setInterval(async () => {
-          const updatedStatus = await fetchCase();
-          if (updatedStatus === 'letter_ready' || updatedStatus === 'closed' || updatedStatus === 'error') {
+          const res = await fetchCase();
+          if (res && (res.status === 'letter_ready' || res.status === 'closed' || res.status === 'error')) {
             clearInterval(intervalId);
           }
         }, 3000);
@@ -102,7 +113,8 @@ export default function AnalysisResultsPage() {
     setStatus('analysing');
     setIsRetrying(true);
     analysisTriggeredRef.current = false; // allow re-trigger
-    triggerAnalysis().finally(() => setIsRetrying(false));
+    const isMulti = !caseData?.bill_url && bills.length > 0;
+    triggerAnalysis(isMulti).finally(() => setIsRetrying(false));
   };
 
   if (error || status === 'error') {
@@ -169,12 +181,30 @@ export default function AnalysisResultsPage() {
   }
 
   // --- Render final results ---
-  const formatCurrency = (val: number) => `R ${val.toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatCurrency = (val: number | null | undefined) => {
+    if (val === undefined || val === null || isNaN(Number(val))) return 'R 0.00';
+    return `R ${Number(val).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
   
-  const totalBilled = caseData?.total_billed || 0;
-  const totalRecoverable = caseData?.recoverable || 0;
-  const billPeriod = caseData?.bill_period || 'Unknown Period';
-  const errors = caseData?.errors_found || [];
+  const isMultiBill = !!caseData?.cross_analysis || bills.length > 1;
+
+  const totalBilled = isMultiBill
+    ? bills.reduce((sum, b) => sum + (Number(b.total_billed) || 0), 0)
+    : caseData?.total_billed || 0;
+    
+  const totalRecoverable = isMultiBill
+    ? caseData?.cross_analysis?.total_recoverable_all || caseData?.total_recoverable_all || 0
+    : caseData?.recoverable || 0;
+    
+  const validBills = bills.filter(b => b && b.bill_period);
+  const billPeriod = isMultiBill && validBills.length > 0
+    ? `${validBills[0].bill_period} to ${validBills[validBills.length - 1].bill_period}`
+    : caseData?.bill_period || 'Unknown Period';
+    
+  const errors = isMultiBill 
+    ? caseData?.cross_analysis?.recurring_errors || [] 
+    : caseData?.errors_found || [];
+    
   const warnings = caseData?.prescription_warnings || [];
 
   // Determine global severity for banners
@@ -204,6 +234,24 @@ export default function AnalysisResultsPage() {
           </div>
         </div>
 
+        {isMultiBill && bills.length > 1 && (
+          <BillTimeline bills={bills.map((b: any) => ({ ...b, errors: b.errors_found || [] }))} />
+        )}
+
+        {isMultiBill && caseData?.cross_analysis && (
+          <div className="bg-white p-6 rounded-2xl border border-blue shadow-sm mb-8 flex flex-col md:flex-row items-center md:items-start gap-4">
+             <div className="bg-blue/10 p-3 rounded-full flex-shrink-0">
+               <svg className="w-8 h-8 text-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+             </div>
+             <div className="text-center md:text-left">
+               <h3 className="text-xl font-bold text-navy mb-1 capitalize">
+                 Pattern Detected: {caseData.cross_analysis.pattern_type?.replace(/_/g, ' ')}
+               </h3>
+               <p className="text-slate-700 font-medium">{caseData.cross_analysis.trend_summary}</p>
+             </div>
+          </div>
+        )}
+
         {/* Global Warnings */}
         {hasPrescribed && (
           <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-xl mb-8 flex gap-4 shadow-sm">
@@ -225,7 +273,9 @@ export default function AnalysisResultsPage() {
 
         {/* Error Cards */}
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-navy mb-4">Identified Billing Errors ({errors.length})</h3>
+          <h3 className="text-xl font-bold text-navy mb-4">
+            {isMultiBill ? `Identified Recurring Patterns (${errors.length})` : `Identified Billing Errors (${errors.length})`}
+          </h3>
           
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {errors.map((errorObj: any, idx: number) => {
@@ -237,15 +287,22 @@ export default function AnalysisResultsPage() {
               <div key={idx} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden">
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                   <div>
-                    <h4 className="text-lg font-bold text-navy truncate">{errorObj.line_item}</h4>
+                    <h4 className="text-lg font-bold text-navy truncate">
+                      {isMultiBill ? `Recurring ${errorObj.service_type || 'Error'}` : errorObj.line_item}
+                    </h4>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 capitalize mt-2">
                        {errorObj.service_type}
                     </span>
+                    {isMultiBill && errorObj.months_affected && (
+                       <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue/10 text-blue capitalize mt-2">
+                         {errorObj.months_affected.length} month(s) affected
+                       </span>
+                    )}
                   </div>
                   <div className="text-left md:text-right shrink-0">
                     <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Overcharge</p>
-                    <p className={`text-2xl font-bebas tracking-wide ${errorObj.recoverable && !isPrescribed ? 'text-green-500' : 'text-slate-400'}`}>
-                      {formatCurrency(errorObj.amount_charged - errorObj.expected_amount)}
+                    <p className={`text-2xl font-bebas tracking-wide ${(errorObj.recoverable !== false) && !isPrescribed ? 'text-green-500' : 'text-slate-400'}`}>
+                      {formatCurrency(isMultiBill ? errorObj.total_overcharged : errorObj.amount_charged - errorObj.expected_amount)}
                     </p>
                   </div>
                 </div>

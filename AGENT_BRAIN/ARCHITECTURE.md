@@ -588,17 +588,19 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-03T10:02:37.632215+00:00
-> Project root: `C:\Users\Jason\Desktop\BillDog`
+> Last scanned: 2026-04-15T15:46:05.777133+00:00
+> Project root: `E:\BillDog`
 
 ### Directory Inventory
 
 ```
 📁 (root)/
   📄 .env  (0.1 KB)
-  📄 .env.local  (1.2 KB)
+  📄 .env.local  (1.4 KB)
   📄 .env.local.example  (0.6 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
@@ -609,9 +611,9 @@ NODE_ENV=
   📄 build-error.log  (2.4 KB)
   📄 build-log.txt  (1.6 KB)
   📄 build.log  (1.9 KB)
-  📄 middleware.ts  (2.6 KB)
+  📄 middleware.ts  (2.9 KB)
   📄 next-env.d.ts  (0.2 KB)
-  📄 next.config.mjs  (1.5 KB)
+  📄 next.config.mjs  (1.6 KB)
   📄 package-lock.json  (287.5 KB)
   📄 package.json  (1.2 KB)
   📄 postcss.config.mjs  (0.1 KB)
@@ -620,9 +622,10 @@ NODE_ENV=
   📄 setup_test_data.js  (2.0 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
+  📄 test_bill.pdf  (0.6 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (215.8 KB)
+  📄 tsconfig.tsbuildinfo  (224.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -691,12 +694,13 @@ NODE_ENV=
     📄 project-init.md  (3.0 KB)
     📄 start.md  (2.7 KB)
 📁 .claude/
-  📄 settings.local.json  (0.1 KB)
+  📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (40.7 KB)
-  📄 FAULT_LOG.md  (1.3 KB)
-  📄 PROJECT_MEMORY.md  (3.0 KB)
-  📄 STATE.md  (0.7 KB)
+  📄 ARCHITECTURE.md  (41.2 KB)
+  📄 FAULT_LOG.md  (2.0 KB)
+  📄 MEMORY_INDEX.md  (0.8 KB)
+  📄 PROJECT_MEMORY.md  (2.6 KB)
+  📄 STATE.md  (1.0 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -708,20 +712,26 @@ NODE_ENV=
     📄 2026-03-31.md  (3.7 KB)
     📄 2026-04-01.md  (1.2 KB)
     📄 2026-04-02.md  (1.5 KB)
-    📄 2026-04-03.md  (2.7 KB)
+    📄 2026-04-03.md  (3.7 KB)
+    📄 2026-04-04.md  (0.9 KB)
+    📄 2026-04-05.md  (0.7 KB)
+    📄 2026-04-06.md  (0.2 KB)
+    📄 2026-04-15.md  (0.8 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
   📄 globals.css  (2.5 KB)
   📄 layout.tsx  (1.8 KB)
   📄 not-found.tsx  (0.5 KB)
+  📄 robots.ts  (0.4 KB)
+  📄 sitemap.ts  (1.5 KB)
   📁 app\(app)/
     📄 .gitkeep  (0.0 KB)
     📄 error.tsx  (0.7 KB)
     📄 layout.tsx  (0.9 KB)
     📁 app\(app)\analysis/
       📁 app\(app)\analysis\[id]/
-        📄 page.tsx  (14.2 KB)
+        📄 page.tsx  (16.5 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
         📄 page.tsx  (9.0 KB)
@@ -731,15 +741,15 @@ NODE_ENV=
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.2 KB)
+        📄 page.tsx  (19.8 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
-      📄 page.tsx  (13.3 KB)
+      📄 page.tsx  (14.1 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
-      📄 page.tsx  (0.8 KB)
+      📄 page.tsx  (1.3 KB)
   📁 app\(auth)/
     📄 .gitkeep  (0.0 KB)
     📄 layout.tsx  (0.8 KB)
@@ -753,11 +763,33 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 error.tsx  (0.6 KB)
     📄 layout.tsx  (0.4 KB)
-    📄 page.tsx  (1.1 KB)
+    📄 page.tsx  (1.5 KB)
     📁 app\(public)\about/
       📄 page.tsx  (8.2 KB)
+    📁 app\(public)\blog/
+      📁 app\(public)\blog\estimated-readings-south-africa/
+        📄 page.tsx  (2.2 KB)
+      📁 app\(public)\blog\how-to-dispute-municipal-bill-south-africa/
+        📄 page.tsx  (7.8 KB)
+      📁 app\(public)\blog\how-to-read-municipal-bill/
+        📄 page.tsx  (2.1 KB)
+      📁 app\(public)\blog\municipal-billing-errors-south-africa/
+        📄 page.tsx  (2.0 KB)
+      📁 app\(public)\blog\municipality-complaint-not-resolved/
+        📄 page.tsx  (2.1 KB)
+      📁 app\(public)\blog\municipality-disconnection-rights/
+        📄 page.tsx  (2.2 KB)
+      📁 app\(public)\blog\rates-valuation-dispute/
+        📄 page.tsx  (2.1 KB)
+      📁 app\(public)\blog\section-102-municipal-systems-act/
+        📄 page.tsx  (2.3 KB)
+      📁 app\(public)\blog\water-bill-overcharge-south-africa/
+        📄 page.tsx  (2.0 KB)
     📁 app\(public)\contact/
       📄 page.tsx  (9.7 KB)
+    📁 app\(public)\disputes/
+      📁 app\(public)\disputes\[municipality]/
+        📄 page.tsx  (8.9 KB)
     📁 app\(public)\faq/
       📄 page.tsx  (9.8 KB)
     📁 app\(public)\how-it-works/
@@ -778,9 +810,11 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📁 app\api\analyse/
       📄 route.ts  (7.0 KB)
+    📁 app\api\analyse-multi/
+      📄 route.ts  (8.0 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (5.7 KB)
+        📄 route.ts  (6.0 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (2.0 KB)
         📁 app\api\cases\[id]\verify/
@@ -798,17 +832,25 @@ NODE_ENV=
         📄 route.ts  (1.2 KB)
       📁 app\api\cron\escalate/
         📄 route.ts  (2.2 KB)
+      📁 app\api\cron\seo-report/
+        📄 route.ts  (2.9 KB)
+      📁 app\api\cron\social-monitor/
+        📄 route.ts  (0.4 KB)
     📁 app\api\extract-vision/
       📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
       📄 route.ts  (5.2 KB)
     📁 app\api\payfast/
+      📁 app\api\payfast\test-form/
+        📄 route.ts  (7.3 KB)
       📁 app\api\payfast\tokenise/
-        📄 route.ts  (1.5 KB)
+        📄 route.ts  (2.6 KB)
     📁 app\api\send-letter/
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
       📄 route.ts  (3.7 KB)
+    📁 app\api\upload-multi/
+      📄 route.ts  (5.9 KB)
     📁 app\api\user/
       📁 app\api\user\delete/
         📄 route.ts  (2.1 KB)
@@ -818,7 +860,7 @@ NODE_ENV=
         📄 route.ts  (1.1 KB)
     📁 app\api\webhooks/
       📁 app\api\webhooks\payfast/
-        📄 route.ts  (5.8 KB)
+        📄 route.ts  (6.9 KB)
       📁 app\api\webhooks\resend-inbound/
         📄 route.ts  (6.2 KB)
   📁 app\auth/
@@ -830,6 +872,8 @@ NODE_ENV=
 📁 components/
   📁 components\analysis/
     📄 .gitkeep  (0.0 KB)
+  📁 components\blog/
+    📄 BlogLayout.tsx  (2.3 KB)
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
@@ -841,6 +885,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 CameraCapture.tsx  (11.0 KB)
     📄 LoginForm.tsx  (2.9 KB)
+    📄 MultiFileUploader.tsx  (10.0 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
     📄 SignupForm.tsx  (6.8 KB)
     📄 UploadFlow.tsx  (2.9 KB)
@@ -862,6 +907,9 @@ NODE_ENV=
     📄 Nav.tsx  (2.8 KB)
     📄 SkipLink.tsx  (0.4 KB)
     📄 index.ts  (0.1 KB)
+  📁 components\reports/
+    📄 BillTimeline.tsx  (2.4 KB)
+    📄 CrossAnalysisReport.tsx  (3.0 KB)
   📁 components\ui/
     📄 .gitkeep  (0.0 KB)
     📄 Button.tsx  (3.4 KB)
@@ -890,26 +938,36 @@ NODE_ENV=
   📄 phase_3_security_hardening.md  (1.3 KB)
   📄 planning.md  (5.2 KB)
   📄 self_annealing.md  (1.2 KB)
+  📄 semantic_search.md  (0.5 KB)
+  📄 seo_automation.md  (0.5 KB)
   📄 standard_directive_template.md  (0.7 KB)
 📁 execution/
   📄 example_script.py  (0.6 KB)
+  📄 index_codebase.py  (2.6 KB)
+  📄 requirements.txt  (0.0 KB)
   📄 scan_architecture.py  (12.7 KB)
   📄 scrape_brand_firecrawl.py  (3.2 KB)
   📄 script_boiler_plate.py  (1.5 KB)
+  📄 semantic_search.py  (1.4 KB)
+  📄 seo_optimizer.py  (1.3 KB)
 📁 hooks/
   📄 use-scroll-reveal.ts  (0.8 KB)
 📁 lib/
   📄 env.ts  (0.4 KB)
-  📄 rate-limit.ts  (0.7 KB)
+  📄 rate-limit.ts  (1.2 KB)
+  📄 social-monitor.ts  (4.8 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (6.9 KB)
+    📄 analyse-cross-bill.ts  (4.6 KB)
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
-    📄 generate-letter.ts  (3.9 KB)
+    📄 generate-letter.ts  (6.0 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
     📄 vision.ts  (1.2 KB)
+  📁 lib\data/
+    📄 seo-municipalities.ts  (11.9 KB)
   📁 lib\escalation/
     📄 escalate-dispute.ts  (15.7 KB)
     📄 stage-config.ts  (12.7 KB)
@@ -920,7 +978,7 @@ NODE_ENV=
     📄 charge.ts  (3.6 KB)
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (2.1 KB)
+    📄 tokenise.ts  (2.4 KB)
     📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
@@ -951,6 +1009,7 @@ NODE_ENV=
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
   📄 generate_test_bill.py  (10.9 KB)
+  📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
 📁 supabase/
   📁 supabase\migrations/
@@ -965,12 +1024,14 @@ NODE_ENV=
     📄 009_case_resolution.sql  (0.8 KB)
     📄 010_fix_poppi_ownership.sql  (0.9 KB)
     📄 011_fix_status_constraint.sql  (0.4 KB)
+    📄 012_phase12_seo_pages.sql  (0.8 KB)
+    📄 013_multi_bill.sql  (3.5 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (0.6 KB)
+  📄 analysis.ts  (1.9 KB)
   📄 index.ts  (7.7 KB)
 ```
 
@@ -985,6 +1046,8 @@ NODE_ENV=
 | `phase_3_security_hardening.md` | (no goal section found) |
 | `planning.md` | Ensure all new features, changes, and refactors are architecturally aligned and explicitly approved before any implement |
 | `self_annealing.md` | (no goal section found) |
+| `semantic_search.md` | (no goal section found) |
+| `seo_automation.md` | Automate the SEO optimization pipeline via periodic scans, generating deterministic reports and metadata recommendations |
 | `standard_directive_template.md` | A clear, one-sentence description of what this directive achieves. |
 
 ### Execution Scripts
@@ -992,9 +1055,12 @@ NODE_ENV=
 | Script | Purpose |
 |---|---|
 | `example_script.py` | (no docstring found) |
+| `index_codebase.py` | (no docstring found) |
 | `scan_architecture.py` | Architecture Scanner — Deterministic filesystem scanner for BillDog. |
 | `scrape_brand_firecrawl.py` | (no docstring found) |
 | `script_boiler_plate.py` | (no docstring found) |
+| `semantic_search.py` | (no docstring found) |
+| `seo_optimizer.py` | SEO Optimizer — Hive automated SEO scanner and decision maker. |
 
 ## SECTION 11 — DESIGN DECISIONS LOG
 

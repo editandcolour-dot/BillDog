@@ -38,6 +38,32 @@ The letter must follow this exact structure:
 Never be aggressive or emotional. Be firm, professional, and legally precise.
 The consumer must continue paying the undisputed portion.`;
 
+const MULTI_BILL_LETTER_PROMPT = `You are a formal letter writer specialising in South African municipal billing disputes.
+Write a formal dispute letter based on the provided cross-bill analysis, identifying patterns of overcharging across multiple months.
+
+The letter must be plain text only.
+No markdown. No HTML. No formatting symbols. No asterisks. No bullet points with dashes.
+Professional, firm, and legally precise tone.
+
+The letter must follow this exact structure:
+1. Date (top right, format: DD Month YYYY)
+2. Sender details (name, address, account number)
+3. Recipient: The Municipal Manager, [municipality]
+4. Subject line: FORMAL DISPUTE — Account [number] — Multiple Billing Periods
+5. Opening paragraph citing Section 102 right to dispute and stating the number of months disputed
+6. Summary of findings (pattern description, total amount)
+7. Itemised breakdown of recurring errors by service type with affected months
+8. Legal basis (cite specific SA legislation per error type)
+9. Section 102(2) paragraph — state that services may not be disconnected during investigation
+10. Response deadline paragraph (30 calendar days)
+11. Closing and signature block
+
+If there is a prescription warning (at-risk amount), you MUST include a paragraph demanding immediate resolution to prevent the claim from prescribing under the Prescription Act 68 of 1969.
+
+Never be aggressive or emotional. Be firm, professional, and legally precise.
+The consumer must continue paying the undisputed portion.`;
+
+
 export interface LetterInput {
   accountHolder: string;
   address: string;
@@ -55,6 +81,8 @@ export interface LetterInput {
   }>;
   prescribedExclusions: string[];
   legislationContext: string;
+  crossAnalysis?: any;
+  billCount?: number;
 }
 
 export interface LetterResult {
@@ -73,6 +101,18 @@ export async function generateDisputeLetter(input: LetterInput): Promise<LetterR
     ? `\n\nExcluded items (prescribed — outside 3-year dispute window):\n${input.prescribedExclusions.join('\n')}`
     : '\n\nNo items were excluded due to prescription.';
 
+  const isMultiBill = (input.billCount || 1) > 1 && input.crossAnalysis;
+
+  const multiBillText = isMultiBill
+    ? `\n\nCross-bill analysis (${input.billCount} months):
+Pattern Type: ${input.crossAnalysis.pattern_type}
+Total Recoverable: ${input.crossAnalysis.total_recoverable_all}
+Trend Summary: ${input.crossAnalysis.trend_summary}
+Strongest Arguments: ${input.crossAnalysis.strongest_arguments.join('; ')}
+Prescription Risk Amount: ${input.crossAnalysis.prescription_risk.at_risk_amount}
+At-risk Periods: ${input.crossAnalysis.prescription_risk.at_risk_periods.join(', ')}`
+    : '';
+
   const userPrompt = `Account holder: ${input.accountHolder}
 Address: ${input.address}
 Account number: ${input.accountNumber}
@@ -81,6 +121,7 @@ Bill period: ${input.billPeriod}
 
 Disputed errors:
 ${JSON.stringify(input.errors, null, 2)}
+${multiBillText}
 
 Relevant legislation:
 ${input.legislationContext}
@@ -95,7 +136,7 @@ ${excludedText}`;
     const response = await client.messages.create({
       model: MODEL,
       max_tokens: 4000,
-      system: LETTER_SYSTEM_PROMPT,
+      system: isMultiBill ? MULTI_BILL_LETTER_PROMPT : LETTER_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
     });
 

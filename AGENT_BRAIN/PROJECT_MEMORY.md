@@ -12,6 +12,7 @@
 - **Public Pages:** How It Works, Pricing, FAQ, About, Real Cases, Contact (with working form → Resend).
 - **Settings Page:** Profile editing (name, phone, address), card management placeholder, notification preferences. Profile API (`api/user/profile`).
 - **Infrastructure:** Railway deployment via `nixpacks.toml` → Next.js dynamic node server on injected `$PORT`.
+- **Phase 8 (Built):** Multi-Bill Upload functionality with dynamic cross-analysis for pattern tracking and sequential `case_bills` tracking. Extended `BillTimeline` generation and letter outputs for grouped overcharging and pattern-based discovery.
 
 ## Key Architectural Decisions
 - Removed standalone PayFast integration from onboarding to avoid blocking core upload loop. Tokenization moved to pre-send step on letter preview.
