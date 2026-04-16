@@ -1,19 +1,23 @@
 import fs from 'fs';
 import path from 'path';
 
-export type VerificationResult = 'PASS' | 'FAIL' | 'UNKNOWN';
+// Internal type — all three states exist
+export type VerificationResult = 
+  | { result: 'PASS' }
+  | { 
+      result: 'FAIL'; 
+      billed_amount: number; 
+      approved_amount: number; 
+      delta: number; 
+      tariff_year: string; 
+      source_document: string; 
+      source_url: string; 
+      confidence: 'CONFIRMED' | 'BILL-VERIFIED' 
+    }
+  | { result: 'UNKNOWN' };
 
-export interface ChargeVerification {
-  result: VerificationResult;
-  expected_amount: number | null;
-  billed_amount: number;
-  delta: number | null;
-  tariff_year: string;
-  source_document: string | null;
-  source_url: string | null;
-  legal_basis: string | null;
-  confidence: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
-}
+// User-facing type — UNKNOWN does not exist
+export type UserFacingVerification = Extract<VerificationResult, { result: 'PASS' | 'FAIL' }>;
 
 const TARIFF_CACHE: Record<string, any> = {};
 const TARIFF_DATA_DIR = path.join(process.cwd(), 'lib/tariff/data');
@@ -114,10 +118,14 @@ export function loadTariffDb(municipalityCode: string, tariffYear: string) {
 
 // ── Application Startup Hook ──
 function checkTariffDbFreshness() {
-  const currentYear = getCurrentTariffYear();
-  const coctData = loadTariffDb('CoCT', currentYear);
-  if (!coctData) {
-    console.error(`[TARIFF_DATA_MISSING] TARIFF_DATA_STALE: No data loaded for CoCT ${currentYear}`);
+  const currentTariffYear = getCurrentTariffYear();
+  const municipalities = ['CoCT', 'CoJ', 'CoT', 'CoE', 'ETH', 'NMBM', 'BCM', 'MMM'];
+
+  for (const m of municipalities) {
+    const data = loadTariffDb(m, currentTariffYear);
+    if (!data) {
+      console.error(`TARIFF_DATA_STALE: No data for ${m} ${currentTariffYear}`);
+    }
   }
 }
 // Execute on import

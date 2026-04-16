@@ -76,16 +76,16 @@ export function validateBill(bill: ParsedBill): ValidationFinding[] {
       if (verification.result === 'FAIL') {
         findings.push({
           type: 'HUC_AMOUNT_WRONG',
-          description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.expected_amount}, billed R${huc.amount}`,
+          description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
           billedAmount: huc.amount,
-          expectedAmount: verification.expected_amount || undefined,
-          discrepancy: Math.abs(verification.delta || 0),
+          expectedAmount: verification.approved_amount,
+          discrepancy: Math.abs(verification.delta),
           lineReference: `${huc.label} - ${huc.month}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
-          legalBasis: verification.legal_basis,
+          legalBasis: undefined, // No longer tracked in verification explicitly per strict prompt
           sourceUrl: verification.source_url,
-          verificationConfidence: verification.confidence as 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'
+          verificationConfidence: verification.confidence
         });
       }
     } else if (huc.label.toLowerCase().includes('fixed basic charge')) {
@@ -93,16 +93,16 @@ export function validateBill(bill: ParsedBill): ValidationFinding[] {
       if (verification.result === 'FAIL') {
         findings.push({
           type: 'WATER_FIXED_CHARGE_WRONG',
-          description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.expected_amount}, billed R${huc.amount}`,
+          description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
           billedAmount: huc.amount,
-          expectedAmount: verification.expected_amount || undefined,
-          discrepancy: Math.abs(verification.delta || 0),
+          expectedAmount: verification.approved_amount,
+          discrepancy: Math.abs(verification.delta),
           lineReference: `${huc.label} - ${huc.month}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
-          legalBasis: verification.legal_basis,
+          legalBasis: undefined,
           sourceUrl: verification.source_url,
-          verificationConfidence: verification.confidence as 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'
+          verificationConfidence: verification.confidence
         });
       }
     }

@@ -1,26 +1,16 @@
-import { ChargeVerification, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
+import { VerificationResult, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
 
 export function verifyWaterFixedCharge(
   billedAmount: number,
   billedLabel: string,
   billingDate: string,
   municipality: string
-): ChargeVerification {
+): VerificationResult {
   const tariffYear = getTariffYearForDate(billingDate);
   const db = loadTariffDb(municipality, tariffYear);
 
   if (!db || !db.water) {
-    return {
-      result: 'UNKNOWN',
-      expected_amount: null,
-      billed_amount: billedAmount,
-      delta: null,
-      tariff_year: tariffYear,
-      source_document: null,
-      source_url: null,
-      legal_basis: null,
-      confidence: 'UNVERIFIED',
-    };
+    return { result: 'UNKNOWN' };
   }
 
   // 1. Handle Multiplier (e.g., "... x 2 ...")
@@ -44,7 +34,7 @@ export function verifyWaterFixedCharge(
     // Extract band from label, e.g. "Fixed basic charge (R4 500 001 - R5 000 000)"
     const bandMatch = billedLabel.match(/\(R\s*([\d\s]+)\s*-\s*R\s*([\d\s]+)\)/i);
     if (!bandMatch) {
-      return fallbackUnknown(billedAmount, tariffYear, db);
+      return fallbackUnknown();
     }
     const lowerBound = bandMatch[1].replace(/\s/g, '');
     const upperBound = bandMatch[2].replace(/\s/g, '');
@@ -81,49 +71,28 @@ export function verifyWaterFixedCharge(
   }
 
   if (expectedAmount === null || confidence === 'UNVERIFIED') {
-    return fallbackUnknown(billedAmount, tariffYear, db);
+    return fallbackUnknown();
   }
 
   const tolerance = 0.10;
   const delta = effectiveBilledAmount - expectedAmount;
 
   if (Math.abs(delta) <= tolerance) {
-    return {
-      result: 'PASS',
-      expected_amount: parseFloat((expectedAmount * multiplier).toFixed(2)),
-      billed_amount: billedAmount,
-      delta: parseFloat((delta * multiplier).toFixed(2)),
-      tariff_year: tariffYear,
-      source_document: db.gazette_source || null,
-      source_url: db.source_url || null,
-      legal_basis: null,
-      confidence,
-    };
+    return { result: 'PASS' };
   } else {
     return {
       result: 'FAIL',
-      expected_amount: parseFloat((expectedAmount * multiplier).toFixed(2)),
+      approved_amount: parseFloat((expectedAmount * multiplier).toFixed(2)),
       billed_amount: billedAmount,
       delta: parseFloat((delta * multiplier).toFixed(2)),
       tariff_year: tariffYear,
-      source_document: db.gazette_source || null,
-      source_url: db.source_url || null,
-      legal_basis: db.water.notes || 'Mismatched Water Fixed Charge Rate',
-      confidence,
+      source_document: db.gazette_source || 'Unknown Gazette',
+      source_url: db.source_url || 'Unknown URL',
+      confidence: confidence as 'CONFIRMED' | 'BILL-VERIFIED',
     };
   }
 }
 
-function fallbackUnknown(billedAmount: number, tariffYear: string, db: any): ChargeVerification {
-  return {
-    result: 'UNKNOWN',
-    expected_amount: null,
-    billed_amount: billedAmount,
-    delta: null,
-    tariff_year: tariffYear,
-    source_document: db?.gazette_source || null,
-    source_url: db?.source_url || null,
-    legal_basis: null,
-    confidence: 'UNVERIFIED',
-  };
+function fallbackUnknown(): VerificationResult {
+  return { result: 'UNKNOWN' };
 }

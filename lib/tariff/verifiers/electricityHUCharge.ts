@@ -1,25 +1,15 @@
-import { ChargeVerification, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
+import { VerificationResult, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
 
 export function verifyElectricityHUCharge(
   billedAmount: number,
   billingDate: string,
   municipality: string
-): ChargeVerification {
+): VerificationResult {
   const tariffYear = getTariffYearForDate(billingDate);
   const db = loadTariffDb(municipality, tariffYear);
 
   if (!db || !db.electricity || !db.electricity.home_user || db.electricity.home_user.fixed_charge_incl_vat === undefined) {
-    return {
-      result: 'UNKNOWN',
-      expected_amount: null,
-      billed_amount: billedAmount,
-      delta: null,
-      tariff_year: tariffYear,
-      source_document: db?.gazette_source || null,
-      source_url: db?.source_url || null,
-      legal_basis: null,
-      confidence: 'UNVERIFIED',
-    };
+    return { result: 'UNKNOWN' };
   }
 
   const expectedAmount = db.electricity.home_user.fixed_charge_incl_vat;
@@ -27,27 +17,18 @@ export function verifyElectricityHUCharge(
   const delta = billedAmount - expectedAmount;
   
   if (Math.abs(delta) <= tolerance) {
-    return {
-      result: 'PASS',
-      expected_amount: expectedAmount,
-      billed_amount: billedAmount,
-      delta: parseFloat(delta.toFixed(2)),
-      tariff_year: tariffYear,
-      source_document: db.gazette_source,
-      source_url: db.source_url,
-      legal_basis: db.electricity.home_user.legal_note || null,
-      confidence: 'CONFIRMED', // Hardcoding CONFIRMED as per VERIFICATION_STATUS for CoCT explicitly
-    };
+    return { result: 'PASS' };
   } else {
+    // If we have no gazette source mapped for some reason, we shouldn't surface it if it's strictly UNVERIFIED,
+    // but CoCT is CONFIRMED per statuses.
     return {
       result: 'FAIL',
-      expected_amount: expectedAmount,
+      approved_amount: expectedAmount,
       billed_amount: billedAmount,
       delta: parseFloat(delta.toFixed(2)),
       tariff_year: tariffYear,
-      source_document: db.gazette_source,
-      source_url: db.source_url,
-      legal_basis: 'Discrepancy with officially published Home User Tariff',
+      source_document: db.gazette_source || 'Unknown Gazette',
+      source_url: db.source_url || 'Unknown URL',
       confidence: 'CONFIRMED',
     };
   }
