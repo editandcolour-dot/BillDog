@@ -1,0 +1,73 @@
+{
+  "municipality": "City of Cape Town",
+  "municipality_code": "CoCT",
+  "tariff_year": "2023/24",
+  "effective_from": "2023-07-01",
+  "effective_to": "2024-06-30",
+  "gazette_source": "CoCT Budget 2023/24 Annexure 6-25 (Electricity Consumption and Generation Tariffs)",
+  "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget_2023-24_Ann6-25-Electricity-ConsumptionandGeneration.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "home_user": {
+      "description": "Residential tariff for credit meters OR prepaid meters with property value >= R1,000,000",
+      "fixed_charge_label": "Network Access and Administration Charge",
+      "fixed_charge_excl_vat": 219.21,
+      "fixed_charge_incl_vat": 252.09,
+      "energy_block1_limit_kwh": 600,
+      "energy_block1_rate_excl_vat_cents": 268.33,
+      "energy_block1_rate_incl_vat_cents": 308.58,
+      "energy_block2_rate_excl_vat_cents": 370.92,
+      "energy_block2_rate_incl_vat_cents": 426.56,
+      "increase_from_prior_year_pct": 18.49,
+      "nersa_approved": true,
+      "notes": "Confirmed from official gazette. CoCT applied for 17.6% increase; NERSA legal dispute ongoing but tariffs implemented."
+    },
+    "lifeline": {
+      "description": "Subsidised tariff. Block structure changed in 2023/24 - block 1 now ends at 600kWh (was 350kWh). Property value threshold also updated.",
+      "fixed_charge_excl_vat": 0,
+      "fixed_charge_incl_vat": 0,
+      "energy_all_blocks_rate_excl_vat_cents": 183.96,
+      "energy_all_blocks_rate_incl_vat_cents": 211.55
+    },
+    "domestic": {
+      "description": "Prepaid meter, property value between R500,000 and R1,000,000",
+      "fixed_charge_excl_vat": 0,
+      "fixed_charge_incl_vat": 0,
+      "energy_block1_rate_excl_vat_cents": 305.04,
+      "energy_block1_rate_incl_vat_cents": 350.80,
+      "energy_block2_rate_excl_vat_cents": 370.92,
+      "energy_block2_rate_incl_vat_cents": 426.56
+    }
+  },
+  "water": {
+    "fixed_charge_method": "meter_size",
+    "notes": "Fixed charge based on meter connection diameter.",
+    "fixed_basic_charge_by_meter_size_incl_vat": {
+      "15mm": 81.73,
+      "20mm": 126.91,
+      "22mm": 145.94,
+      "notes": "20mm confirmed from actual bills. 15mm and 22mm from secondary source (aquarista.co.za) - verify against gazette."
+    },
+    "consumption_rates_domestic_full_excl_vat": {
+      "step1_0_to_6kl": 18.34,
+      "step2_6_to_10_5kl": 25.20,
+      "step3_10_5_to_35kl": 34.25,
+      "step4_above_35kl": null,
+      "notes": "Confirmed from actual bills."
+    }
+  },
+  "property_rates": {
+    "residential_rate_in_rand": null,
+    "first_exempt_value": 15000,
+    "primary_residence_reduction": 285000,
+    "notes": "Rate in rand requires gazette verification for 2023/24."
+  },
+  "refuse": {
+    "residential_240l_bin_weekly_incl_vat": 165.00,
+    "notes": "Approximate - confirm against gazette. Increased from R149.13 in 2022/23."
+  },
+  "sewerage": {
+    "disposal_rate_per_kl_excl_vat": null,
+    "notes": "Rate requires gazette verification."
+  }
+}

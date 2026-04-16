@@ -26,7 +26,7 @@ describe('bill-validator', () => {
         {
           // Valid HUC for July 2024
           month: '07.2024',
-          amount: 245.03,
+          amount: 281.78,
           label: 'Electricity Home User Charge'
         }
       ],
@@ -108,7 +108,7 @@ describe('bill-validator', () => {
       hucCharges: [
         {
           month: '07.2024',
-          amount: 300.00, // Should be 245.03
+          amount: 300.00, // Should be 281.78
           label: 'Electricity Home User Charge'
         }
       ],
@@ -119,7 +119,7 @@ describe('bill-validator', () => {
     const findings = validateBill(bill);
     expect(findings).toHaveLength(1);
     expect(findings[0].type).toBe('HUC_AMOUNT_WRONG');
-    expect(findings[0].expectedAmount).toBe(245.03);
-    expect(findings[0].discrepancy).toBe(54.97); // 300 - 245.03
+    expect(findings[0].expectedAmount).toBe(281.78);
+    expect(findings[0].discrepancy).toBe(18.22); // 300 - 281.78
   });
 });

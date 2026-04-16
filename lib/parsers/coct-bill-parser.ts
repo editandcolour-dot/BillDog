@@ -136,7 +136,7 @@ export function parseCoctBill(text: string): ParsedBill | null {
     }
   }
 
-  // 6. HUC charges
+  // 6. HUC charges and Water Fixed Charges
   const hucCharges: HucCharge[] = [];
 
   RE_HUC_OLD.lastIndex = 0;
@@ -145,7 +145,7 @@ export function parseCoctBill(text: string): ParsedBill | null {
     hucCharges.push({
       month: hucOld[1],
       amount: parseAmount(hucOld[2]),
-      label: 'Electricity Home User Charge',
+      label: hucOld[0].split('-')[0].trim(),
     });
   }
 
@@ -155,7 +155,23 @@ export function parseCoctBill(text: string): ParsedBill | null {
     hucCharges.push({
       month: hucNew[1],
       amount: parseAmount(hucNew[2]),
-      label: 'Elec HU service & wires charge',
+      label: hucNew[0].split('-')[0].trim(),
+    });
+  }
+
+  // Water Fixed Charge
+  // It looks like: "Fixed basic charge (R4 500 001 - R5 000 000) 214.89" or "Fixed Basic Charge (20mm - KSU391) 116.86" or "... x 2 233.72"
+  const RE_WATER_FIXED = /Fixed\s+basic\s+charge\s*\((.*?)\)(?:\s*x\s*\d+)?\s+([\d,]+\.?\d*)/gi;
+  let waterFixed;
+  while ((waterFixed = RE_WATER_FIXED.exec(text)) !== null) {
+    // Determine a fallback month based on billingDate
+    const fallbackMonth = billingDate ? billingDate.substring(3).replace('/', '.') : 'unknown';
+    
+    // We store the full matched string so the verifier can extract the multiplier "x 2" if present
+    hucCharges.push({
+      month: fallbackMonth,
+      amount: parseAmount(waterFixed[2]),
+      label: waterFixed[0].trim(),
     });
   }
 

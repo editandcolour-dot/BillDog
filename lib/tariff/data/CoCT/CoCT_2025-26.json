@@ -1,0 +1,89 @@
+{
+  "municipality": "City of Cape Town",
+  "municipality_code": "CoCT",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "CoCT Budget 2025/26 Annexure 6 (Tariffs, Fees and Charges Book)",
+  "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2526_Ann6_25-ElecGenandDistribution-ConsumptionandGeneration.pdf",
+  "vat_rate": 0.15,
+  "major_structural_changes": [
+    "Electricity Home User fixed charge renamed to 'Elec HU service & wires charge' and unbundled per National Treasury directive",
+    "Domestic tariff now has a new Service and Wires Charge (previously none)",
+    "Water fixed basic charge methodology changed from meter size to property value bands",
+    "New City-wide Cleaning Tariff introduced (separate line on bill, previously in property rates)",
+    "New fixed basic sewerage charge introduced based on property value",
+    "Eskom bulk purchase increase 11.32%; CoCT average residential increase 9.32%"
+  ],
+  "electricity": {
+    "home_user": {
+      "description": "Credit meters OR prepaid meters with property value >= R1,000,000",
+      "fixed_charge_label": "Elec HU service & wires charge",
+      "fixed_charge_excl_vat": 339.89,
+      "fixed_charge_incl_vat": 390.87,
+      "increase_from_prior_year_pct": 38.71,
+      "increase_note": "Large increase due to unbundling: previously ~10% of tariff was subsidising unrelated services (street lighting, city cleaning). These costs have been moved to dedicated tariffs.",
+      "energy_block1_limit_kwh": 600,
+      "energy_block1_rate_excl_vat_cents": 293.62,
+      "energy_block1_rate_incl_vat_cents": 337.66,
+      "energy_block2_rate_excl_vat_cents": 384.23,
+      "energy_block2_rate_incl_vat_cents": 441.86,
+      "nersa_approved": true,
+      "legal_note": "Consumer groups have challenged CoCT's past practice of charging above NERSA-approved rates. Court rulings pending as of 2025."
+    },
+    "domestic": {
+      "description": "Prepaid meter with property value > R500,000 and < R1,000,000. NEW: now has a Service and Wires Charge.",
+      "fixed_charge_label": "Service and Wires Charge",
+      "fixed_charge_excl_vat": 59.90,
+      "fixed_charge_incl_vat": 68.89,
+      "energy_block1_rate_excl_vat_cents": 339.95,
+      "energy_block1_rate_incl_vat_cents": 390.94,
+      "energy_block2_rate_excl_vat_cents": 404.13,
+      "energy_block2_rate_incl_vat_cents": 464.75
+    },
+    "lifeline": {
+      "description": "Subsidised tariff. No Service and Wires Charge.",
+      "fixed_charge_excl_vat": 0,
+      "fixed_charge_incl_vat": 0,
+      "energy_all_blocks_rate_excl_vat_cents": 226.53,
+      "energy_all_blocks_rate_incl_vat_cents": 260.51
+    }
+  },
+  "water": {
+    "fixed_charge_method": "property_value",
+    "notes": "CHANGED from meter_size to property_value effective 1 July 2025. Challenged by SAPOA as potentially unconstitutional - departing from cost-reflectivity principles.",
+    "transition_date": "2025-07-01",
+    "fixed_basic_charge_by_property_value_excl_vat": {
+      "band_4500001_to_5000000": 214.89,
+      "notes": "Confirmed from actual bills (property valuation R4.7M). Full band table requires official gazette verification. Legal challenge pending re: property value basis."
+    },
+    "consumption_rates_domestic_full_excl_vat": {
+      "step1_0_to_6kl": 21.15,
+      "step2_6_to_10_5kl": 29.06,
+      "step3_10_5_to_35kl": 43.44,
+      "step4_above_35kl": 83.80,
+      "notes": "Confirmed from official gazette."
+    },
+    "consumption_rates_domestic_full_incl_vat": {
+      "step1_0_to_6kl": 24.32,
+      "step2_6_to_10_5kl": 33.42,
+      "step3_10_5_to_35kl": 49.96,
+      "step4_above_35kl": 96.37
+    }
+  },
+  "city_wide_cleaning": {
+    "description": "NEW in 2025/26. Previously funded from property rates. Now separate line item on bill based on property value.",
+    "basis": "property_value",
+    "notes": "Legal status challenged by SAPOA. Applicable to residential and vacant land only in 2025/26; all property types from 2026/27."
+  },
+  "property_rates": {
+    "residential_rate_in_rand": 0.007159,
+    "first_exempt_value": 15000,
+    "primary_residence_reduction": 435000,
+    "notes": "Rate confirmed from Sep 2025 bill: R4,685,000 @ 0.0071590 ÷ 365 × 29 = R2,664.82"
+  },
+  "refuse": {
+    "residential_240l_bin_weekly_incl_vat": 178.52,
+    "notes": "Confirmed from Sep 2025 bill. Note: slight decrease vs 2024/25 (R191.20) — cleaning costs moved to new City-wide Cleaning tariff."
+  }
+}

@@ -1,6 +1,7 @@
 import { ParsedBill, ValidationFinding } from '@/types/analysis';
 import { getExpectedRate } from './rates.rules';
-import { getExpectedHucAmount, validateHucAmount } from './huc.rules';
+import { verifyElectricityHUCharge } from '../tariff/verifiers/electricityHUCharge';
+import { verifyWaterFixedCharge } from '../tariff/verifiers/waterFixedCharge';
 
 export function validateBill(bill: ParsedBill): ValidationFinding[] {
   const findings: ValidationFinding[] = [];
@@ -62,18 +63,46 @@ export function validateBill(bill: ParsedBill): ValidationFinding[] {
   }
 
   for (const huc of bill.hucCharges) {
-    if (!validateHucAmount(huc.month, huc.amount)) {
-      const expected = getExpectedHucAmount(huc.month);
-      if (expected !== null) {
+    // Determine municipality (currently we only parse CoCT, so hardcode CoCT)
+    const municipalityCode = 'CoCT';
+    
+    // We only process Electricity HU Charge or Water Fixed Charge
+    // The parser creates HucCharges array. We should rename it conceptually, but we will process them here.
+    // Wait, the parser only dumps electricity into hucCharges. 
+    // Is Water Fixed Charge parsed? Let's check coct-bill-parser.ts to see if it even parses Water Fixed Charge!
+    
+    if (huc.label.includes('Elec') || huc.label.includes('Electricity')) {
+      const verification = verifyElectricityHUCharge(huc.amount, bill.billingDate, municipalityCode);
+      if (verification.result === 'FAIL') {
         findings.push({
           type: 'HUC_AMOUNT_WRONG',
-          description: `HUC for ${huc.month} is R${huc.amount}, expected R${expected}`,
+          description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.expected_amount}, billed R${huc.amount}`,
           billedAmount: huc.amount,
-          expectedAmount: expected,
-          discrepancy: parseFloat((huc.amount - expected).toFixed(2)),
+          expectedAmount: verification.expected_amount || undefined,
+          discrepancy: Math.abs(verification.delta || 0),
           lineReference: `${huc.label} - ${huc.month}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
+          legalBasis: verification.legal_basis,
+          sourceUrl: verification.source_url,
+          verificationConfidence: verification.confidence as 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'
+        });
+      }
+    } else if (huc.label.toLowerCase().includes('fixed basic charge')) {
+      const verification = verifyWaterFixedCharge(huc.amount, huc.label, bill.billingDate, municipalityCode);
+      if (verification.result === 'FAIL') {
+        findings.push({
+          type: 'WATER_FIXED_CHARGE_WRONG',
+          description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.expected_amount}, billed R${huc.amount}`,
+          billedAmount: huc.amount,
+          expectedAmount: verification.expected_amount || undefined,
+          discrepancy: Math.abs(verification.delta || 0),
+          lineReference: `${huc.label} - ${huc.month}`,
+          invoiceNumber: bill.invoiceNumber,
+          billingDate: bill.billingDate,
+          legalBasis: verification.legal_basis,
+          sourceUrl: verification.source_url,
+          verificationConfidence: verification.confidence as 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'
         });
       }
     }

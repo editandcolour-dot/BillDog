@@ -1,0 +1,73 @@
+{
+  "municipality": "City of Cape Town",
+  "municipality_code": "CoCT",
+  "tariff_year": "2024/25",
+  "effective_from": "2024-07-01",
+  "effective_to": "2025-06-30",
+  "gazette_source": "CoCT Budget 2025/26 Annexure 6-25 (Electricity Consumption and Generation Tariffs)",
+  "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2526_Ann6_25-ElecGenandDistribution-ConsumptionandGeneration.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "home_user": {
+      "description": "Residential tariff for credit meters OR prepaid meters with property value >= R1,000,000",
+      "fixed_charge_label": "Electricity Home User Charge",
+      "fixed_charge_excl_vat": 245.03,
+      "fixed_charge_incl_vat": 281.78,
+      "energy_block1_limit_kwh": 600,
+      "energy_block1_rate_excl_vat_cents": 298.70,
+      "energy_block1_rate_incl_vat_cents": 343.51,
+      "energy_block2_rate_excl_vat_cents": 413.38,
+      "energy_block2_rate_incl_vat_cents": 475.39,
+      "nersa_approved": true,
+      "notes": "Confirmed from official gazette (2025/26 budget showing 2024/25 prior year column)."
+    },
+    "domestic": {
+      "description": "Prepaid meter, property value between R500,000 and R1,000,000. No fixed charge in 2024/25.",
+      "fixed_charge_excl_vat": 0,
+      "fixed_charge_incl_vat": 0,
+      "energy_block1_rate_excl_vat_cents": 339.74,
+      "energy_block1_rate_incl_vat_cents": 390.70,
+      "energy_block2_rate_excl_vat_cents": 413.38,
+      "energy_block2_rate_incl_vat_cents": 475.39
+    },
+    "lifeline": {
+      "description": "Subsidised tariff for qualifying low-income households.",
+      "fixed_charge_excl_vat": 0,
+      "fixed_charge_incl_vat": 0,
+      "energy_all_blocks_rate_excl_vat_cents": 206.16,
+      "energy_all_blocks_rate_incl_vat_cents": 237.08
+    }
+  },
+  "water": {
+    "fixed_charge_method": "meter_size",
+    "notes": "Fixed charge based on meter connection diameter. CoCT announced 6.8% increase.",
+    "fixed_basic_charge_by_meter_size_incl_vat": {
+      "15mm": 87.29,
+      "20mm": 135.54,
+      "notes": "20mm confirmed from actual bills. 15mm from CoCT 2024/25 budget advert."
+    },
+    "consumption_rates_domestic_full_excl_vat": {
+      "step1_0_to_6kl": 19.59,
+      "step2_6_to_10_5kl": 26.92,
+      "step3_10_5_to_35kl": 36.58,
+      "step4_above_35kl": 67.50,
+      "notes": "Confirmed from official gazette and actual bills."
+    }
+  },
+  "property_rates": {
+    "residential_rate_in_rand": null,
+    "first_exempt_value": 15000,
+    "primary_residence_reduction": 435000,
+    "notes": "Reduction increased to R435,000 for primary residence in 2024/25. Rate in rand requires gazette verification."
+  },
+  "refuse": {
+    "residential_240l_bin_weekly_incl_vat": 191.20,
+    "notes": "Confirmed from CoCT 2024/25 budget advert (Rates and Tariffs March 2024 approved)."
+  },
+  "sewerage": {
+    "consumption_rates_domestic_excl_vat": {
+      "step1_0_to_4_2kl": null,
+      "notes": "Rates require gazette verification."
+    }
+  }
+}

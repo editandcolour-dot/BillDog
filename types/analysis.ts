@@ -79,7 +79,8 @@ export type FindingType =
   | 'RATES_CALC_ERROR'
   | 'REBATE_CALC_ERROR'
   | 'HUC_AMOUNT_WRONG'
-  | 'UNKNOWN_RATE_APPLIED';
+  | 'UNKNOWN_RATE_APPLIED'
+  | 'WATER_FIXED_CHARGE_WRONG';
 
 export interface ValidationFinding {
   type: FindingType;
@@ -90,6 +91,10 @@ export interface ValidationFinding {
   lineReference: string;
   invoiceNumber: string;
   billingDate: string;
+  // Tariff Verification extensions
+  legalBasis?: string | null;
+  sourceUrl?: string | null;
+  verificationConfidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'; // UNVERIFIED explicitly excluded
 }
 
 // ── Multi-bill types ──────────────────────────────────────
