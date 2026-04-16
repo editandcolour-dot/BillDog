@@ -1,0 +1,62 @@
+{
+  "municipality": "City of Tshwane Metropolitan Municipality",
+  "municipality_code": "CoT",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "Gauteng Provincial Gazette 217 Vol 31 dd 18 Jun 2025 (LAN 648 pages 74-341)",
+  "source_url": "https://www.tshwane.gov.za/?page_id=6924",
+  "secondary_source": "https://www.martinique.co.za/wp-content/uploads/2025/07/250701-City-of-Tshwane-Tariffs.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "tariff_structure": "inclining block tariff (IBT), no separate fixed charge for residential",
+    "average_increase_pct": 10.20,
+    "residential_block_rates_excl_vat": {
+      "block1_0_to_100kwh": 2.9790,
+      "block2_101_to_400kwh": 3.4864,
+      "block3_401_to_650kwh": 3.7983,
+      "block4_above_650kwh": 4.0948,
+      "notes": "SECONDARY source (property management company summary). Verify against official Gauteng gazette."
+    },
+    "prior_year_2024_25_block_rates_excl_vat": {
+      "block1_0_to_100kwh": 2.7033,
+      "block2_101_to_400kwh": 3.1637,
+      "block3_401_to_650kwh": 3.4468,
+      "block4_above_650kwh": 3.7158
+    },
+    "residential_fixed_charge_excl_vat": null,
+    "notes": "Tshwane uses IBT without a separate flat fixed charge for residential customers (unlike CoCT). Verify this from official gazette.",
+    "nersa_approved": true
+  },
+  "water": {
+    "tariff_structure": "stepped block with network access charge",
+    "network_access_charge_excl_vat_2025_26": 185.20,
+    "network_access_charge_excl_vat_2024_25": 163.93,
+    "increase_pct": 13.00,
+    "free_allocation_kl": 9,
+    "consumption_rates_residential_excl_vat_2025_26": {
+      "step_0_to_9kl": 0.00,
+      "step_10_to_18kl": 32.74,
+      "step_19_to_30kl": 44.30,
+      "step_31_to_42kl": 51.03,
+      "step_43_to_60kl": 54.56,
+      "step_above_60kl": 58.42,
+      "notes": "SECONDARY source. Verify against official gazette."
+    },
+    "consumption_rates_residential_excl_vat_2024_25": {
+      "step_0_to_9kl": 0.00,
+      "step_10_to_18kl": 28.97,
+      "step_19_to_30kl": 39.20,
+      "step_31_to_42kl": 45.13,
+      "step_43_to_60kl": 48.28,
+      "step_above_60kl": 51.70
+    }
+  },
+  "sewerage": {
+    "network_access_charge_excl_vat_2025_26": 103.00,
+    "network_access_charge_excl_vat_2024_25": 97.00,
+    "increase_pct": 6.00
+  },
+  "confidence_overall": "SECONDARY",
+  "action_required": "Fetch official Gauteng Provincial Gazette (LAN 648, 18 Jun 2025) for confirmed rates. URL: https://www.tshwane.gov.za/?page_id=6924"
+}

@@ -1,0 +1,12 @@
+{
+  "alert_type": "LEGAL_REDETERMINATION",
+  "municipality": "City of Johannesburg / City Power",
+  "date_of_ruling": "2026-01-15",
+  "court": "Gauteng High Court (Judge Anthony Millar)",
+  "applicants": ["Casting, Forging and Machining Cluster of South Africa NPC"],
+  "ruling": "NERSA ordered to redetermine 2024/25 electricity tariffs. Court declared NERSA approval unlawful and invalid.",
+  "affected_tariff_year": "2024/25",
+  "deadline_for_redetermination": "2025-06-30",
+  "implication_for_billdog": "2024/25 CoJ/City Power electricity tariffs are under legal challenge. Any 2024/25 CoJ electricity charge verifications should return UNKNOWN until redetermination is published. Do NOT generate disputes on CoJ 2024/25 electricity.",
+  "source": "https://witness.co.za/news/2026/01/15/nersa-redetermine-2024-25-tariffs-high-court-rules/"
+}

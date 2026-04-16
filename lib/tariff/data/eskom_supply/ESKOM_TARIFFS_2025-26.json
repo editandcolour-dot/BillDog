@@ -1,0 +1,19 @@
+{
+  "supplier": "Eskom",
+  "description": "Eskom direct supply tariffs — applies where Eskom (not a municipality) is the licensed electricity distributor",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "nersa_approval_date": "2025-03-11",
+  "source_url": "https://www.eskom.co.za/distribution/wp-content/uploads/2025/07/Tariff-booklet2.pdf",
+  "vat_rate": 0.15,
+  "bulk_municipal_increase_pct": 11.32,
+  "direct_customer_increase_pct_effective_april_2025": 12.74,
+  "notes": "From 1 July 2025 Eskom migrated from Megaflex/Miniflex to Municflex for bulk municipal supply. This restructuring means new tariff names and unbundled charges. Key change: GCC (Generation Capacity Charge) now separate from energy c/kWh.",
+  "structural_change_2025_26": "Megaflex/Miniflex discontinued. All local authorities now on Municflex. New: separate legacy c/kWh + R/kVA Generation Capacity Charge (GCC). Municipalities must pass this through to end consumers.",
+  "homelight_homepower_changes": {
+    "inclining_block_tariff_removed": true,
+    "notes": "NERSA approved removal of IBTs for Eskom Homelight/Homepower. All Eskom residential direct customers now pay flat rate. Fixed charges on Homepower 4 and Homeflex 4 increased ~88%."
+  },
+  "confidence_overall": "CONFIRMED from NERSA approval and Eskom tariff booklet"
+}

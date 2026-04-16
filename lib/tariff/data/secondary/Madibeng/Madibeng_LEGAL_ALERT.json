@@ -1,0 +1,13 @@
+{
+  "alert_type": "LEGAL_REDETERMINATION",
+  "municipality": "Madibeng Local Municipality (Brits)",
+  "province": "North West",
+  "date_of_ruling": "2026-01-15",
+  "court": "Gauteng High Court (Judge Anthony Millar)",
+  "applicants": ["Casting, Forging and Machining Cluster of South Africa NPC"],
+  "ruling": "NERSA ordered to redetermine 2024/25 electricity tariffs.",
+  "affected_tariff_year": "2024/25",
+  "nersa_public_hearing_scheduled": "2026-04-10",
+  "implication_for_billdog": "Madibeng 2024/25 electricity tariffs under legal redetermination. Return UNKNOWN for all verifications.",
+  "source": "https://www.nersa.org.za (notice 10 April 2026)"
+}

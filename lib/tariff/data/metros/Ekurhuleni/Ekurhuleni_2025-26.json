@@ -1,0 +1,47 @@
+{
+  "municipality": "City of Ekurhuleni Metropolitan Municipality",
+  "municipality_code": "CoE",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "City of Ekurhuleni Schedule 2 - Electricity Tariffs 2025/26",
+  "source_url": "https://www.ekurhuleni.gov.za/wp-content/uploads/2025/06/Schedule-2-Electricity-Tariffs-2025-26.pdf",
+  "vat_rate": 0.15,
+  "notes": "Tariff document states 'provisional increase for council approval and awaiting NERSA approval'. Confirm final NERSA approval before using in disputes.",
+  "electricity": {
+    "average_increase_pct": 13.40,
+    "tariff_A2_residential_non_indigent": {
+      "description": "Standard residential, single/multi-phase, up to 80A per phase, prepaid or post-paid",
+      "fixed_basic_charge_1phase_excl_vat": 142.50,
+      "fixed_basic_charge_3phase_excl_vat": 269.82,
+      "energy_block1_0_to_50kwh_excl_vat": 2.8287,
+      "energy_block2_50_to_600kwh_excl_vat": 2.8287,
+      "energy_block3_600_to_700kwh_excl_vat": 4.4182,
+      "energy_block4_above_700kwh_excl_vat": 11.4398,
+      "notes": "CONFIRMED from official CoE tariff schedule PDF."
+    },
+    "tariff_B_residential": {
+      "description": "Medium to high consumption residential, single/multi-phase, also for internal streetlights/guard houses",
+      "fixed_basic_charge_1phase_excl_vat": 141.46,
+      "fixed_basic_charge_3phase_excl_vat": 267.85,
+      "energy_rate_all_seasons_excl_vat": 3.6645,
+      "notes": "Flat energy rate, not tiered. CONFIRMED from official CoE tariff schedule PDF."
+    },
+    "tariff_A1_indigent": {
+      "description": "Indigent residential — no fixed charge",
+      "fixed_basic_charge_excl_vat": 0.00,
+      "energy_block1_0_to_50kwh": 0.00,
+      "energy_block2_50_to_600kwh_excl_vat": 2.9370,
+      "energy_block3_600_to_700kwh_excl_vat": 4.9921,
+      "energy_block4_above_700kwh_excl_vat": 14.0701
+    },
+    "nersa_approved": "PENDING - provisional rates, awaiting NERSA approval confirmation"
+  },
+  "water": {
+    "increase_pct": 9.00,
+    "notes": "Draft tariff increase 9%. Detailed water schedule requires separate gazette document from CoE.",
+    "source_required": "https://www.ekurhuleni.gov.za/for-me/tariffs/"
+  },
+  "confidence_overall": "BILL-VERIFIED for electricity structure; rates CONFIRMED from official schedule. Note NERSA provisional status.",
+  "action_required": "Confirm NERSA final approval. Fetch water tariff schedule from CoE website."
+}

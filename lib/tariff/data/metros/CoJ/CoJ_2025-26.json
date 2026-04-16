@@ -1,0 +1,54 @@
+{
+  "municipality": "City of Johannesburg Metropolitan Municipality",
+  "municipality_code": "CoJ",
+  "electricity_distributor": "City Power (Municipal Entity)",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "CoJ Tariff of Charges 2025/26 - Annexures 1-23",
+  "source_url": "https://www.jra.org.za/wp-content/uploads/2025/07/approved_traffis_2526.pdf",
+  "vat_rate": 0.15,
+  "notes": "Electricity distributed by City Power (SOC), a municipal entity. City Power has own tariff schedule separate from CoJ general tariffs.",
+  "electricity": {
+    "average_increase_pct": 12.41,
+    "tariff_structure": "multi-block IBT with fixed basic charge and network surcharge",
+    "network_surcharge_per_kwh_excl_vat": 0.06,
+    "network_surcharge_note": "6c/kWh on all consumption above 500kWh/month. Residential below 500kWh exempt.",
+    "residential_domestic": {
+      "description": "Standard residential tariff via City Power",
+      "fixed_basic_charge_excl_vat": null,
+      "notes": "City Power tariff schedule required separately from City Power official documents. CONFIRMED source URL required."
+    },
+    "nersa_approved": true
+  },
+  "water": {
+    "distributor": "Johannesburg Water (SOC)",
+    "tariff_structure": "stepped block tariff",
+    "major_change_2025_26": "Proposed removal of free first 6kl (previously free). Verify if implemented.",
+    "consumption_rates_residential_excl_vat": {
+      "step_0_to_6kl": 0.00,
+      "step_6_to_10kl": 29.84,
+      "step_10_to_15kl": 31.15,
+      "step_15_to_20kl": 43.67,
+      "step_20_to_30kl": 60.36,
+      "step_30_to_40kl": 66.01,
+      "step_40_to_50kl": 83.28,
+      "notes": "BILL-VERIFIED from JRA approved tariff document 2025/26. Free 6kl may have been removed - verify against approved budget."
+    },
+    "water_demand_management_levy_per_stand_per_month": 367.86,
+    "notes": "Joburg Water also has a Water Demand Management Levy. Confirm applicability."
+  },
+  "property_rates": {
+    "residential_rate_in_rand": 0.009545,
+    "increase_pct": 4.6,
+    "first_exempt_value": 300000,
+    "rebates": {
+      "pensioner_60_69_income_below_R13049": "100% rebate on values up to R1.5M",
+      "pensioner_70_plus": "100% rebate on values up to R2M",
+      "high_density_residential": "5% rebate"
+    },
+    "notes": "Confirmed from JRA approved tariffs 2025/26 document."
+  },
+  "confidence_overall": "SECONDARY",
+  "action_required": "Fetch City Power tariff schedule for residential fixed charges and block rates. Source: https://www.citypower.co.za/customers/Tariffs"
+}

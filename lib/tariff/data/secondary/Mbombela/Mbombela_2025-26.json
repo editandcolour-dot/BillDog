@@ -1,0 +1,30 @@
+{
+  "municipality": "City of Mbombela Local Municipality",
+  "municipality_code": "MBM",
+  "province": "Mpumalanga",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "nersa_license": "NER326",
+  "gazette_source": "City of Mbombela Approved Electricity Tariffs 2025/2026 (approved 30 May 2025)",
+  "source_url": "https://www.mbombela.gov.za/wp-content/uploads/2025/07/Elecricity-2025-2026.pdf",
+  "vat_rate": 0.15,
+  "approved_increase_pct": 12.72,
+  "electricity": {
+    "tariff_structure": "Named animal tariffs (Buffalo=domestic, Elephant=business, etc.)",
+    "buffalo_tariff_domestic": {
+      "description": "Domestic conventional and prepaid meter supply",
+      "applies_to": ["dwellings", "town houses separately metered", "flats separately metered"],
+      "notes": "Rates data on pages 4-5 of source PDF. Direct fetch showed intro/definitions only. Confirmed tariff structure and NERSA approval. Specific kWh rates require full PDF extraction.",
+      "source_required": "Pages 4-5 of https://www.mbombela.gov.za/wp-content/uploads/2025/07/Elecricity-2025-2026.pdf"
+    },
+    "rhino_tariff_empty_stand": {
+      "description": "Empty stand basic charge",
+      "basic_charge_per_month_excl_vat": 444.79,
+      "notes": "CONFIRMED from source PDF page 4."
+    },
+    "nersa_approved": true
+  },
+  "confidence_overall": "SECONDARY - structure confirmed, domestic rates require full PDF extraction",
+  "action_required": "Extract domestic Buffalo Tariff rates from pages 4-5 of source PDF"
+}

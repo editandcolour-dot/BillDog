@@ -1,0 +1,34 @@
+{
+  "municipality": "eThekwini Metropolitan Municipality",
+  "municipality_code": "ETH",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "eThekwini Tariff Booklet 2025/26",
+  "source_url": "https://www.durban.gov.za/uploads/0000/6/2025/08/15/tariff-book-2025-2026.pdf",
+  "vat_rate": 0.15,
+  "notes": "eThekwini moved from Megaflex to Municflex (Eskom tariff) effective 1 July 2025. TOU periods restructured. Electricity increase applied at 12.72%. eThekwini supplies its own grid — no entity intermediary.",
+  "electricity": {
+    "average_increase_pct": 12.72,
+    "major_structural_change": "Migrated from Eskom Megaflex to Municflex bulk tariff. TOU peak hours restructured: evening peak increased from 2h to 3h; morning peak reduced from 3h to 2h; new 2h Sunday evening standard period added.",
+    "tariff_structure": "multi-scale: Scale 3/4 (credit), Scale 8/9/13 (prepaid), Scale 12 (indigent)",
+    "indigent_scale_12": {
+      "free_basic_electricity_kwh": 65,
+      "fbe_qualifying_threshold_kwh_per_month": 150,
+      "cost_for_51_to_150kwh_incl_vat": 181.14,
+      "notes": "Confirmed from NERSA tariff review document."
+    },
+    "conventional_credit_scale_3_4_monthly_cost_800kwh_incl_vat": 2360.57,
+    "notes": "R2,360.57 confirmed for 800kWh customer in 2024/25 FAQ. 2025/26 rates require tariff booklet.",
+    "nersa_approved": true
+  },
+  "water": {
+    "increase_pct_proposed": 14.9,
+    "increase_pct_approved": 10.9,
+    "sanitation_increase_pct_approved": 10.9,
+    "bulk_water_supplier": "uMngeni-uThukela Water",
+    "notes": "Detailed step tariff requires official 2025/26 tariff book."
+  },
+  "confidence_overall": "SECONDARY",
+  "action_required": "Fetch tariff book PDF from https://www.durban.gov.za (tariff-book-2025-2026.pdf) — SSL certificate issue prevented direct fetch."
+}

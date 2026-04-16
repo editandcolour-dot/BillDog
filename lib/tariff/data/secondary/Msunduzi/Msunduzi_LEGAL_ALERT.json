@@ -1,0 +1,14 @@
+{
+  "alert_type": "LEGAL_REDETERMINATION",
+  "municipality": "Msunduzi Municipality (Pietermaritzburg)",
+  "province": "KwaZulu-Natal",
+  "date_of_ruling": "2026-01-15",
+  "court": "Gauteng High Court (Judge Anthony Millar)",
+  "applicants": ["Pietermaritzburg and Midlands Chamber of Business"],
+  "ruling": "NERSA ordered to redetermine 2024/25 electricity tariffs. Court declared NERSA approval unlawful and invalid.",
+  "affected_tariff_year": "2024/25",
+  "nersa_public_hearing_scheduled": "2026-04-10",
+  "background": "Msunduzi implemented 13.32% increase after NERSA rejected proposed 15.5%. Historical disputes ongoing — tariff issues predated this ruling. Msunduzi threatened to sue NERSA in 2024 over response delays.",
+  "implication_for_billdog": "Msunduzi 2024/25 electricity tariffs are under legal redetermination. Return UNKNOWN for all Msunduzi 2024/25 electricity verifications. High priority municipality for dispute opportunities once redetermination published.",
+  "source": "https://witness.co.za/news/2026/01/15/nersa-redetermine-2024-25-tariffs-high-court-rules/"
+}
