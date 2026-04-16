@@ -134,10 +134,21 @@ export default function SettingsPage() {
   const handleDeleteAccount = async () => {
     setDeleting(true);
     try {
-      await fetch('/api/user/delete', { method: 'POST' });
-      router.push('/');
+      const res = await fetch('/api/user/delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ confirm: true }),
+      });
+      if (res.ok) {
+        router.push('/');
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setMessage({ text: data.error || 'Failed to delete account.', type: 'error' });
+        setDeleting(false);
+      }
     } catch (err) {
       console.error(err);
+      setMessage({ text: 'Network error. Please try again.', type: 'error' });
       setDeleting(false);
     }
   };
