@@ -66,6 +66,11 @@ export function EscalationTimeline({ caseRecord, priorLetters, wardCouncillor }:
               <>
                  <p>Sends automatically: {calculateNextActionDate(2)} (if no response)</p>
                  {wardCouncillor && <p className="mt-1">Will CC: Your ward councillor ({wardCouncillor.name})</p>}
+                 {contacts?.code === 'CoJ' && (
+                   <p className="mt-2 text-xs">
+                     Alternative: <a href="https://ombudsmancomplaints.azurewebsites.net/" target="_blank" rel="noreferrer" className="text-blue hover:underline">Submit directly to CoJ Ombudsman</a>
+                   </p>
+                 )}
               </>
             ) : (
                <p>Pending completion of prior steps.</p>
@@ -86,7 +91,12 @@ export function EscalationTimeline({ caseRecord, priorLetters, wardCouncillor }:
         ) : (
           <div className="text-gray-500 pl-6 border-l-2 border-gray-200 ml-3">
             {currentStep === 2 ? (
-               <p>Sends automatically: {calculateNextActionDate(3)} (if no response)</p>
+               <>
+                 <p>Sends automatically: {calculateNextActionDate(3)} (if no response)</p>
+                 <p className="mt-1">
+                   Alternative: <a href="https://cma.pprotect.org/Complaint-Form.aspx" target="_blank" rel="noreferrer" className="text-blue hover:underline">Submit directly via Public Protector Portal</a>
+                 </p>
+               </>
             ) : (
                <p>Pending completion of prior steps.</p>
             )}

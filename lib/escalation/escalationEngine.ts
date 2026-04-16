@@ -78,6 +78,16 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
   switch (step) {
     case 1:
       recipientEmail = contacts.billingEmail || contacts.municipalManagerEmail;
+      
+      if (contacts.code === 'CoJ') {
+        const hasElec = caseObj.findings?.some((f: any) => f.type === 'HUC_AMOUNT_WRONG');
+        const hasWater = caseObj.findings?.some((f: any) => f.type === 'WATER_FIXED_CHARGE_WRONG');
+        
+        if (hasElec && !hasWater) recipientEmail = 'customerservice@citypower.co.za';
+        else if (hasWater && !hasElec) recipientEmail = 'customerservice@jwater.co.za';
+        else recipientEmail = 'joburgconnect@joburg.org.za'; 
+      }
+      
       recipientName = 'Billing Department';
       break;
     case 2:
