@@ -207,8 +207,11 @@ export async function DELETE(
       }, { status: 400 });
     }
 
-    // 3. Delete associated case_bills and their storage files
-    const { data: caseBills } = await supabase
+    // 3. Delete associated case_bills and their storage files (Bypass RLS using Admin)
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const supabaseAdmin = createAdminClient();
+
+    const { data: caseBills } = await supabaseAdmin
       .from('case_bills')
       .select('id, bill_url')
       .eq('case_id', caseId);
@@ -220,23 +223,23 @@ export async function DELETE(
         .filter(Boolean);
 
       if (storagePaths.length > 0) {
-        await supabase.storage.from('bills').remove(storagePaths);
+        await supabaseAdmin.storage.from('bills').remove(storagePaths);
       }
 
       // Delete case_bills rows
-      await supabase.from('case_bills').delete().eq('case_id', caseId);
+      await supabaseAdmin.from('case_bills').delete().eq('case_id', caseId);
     }
 
     // 4. Delete the single-bill storage file (if legacy single-bill case)
     if (caseRecord.bill_url) {
-      await supabase.storage.from('bills').remove([caseRecord.bill_url]);
+      await supabaseAdmin.storage.from('bills').remove([caseRecord.bill_url]);
     }
 
-    // 5. Delete case_events (cascade should handle this, but be explicit)
-    await supabase.from('case_events').delete().eq('case_id', caseId);
+    // 5. Delete case_events
+    await supabaseAdmin.from('case_events').delete().eq('case_id', caseId);
 
     // 6. Delete the case itself
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await supabaseAdmin
       .from('cases')
       .delete()
       .eq('id', caseId)

@@ -29,28 +29,50 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Calculate deletion date
-    const deletionDate = new Date();
-    deletionDate.setDate(deletionDate.getDate() + DELETION_DELAY_DAYS);
+    const { createAdminClient } = await import('@/lib/supabase/admin');
+    const supabaseAdmin = createAdminClient();
 
-    // Schedule deletion
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({ deletion_scheduled_at: deletionDate.toISOString() })
-      .eq('id', user.id);
+    // 1. Delete all storage files first (these don't cascade on auth.users delete)
+    const { data: userCases } = await supabaseAdmin
+      .from('cases')
+      .select('id, bill_url')
+      .eq('user_id', user.id);
 
-    if (updateError) {
-      console.error('[User Delete] Failed to schedule deletion:', updateError.message);
-      return NextResponse.json({ error: 'Failed to schedule account deletion.' }, { status: 500 });
+    if (userCases && userCases.length > 0) {
+      const caseIds = userCases.map(c => c.id);
+      
+      // Get single-bill urls
+      const singleUrls = userCases.map(c => c.bill_url).filter(Boolean) as string[];
+      
+      // Get multi-bill urls
+      const { data: caseBills } = await supabaseAdmin
+        .from('case_bills')
+        .select('bill_url')
+        .in('case_id', caseIds);
+        
+      const multiUrls = (caseBills || []).map(b => b.bill_url).filter(Boolean) as string[];
+      
+      const allUrls = [...singleUrls, ...multiUrls];
+      
+      if (allUrls.length > 0) {
+        await supabaseAdmin.storage.from('bills').remove(allUrls);
+      }
     }
 
-    // Sign user out
+    // 2. Delete the user from auth.users (cascades to profiles, cases, case_bills, etc.)
+    const { error: deleteError } = await supabaseAdmin.auth.admin.deleteUser(user.id);
+
+    if (deleteError) {
+      console.error('[User Delete] Failed to delete user via admin:', deleteError);
+      return NextResponse.json({ error: 'Failed to completely delete account.' }, { status: 500 });
+    }
+
+    // Sign user out to destroy their server session cookie
     await supabase.auth.signOut();
 
     return NextResponse.json({
-      message: 'Account deletion scheduled.',
-      deletion_date: deletionDate.toISOString(),
-      note: `Your account and all personal data will be permanently deleted on ${deletionDate.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}. To cancel, log back in before that date.`,
+      message: 'Account permanently deleted.',
+      note: 'Your account, dispute history, and all personal data have been completely wiped.',
     });
   } catch (error) {
     console.error('[User Delete] Error:', error instanceof Error ? error.message : String(error));
