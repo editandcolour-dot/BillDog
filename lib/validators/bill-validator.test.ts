@@ -122,4 +122,33 @@ describe('bill-validator', () => {
     expect(findings[0].expectedAmount).toBe(281.78);
     expect(findings[0].discrepancy).toBe(18.22); // 300 - 281.78
   });
+
+  describe('Tier classification behavior', () => {
+    it('Tier 1: strictly runs tariff verification', () => {
+      const bill: ParsedBill = {
+        invoiceNumber: 'T1', billingDate: '15/07/2024', totalDue: 0,
+        ratesPeriod: null, valuation: null, rates: [],
+        hucCharges: [{ month: '07.2024', amount: 300.00, label: 'Electricity Home User Charge' }],
+        returnedDebits: [], dishonourFees: []
+      };
+      // CoCT is Tier 1
+      const findings = validateBill(bill, 'CoCT');
+      expect(findings.some(f => f.type === 'HUC_AMOUNT_WRONG')).toBe(true);
+    });
+
+    it('Tier 3: skips tariff json verification and relies exclusively on Universal Checks via Silence', () => {
+      const bill: ParsedBill = {
+        invoiceNumber: 'T3', billingDate: '15/07/2024', totalDue: 0,
+        ratesPeriod: null, valuation: null, rates: [],
+        // HUC is wildly wrong, but this is Tier 3, so verification must stay SILENT
+        hucCharges: [{ month: '07.2024', amount: 9999.00, label: 'Electricity Home User Charge' }],
+        returnedDebits: [], dishonourFees: []
+      };
+      
+      const findings = validateBill(bill, 'NMBM'); // wait NMBM is Tier 1 for water but we handle overall classification. Let's use a known Tier 3 code.
+      // Dihlabeng local municipality will map to Tier 3 fallback
+      const findingsT3 = validateBill(bill, 'Dihlabeng');
+      expect(findingsT3).toHaveLength(0); // Silence is golden for Tier 3
+    });
+  });
 });

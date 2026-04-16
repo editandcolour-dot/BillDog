@@ -116,6 +116,19 @@ export function loadTariffDb(municipalityCode: string, tariffYear: string) {
   }
 }
 
+// ── Tier 2 Helper ──
+/**
+ * Returns the NERSA approved increase percentage for electricity for a given municipality and year.
+ * Returns null if not explicitly mapped inside the JSON.
+ */
+export function getApprovedIncrease(municipalityCode: string, tariffYear: string): number | null {
+  const db = loadTariffDb(municipalityCode, tariffYear);
+  if (db && db.electricity && typeof db.electricity.approved_increase_pct === 'number') {
+    return db.electricity.approved_increase_pct;
+  }
+  return null;
+}
+
 // ── Application Startup Hook ──
 function checkTariffDbFreshness() {
   const currentTariffYear = getCurrentTariffYear();

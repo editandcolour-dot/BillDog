@@ -17,8 +17,10 @@
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.37.0",
     "browser-image-compression": "^2.0.2",
+    "cheerio": "^1.2.0",
     "lucide-react": "^1.7.0",
     "next": "^16.2.2",
+    "papaparse": "^5.5.3",
     "pdf-parse": "^2.4.5",
     "react": "^18",
     "react-dom": "^18",
@@ -28,6 +30,7 @@
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/papaparse": "^5.5.2",
     "@types/pdf-parse": "^1.1.5",
     "@types/react": "^18",
     "@types/react-dom": "^18",

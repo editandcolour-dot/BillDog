@@ -2,9 +2,22 @@ import { ParsedBill, ValidationFinding } from '@/types/analysis';
 import { getExpectedRate } from './rates.rules';
 import { verifyElectricityHUCharge } from '../tariff/verifiers/electricityHUCharge';
 import { verifyWaterFixedCharge } from '../tariff/verifiers/waterFixedCharge';
+import { classifyMunicipality } from '../tiers/tierClassifier';
+import { runUniversalChecks } from '../checks/universalChecks';
 
-export function validateBill(bill: ParsedBill): ValidationFinding[] {
+export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'): ValidationFinding[] {
   const findings: ValidationFinding[] = [];
+
+  // Always run universal checks (VAT, math, duplicates) regardless of Tier
+  findings.push(...runUniversalChecks(bill));
+
+  const tier = classifyMunicipality(municipalityCode);
+
+  if (tier === 3) {
+    // For Tier 3, we don't have tariff JSON, so strictly skip tariff verification
+    return findings;
+  }
+
 
   for (const seg of bill.rates) {
     const expectedRate = getExpectedRate(seg.fromDate);
@@ -24,19 +37,6 @@ export function validateBill(bill: ParsedBill): ValidationFinding[] {
           expectedAmount: parseFloat((seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays).toFixed(2)),
           discrepancy: parseFloat((seg.billedAmount - (seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays)).toFixed(2)),
           lineReference: `Rates segment from ${seg.fromDate}: R${seg.rateableValue} @ ${seg.annualRate}`,
-          invoiceNumber: bill.invoiceNumber,
-          billingDate: bill.billingDate,
-        });
-      }
-
-      if (Math.abs(seg.billedAmount - expectedAmount) > 0.02) {
-        findings.push({
-          type: 'RATES_CALC_ERROR',
-          description: `Rates arithmetic error. Expected R${expectedAmount}, billed R${seg.billedAmount}`,
-          billedAmount: seg.billedAmount,
-          expectedAmount,
-          discrepancy: parseFloat((seg.billedAmount - expectedAmount).toFixed(2)),
-          lineReference: `Rates segment from ${seg.fromDate}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
         });
@@ -62,48 +62,42 @@ export function validateBill(bill: ParsedBill): ValidationFinding[] {
     }
   }
 
-  for (const huc of bill.hucCharges) {
-    // Determine municipality (currently we only parse CoCT, so hardcode CoCT)
-    const municipalityCode = 'CoCT';
-    
-    // We only process Electricity HU Charge or Water Fixed Charge
-    // The parser creates HucCharges array. We should rename it conceptually, but we will process them here.
-    // Wait, the parser only dumps electricity into hucCharges. 
-    // Is Water Fixed Charge parsed? Let's check coct-bill-parser.ts to see if it even parses Water Fixed Charge!
-    
-    if (huc.label.includes('Elec') || huc.label.includes('Electricity')) {
-      const verification = verifyElectricityHUCharge(huc.amount, bill.billingDate, municipalityCode);
-      if (verification.result === 'FAIL') {
-        findings.push({
-          type: 'HUC_AMOUNT_WRONG',
-          description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
-          billedAmount: huc.amount,
-          expectedAmount: verification.approved_amount,
-          discrepancy: Math.abs(verification.delta),
-          lineReference: `${huc.label} - ${huc.month}`,
-          invoiceNumber: bill.invoiceNumber,
-          billingDate: bill.billingDate,
-          legalBasis: undefined, // No longer tracked in verification explicitly per strict prompt
-          sourceUrl: verification.source_url,
-          verificationConfidence: verification.confidence
-        });
-      }
-    } else if (huc.label.toLowerCase().includes('fixed basic charge')) {
-      const verification = verifyWaterFixedCharge(huc.amount, huc.label, bill.billingDate, municipalityCode);
-      if (verification.result === 'FAIL') {
-        findings.push({
-          type: 'WATER_FIXED_CHARGE_WRONG',
-          description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
-          billedAmount: huc.amount,
-          expectedAmount: verification.approved_amount,
-          discrepancy: Math.abs(verification.delta),
-          lineReference: `${huc.label} - ${huc.month}`,
-          invoiceNumber: bill.invoiceNumber,
-          billingDate: bill.billingDate,
-          legalBasis: undefined,
-          sourceUrl: verification.source_url,
-          verificationConfidence: verification.confidence
-        });
+  if (tier === 1 || tier === 2) {
+    for (const huc of bill.hucCharges) {
+      if (huc.label.includes('Elec') || huc.label.includes('Electricity')) {
+        const verification = verifyElectricityHUCharge(huc.amount, bill.billingDate, municipalityCode);
+        if (verification.result === 'FAIL' && tier === 1) {
+          findings.push({
+            type: 'HUC_AMOUNT_WRONG',
+            description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
+            billedAmount: huc.amount,
+            expectedAmount: verification.approved_amount,
+            discrepancy: Math.abs(verification.delta),
+            lineReference: `${huc.label} - ${huc.month}`,
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+            legalBasis: undefined,
+            sourceUrl: verification.source_url,
+            verificationConfidence: verification.confidence
+          });
+        }
+      } else if (huc.label.toLowerCase().includes('fixed basic charge')) {
+        const verification = verifyWaterFixedCharge(huc.amount, huc.label, bill.billingDate, municipalityCode, bill.valuation?.total);
+        if (verification.result === 'FAIL' && tier === 1) {
+          findings.push({
+            type: 'WATER_FIXED_CHARGE_WRONG',
+            description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
+            billedAmount: huc.amount,
+            expectedAmount: verification.approved_amount,
+            discrepancy: Math.abs(verification.delta),
+            lineReference: `${huc.label} - ${huc.month}`,
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+            legalBasis: undefined,
+            sourceUrl: verification.source_url,
+            verificationConfidence: verification.confidence
+          });
+        }
       }
     }
   }

@@ -80,7 +80,8 @@ export type FindingType =
   | 'REBATE_CALC_ERROR'
   | 'HUC_AMOUNT_WRONG'
   | 'UNKNOWN_RATE_APPLIED'
-  | 'WATER_FIXED_CHARGE_WRONG';
+  | 'WATER_FIXED_CHARGE_WRONG'
+  | 'OVER_APPROVED_INCREASE';
 
 export interface ValidationFinding {
   type: FindingType;
@@ -117,6 +118,10 @@ export interface CaseBill {
   error_message: string | null;
   created_at: string;
   updated_at: string;
+  // Tier extensions
+  coverage_tier?: 1 | 2 | 3;
+  pending_reanalysis?: boolean;
+  transparency_report?: any;
 }
 
 export interface RecurringError {

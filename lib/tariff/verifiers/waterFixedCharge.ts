@@ -4,7 +4,8 @@ export function verifyWaterFixedCharge(
   billedAmount: number,
   billedLabel: string,
   billingDate: string,
-  municipality: string
+  municipality: string,
+  propertyValue?: number
 ): VerificationResult {
   const tariffYear = getTariffYearForDate(billingDate);
   const db = loadTariffDb(municipality, tariffYear);
@@ -31,31 +32,48 @@ export function verifyWaterFixedCharge(
   let legalBasis: string | null = null;
 
   if (method === 'property_value') {
-    // Extract band from label, e.g. "Fixed basic charge (R4 500 001 - R5 000 000)"
-    const bandMatch = billedLabel.match(/\(R\s*([\d\s]+)\s*-\s*R\s*([\d\s]+)\)/i);
-    if (!bandMatch) {
-      return fallbackUnknown();
-    }
-    const lowerBound = bandMatch[1].replace(/\s/g, '');
-    const upperBound = bandMatch[2].replace(/\s/g, '');
-    const bandKey = `band_${lowerBound}_to_${upperBound}`;
-
     const chargeMap = db.water.fixed_basic_charge_by_property_value_excl_vat;
-    if (chargeMap && chargeMap[bandKey] !== undefined && chargeMap[bandKey] !== null) {
-      // NOTE: database is excl VAT, so we must add 15% VAT for comparison
-      const rawExcludeVat = chargeMap[bandKey] as number;
-      expectedAmount = rawExcludeVat * (1 + (db.vat_rate || 0.15));
+    if (!chargeMap) return fallbackUnknown();
+
+    // Try extracting band from label first
+    const bandMatch = billedLabel.match(/\(R\s*([\d\s]+)\s*-\s*R\s*([\d\s]+)\)/i);
+    
+    if (bandMatch) {
+      const lowerBound = bandMatch[1].replace(/\s/g, '');
+      const upperBound = bandMatch[2].replace(/\s/g, '');
+      const bandKey = `band_${lowerBound}_to_${upperBound}`;
+      
+      if (chargeMap[bandKey] !== undefined && chargeMap[bandKey] !== null) {
+        expectedAmount = chargeMap[bandKey] as number;
+      }
+    } else if (propertyValue !== undefined && propertyValue > 0) {
+      // Fallback: reverse engineer the property band dynamically using global context
+      for (const key of Object.keys(chargeMap)) {
+        if (key.startsWith('band_')) {
+          const parts = key.replace('band_', '').split('_to_');
+          const lb = parseInt(parts[0], 10);
+          const ub = parseInt(parts[1], 10);
+          if (propertyValue >= lb && propertyValue <= ub) {
+            expectedAmount = chargeMap[key] as number;
+            break;
+          }
+        }
+      }
+    }
+
+    if (expectedAmount !== null) {
       confidence = chargeMap['notes'] && chargeMap['notes'].includes('Confirmed from actual bills') 
         ? 'BILL-VERIFIED' : 'UNVERIFIED';
+    } else {
+      return fallbackUnknown();
     }
   } else {
     // meter_size
     // Old tariff database entries aren't currently provided in full, so we mock based on VERIFICATION_STATUS.md
-    // We expect the JSON db.water.fixed_basic_charge_by_meter_size_incl_vat or similar to eventually be populated
-    // But since the actual old DB isn't strictly defined in 22-24 JSON in the prompt snippet, we will look for it
+    // We expect the JSON db.water.fixed_basic_charge_by_meter_size_excl_vat or similar to eventually be populated
     const meterMatch = billedLabel.match(/\((\d+)mm\s*-/i);
     const size = meterMatch ? meterMatch[1] : '20'; // Default 20mm
-    const chargeMap = db.water.fixed_basic_charge_by_meter_size_incl_vat;
+    const chargeMap = db.water.fixed_basic_charge_by_meter_size_excl_vat || db.water.fixed_basic_charge_by_meter_size_incl_vat; // Temporary fallback
     if (chargeMap && chargeMap[`${size}mm`]) {
       expectedAmount = chargeMap[`${size}mm`];
       confidence = 'BILL-VERIFIED';

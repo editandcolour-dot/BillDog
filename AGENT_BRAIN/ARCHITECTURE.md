@@ -592,9 +592,17 @@ NODE_ENV=
 
 ---
 
+---
+
+---
+
+---
+
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-16T13:50:42.550288+00:00
+> Last scanned: 2026-04-16T15:49:15.828446+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -616,7 +624,7 @@ NODE_ENV=
   📄 middleware.ts  (2.9 KB)
   📄 next-env.d.ts  (0.2 KB)
   📄 next.config.mjs  (1.6 KB)
-  📄 package-lock.json  (287.5 KB)
+  📄 package-lock.json  (299.0 KB)
   📄 package.json  (1.2 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
@@ -627,7 +635,8 @@ NODE_ENV=
   📄 test_bill.pdf  (0.6 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (225.5 KB)
+  📄 tsconfig.tsbuildinfo  (235.4 KB)
+  📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -698,7 +707,7 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (43.8 KB)
+  📄 ARCHITECTURE.md  (54.6 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
@@ -737,7 +746,7 @@ NODE_ENV=
         📄 page.tsx  (17.1 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (9.1 KB)
+        📄 page.tsx  (10.3 KB)
         📁 app\(app)\case\[id]\verify/
           📄 page.tsx  (3.3 KB)
     📁 app\(app)\dashboard/
@@ -748,7 +757,7 @@ NODE_ENV=
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
-      📄 page.tsx  (14.5 KB)
+      📄 page.tsx  (14.8 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
@@ -812,12 +821,12 @@ NODE_ENV=
   📁 app\api/
     📄 .gitkeep  (0.0 KB)
     📁 app\api\analyse/
-      📄 route.ts  (7.1 KB)
+      📄 route.ts  (7.3 KB)
     📁 app\api\analyse-multi/
-      📄 route.ts  (8.2 KB)
+      📄 route.ts  (9.5 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (8.6 KB)
+        📄 route.ts  (9.0 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (2.0 KB)
         📁 app\api\cases\[id]\verify/
@@ -833,12 +842,18 @@ NODE_ENV=
         📄 route.ts  (2.1 KB)
       📁 app\api\cron\delete-ids/
         📄 route.ts  (1.2 KB)
+      📁 app\api\cron\disclosure-request/
+        📄 route.ts  (3.3 KB)
       📁 app\api\cron\escalate/
         📄 route.ts  (2.2 KB)
+      📁 app\api\cron\escalation/
+        📄 route.ts  (0.8 KB)
       📁 app\api\cron\seo-report/
         📄 route.ts  (2.9 KB)
       📁 app\api\cron\social-monitor/
         📄 route.ts  (0.4 KB)
+      📁 app\api\cron\tariff-reminder/
+        📄 route.ts  (1.1 KB)
     📁 app\api\extract-vision/
       📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
@@ -856,7 +871,7 @@ NODE_ENV=
       📄 route.ts  (4.3 KB)
     📁 app\api\user/
       📁 app\api\user\delete/
-        📄 route.ts  (2.1 KB)
+        📄 route.ts  (2.8 KB)
       📁 app\api\user\export/
         📄 route.ts  (1.9 KB)
       📁 app\api\user\profile/
@@ -869,6 +884,8 @@ NODE_ENV=
   📁 app\auth/
     📁 app\auth\callback/
       📄 route.ts  (0.8 KB)
+  📁 app\coverage/
+    📄 page.tsx  (3.4 KB)
   📁 app\fonts/
     📄 GeistMonoVF.woff  (66.3 KB)
     📄 GeistVF.woff  (64.7 KB)
@@ -880,7 +897,8 @@ NODE_ENV=
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
-    📄 DeleteCaseButton.tsx  (2.8 KB)
+    📄 DeleteCaseButton.tsx  (2.9 KB)
+    📄 EscalationTimeline.tsx  (5.4 KB)
     📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
     📄 CaseCard.tsx  (3.4 KB)
@@ -934,6 +952,15 @@ NODE_ENV=
     📄 prettify.js  (17.2 KB)
     📄 sort-arrow-sprite.png  (0.1 KB)
     📄 sorter.js  (6.6 KB)
+📁 data/
+  📁 data\contacts/
+    📄 00_README.md  (1.8 KB)
+    📄 06_ward_councillor_lookup_instructions.md  (1.9 KB)
+    📄 municipalities_master.csv  (19.9 KB)
+    📄 public_protector_contacts.csv  (1.5 KB)
+    📄 ward_councillors_BCM.csv  (3.7 KB)
+    📄 ward_councillors_KSD.csv  (0.4 KB)
+    📄 ward_councillors_Overstrand.csv  (1.1 KB)
 📁 directives/
   📄 architecture_sync.md  (2.7 KB)
   📄 best_practices.md  (1.3 KB)
@@ -960,26 +987,32 @@ NODE_ENV=
   📄 env.ts  (0.4 KB)
   📄 rate-limit.ts  (1.2 KB)
   📄 social-monitor.ts  (4.8 KB)
+  📁 lib\checks/
+    📄 universalChecks.ts  (2.3 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
-    📄 analyse-bill.ts  (8.0 KB)
+    📄 analyse-bill.ts  (8.3 KB)
     📄 analyse-cross-bill.ts  (4.6 KB)
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
     📄 generate-letter.ts  (6.0 KB)
-    📄 grounded-prompt.ts  (1.9 KB)
+    📄 grounded-prompt.ts  (2.0 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\data/
     📄 seo-municipalities.ts  (11.9 KB)
   📁 lib\escalation/
+    📄 contactLookup.ts  (2.7 KB)
     📄 escalate-dispute.ts  (15.7 KB)
+    📄 escalationEngine.ts  (6.4 KB)
+    📄 letterGenerator.ts  (5.7 KB)
     📄 stage-config.ts  (12.7 KB)
+    📄 wardCouncillorLookup.ts  (3.4 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\parsers/
-    📄 coct-bill-parser.ts  (6.5 KB)
+    📄 coct-bill-parser.ts  (7.5 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
     📄 charge.ts  (3.6 KB)
@@ -1004,11 +1037,221 @@ NODE_ENV=
     📄 admin.ts  (0.6 KB)
     📄 client.ts  (0.2 KB)
     📄 server.ts  (0.7 KB)
+  📁 lib\tariff/
+    📄 tariffLookup.ts  (4.3 KB)
+    📁 lib\tariff\data/
+      📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
+      📄 CRITICAL_LEGAL_NOTE.md  (1.9 KB)
+      📄 MUNICIPALITY_INDEX.json  (10.1 KB)
+      📁 lib\tariff\data\CoCT/
+        📄 CoCT_2022-23.json  (3.0 KB)
+        📄 CoCT_2023-24.json  (3.0 KB)
+        📄 CoCT_2024-25.json  (3.0 KB)
+        📄 CoCT_2025-26.json  (4.4 KB)
+      📁 lib\tariff\data\billdog_all_munis/
+        📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
+        📄 BILLDOG_ANTI_HALLUCINATION_PROMPT.md  (8.4 KB)
+        📄 CRITICAL_LEGAL_NOTE.md  (1.9 KB)
+        📄 ESKOM_TARIFFS_2025-26.json  (1.3 KB)
+        📄 MUNICIPALITY_INDEX.json  (10.1 KB)
+        📄 SNAPTRACK_SOURCE_INDEX.md  (1.6 KB)
+        📁 lib\tariff\data\billdog_all_munis\BCM/
+          📄 BCM_2025-26.json  (2.3 KB)
+        📁 lib\tariff\data\billdog_all_munis\CoJ/
+          📄 CoJ_2025-26.json  (2.5 KB)
+          📄 CoJ_LEGAL_ALERT.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\CoT/
+          📄 CoT_2025-26.json  (2.5 KB)
+        📁 lib\tariff\data\billdog_all_munis\Eastern_Cape/
+          📄 amahlathi_2025_26.json  (0.8 KB)
+          📄 blue-crane-route_2025_26.json  (0.8 KB)
+          📄 dr-beyers-naude_2025_26.json  (0.8 KB)
+          📄 elundini_2025_26.json  (0.8 KB)
+          📄 emalahleni-ec_2025_26.json  (0.8 KB)
+          📄 enoch-mgijima_2025_26.json  (0.8 KB)
+          📄 great-kei_2025_26.json  (0.8 KB)
+          📄 inxuba-yethemba_2025_26.json  (0.8 KB)
+          📄 king-sabata-dalindyebo_2025_26.json  (0.8 KB)
+          📄 kou-kamma_2025_26.json  (0.8 KB)
+          📄 kouga_2025_26.json  (0.8 KB)
+          📄 makana_2025_26.json  (0.8 KB)
+          📄 matatiele_2025_26.json  (0.8 KB)
+          📄 mbizana_2025_26.json  (0.8 KB)
+          📄 ndlambe_2025_26.json  (0.8 KB)
+          📄 raymond-mhlaba_2025_26.json  (0.8 KB)
+          📄 sakhisizwe_2025_26.json  (0.8 KB)
+          📄 senqu_2025_26.json  (0.8 KB)
+          📄 sundays-river_2025_26.json  (0.8 KB)
+          📄 umsobomvu_2025_26.json  (0.8 KB)
+          📄 walter-sisulu_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Ekurhuleni/
+          📄 Ekurhuleni_2025-26.json  (2.4 KB)
+          📄 Ekurhuleni_LEGAL_ALERT.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Free_State/
+          📄 centlec-mangaung_2025_26.json  (0.9 KB)
+          📄 dihlabeng_2025_26.json  (0.8 KB)
+          📄 kopanong_2025_26.json  (0.8 KB)
+          📄 letsemeng_2025_26.json  (0.8 KB)
+          📄 mafube_2025_26.json  (0.8 KB)
+          📄 maluti-a-phofung_2025_26.json  (0.8 KB)
+          📄 mantsopa_2025_26.json  (0.8 KB)
+          📄 masilonyana_2025_26.json  (0.8 KB)
+          📄 matjhabeng_2025_26.json  (0.8 KB)
+          📄 metsimaholo_2025_26.json  (0.8 KB)
+          📄 mohokare_2025_26.json  (0.8 KB)
+          📄 moqhaka_2025_26.json  (0.8 KB)
+          📄 nala_2025_26.json  (0.8 KB)
+          📄 ngwathe_2025_26.json  (0.8 KB)
+          📄 nketoana_2025_26.json  (0.8 KB)
+          📄 setsoto_2025_26.json  (0.8 KB)
+          📄 tokologo_2025_26.json  (0.8 KB)
+          📄 tswelopele_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Gauteng/
+          📄 emfuleni_2025_26.json  (1.1 KB)
+          📄 lesedi_2025_26.json  (0.8 KB)
+          📄 merafong_2025_26.json  (0.8 KB)
+          📄 midvaal_2025_26.json  (0.8 KB)
+          📄 mogale-city_2025_26.json  (0.8 KB)
+          📄 randwest_2025_26.json  (0.8 KB)
+          📄 westrand-distributors_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Limpopo/
+          📄 ba-phalaborwa_2025_26.json  (0.8 KB)
+          📄 bela-bela_2025_26.json  (0.8 KB)
+          📄 blouberg_2025_26.json  (0.8 KB)
+          📄 elias-motsoaledi_2025_26.json  (0.8 KB)
+          📄 ephraim-mogale_2025_26.json  (0.8 KB)
+          📄 greater-letaba_2025_26.json  (0.8 KB)
+          📄 greater-tzaneen_2025_26.json  (0.8 KB)
+          📄 lephalale_2025_26.json  (0.8 KB)
+          📄 makhado_2025_26.json  (0.8 KB)
+          📄 modimolle-mookgophong_2025_26.json  (0.8 KB)
+          📄 mogalakwena_2025_26.json  (0.8 KB)
+          📄 molemole_2025_26.json  (0.8 KB)
+          📄 musina_2025_26.json  (0.8 KB)
+          📄 polokwane_2025_26.json  (0.8 KB)
+          📄 thabazimbi_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Mangaung/
+          📄 Mangaung_2023-24.json  (2.0 KB)
+          📄 Mangaung_2024-25.json  (0.9 KB)
+        📁 lib\tariff\data\billdog_all_munis\Mpumalanga/
+          📄 Mbombela_2025-26.json  (1.5 KB)
+        📁 lib\tariff\data\billdog_all_munis\Msunduzi/
+          📄 Msunduzi_2024-25.json  (1.0 KB)
+          📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
+        📁 lib\tariff\data\billdog_all_munis\NMBM/
+          📄 NMBM_2024-25.json  (1.9 KB)
+        📁 lib\tariff\data\billdog_all_munis\North_West/
+          📄 city-of-matlosana_2025_26.json  (0.8 KB)
+          📄 ditsobotla_2025_26.json  (0.8 KB)
+          📄 greater-taung_2025_26.json  (0.8 KB)
+          📄 jb-marks_2025_26.json  (0.8 KB)
+          📄 kgetleng-rivier_2025_26.json  (0.8 KB)
+          📄 lekwa-teemane_2025_26.json  (0.8 KB)
+          📄 madibeng_2025_26.json  (0.9 KB)
+          📄 mamusa_2025_26.json  (0.8 KB)
+          📄 maquassi-hills_2025_26.json  (0.8 KB)
+          📄 naledi-nw_2025_26.json  (0.8 KB)
+          📄 ramotshere-moiloa_2025_26.json  (0.8 KB)
+          📄 rustenburg_2025_26.json  (0.8 KB)
+          📄 tswaing_2025_26.json  (0.8 KB)
+          📁 lib\tariff\data\billdog_all_munis\North_West\Madibeng/
+            📄 Madibeng_LEGAL_ALERT.json  (0.6 KB)
+        📁 lib\tariff\data\billdog_all_munis\Northern_Cape/
+          📄 dawid-kruiper_2025_26.json  (0.8 KB)
+          📄 dikgatlong_2025_26.json  (0.8 KB)
+          📄 emthanjeni_2025_26.json  (0.8 KB)
+          📄 ga-segonyana_2025_26.json  (0.8 KB)
+          📄 gamagara_2025_26.json  (0.8 KB)
+          📄 hantam_2025_26.json  (0.8 KB)
+          📄 joe-morolong_2025_26.json  (0.8 KB)
+          📄 kai-garib_2025_26.json  (0.9 KB)
+          📄 kamiesberg_2025_26.json  (0.8 KB)
+          📄 kareeberg_2025_26.json  (0.8 KB)
+          📄 karoo-hoogland_2025_26.json  (0.8 KB)
+          📄 kgatelopele_2025_26.json  (0.8 KB)
+          📄 khai-ma_2025_26.json  (0.8 KB)
+          📄 magareng_2025_26.json  (0.8 KB)
+          📄 nama-khoi_2025_26.json  (0.9 KB)
+          📄 phokwane_2025_26.json  (0.8 KB)
+          📄 renosterberg_2025_26.json  (0.8 KB)
+          📄 richtersveld_2025_26.json  (0.8 KB)
+          📄 siyancuma_2025_26.json  (0.8 KB)
+          📄 siyathemba_2025_26.json  (0.8 KB)
+          📄 sol-plaatje_2025_26.json  (0.8 KB)
+          📄 thembelihle_2025_26.json  (0.8 KB)
+          📄 tsantsabane_2025_26.json  (0.8 KB)
+          📄 ubuntu_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\Western_Cape/
+          📄 beaufort-west_2025_26.json  (0.8 KB)
+          📄 bergrivier_2025_26.json  (0.8 KB)
+          📄 bitou_2025_26.json  (0.8 KB)
+          📄 breede-valley_2025_26.json  (0.8 KB)
+          📄 cape-agulhas_2025_26.json  (0.8 KB)
+          📄 cederberg_2025_26.json  (0.8 KB)
+          📄 drakenstein_2025_26.json  (1.6 KB)
+          📄 george_2025_26.json  (1.4 KB)
+          📄 hessequa_2025_26.json  (0.8 KB)
+          📄 kannaland_2025_26.json  (0.8 KB)
+          📄 knysna_2025_26.json  (0.8 KB)
+          📄 laingsburg_2025_26.json  (0.8 KB)
+          📄 langeberg_2025_26.json  (0.8 KB)
+          📄 matzikama_2025_26.json  (0.8 KB)
+          📄 mossel-bay_2025_26.json  (0.8 KB)
+          📄 oudtshoorn_2025_26.json  (0.8 KB)
+          📄 overstrand_2025_26.json  (0.8 KB)
+          📄 prince-albert_2025_26.json  (0.8 KB)
+          📄 saldanha-bay_2025_26.json  (0.8 KB)
+          📄 stellenbosch_2025_26.json  (1.1 KB)
+          📄 swartland_2025_26.json  (0.8 KB)
+          📄 swellendam_2025_26.json  (0.8 KB)
+          📄 theewaterskloof_2025_26.json  (0.8 KB)
+          📄 witzenberg_2025_26.json  (0.8 KB)
+        📁 lib\tariff\data\billdog_all_munis\eThekwini/
+          📄 eThekwini_2024-25.json  (2.1 KB)
+          📄 eThekwini_2025-26.json  (1.8 KB)
+      📁 lib\tariff\data\eskom_supply/
+        📄 ESKOM_TARIFFS_2025-26.json  (1.3 KB)
+      📁 lib\tariff\data\metros/
+        📁 lib\tariff\data\metros\BCM/
+          📄 BCM_2025-26.json  (2.3 KB)
+        📁 lib\tariff\data\metros\CoJ/
+          📄 CoJ_2025-26.json  (2.5 KB)
+          📄 CoJ_LEGAL_ALERT.json  (0.8 KB)
+        📁 lib\tariff\data\metros\CoT/
+          📄 CoT_2025-26.json  (2.5 KB)
+        📁 lib\tariff\data\metros\Ekurhuleni/
+          📄 Ekurhuleni_2025-26.json  (2.4 KB)
+          📄 Ekurhuleni_LEGAL_ALERT.json  (0.8 KB)
+        📁 lib\tariff\data\metros\Mangaung/
+          📄 Mangaung_2023-24.json  (2.0 KB)
+          📄 Mangaung_2024-25.json  (0.9 KB)
+        📁 lib\tariff\data\metros\NMBM/
+          📄 NMBM_2024-25.json  (1.9 KB)
+        📁 lib\tariff\data\metros\eThekwini/
+          📄 eThekwini_2024-25.json  (2.1 KB)
+          📄 eThekwini_2025-26.json  (1.8 KB)
+      📁 lib\tariff\data\secondary/
+        📁 lib\tariff\data\secondary\Madibeng/
+          📄 Madibeng_LEGAL_ALERT.json  (0.6 KB)
+        📁 lib\tariff\data\secondary\Mbombela/
+          📄 Mbombela_2025-26.json  (1.5 KB)
+        📁 lib\tariff\data\secondary\Msunduzi/
+          📄 Msunduzi_2024-25.json  (1.0 KB)
+          📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
+      📁 lib\tariff\data\{metros/
+    📁 lib\tariff\verifiers/
+      📄 electricityHUCharge.ts  (1.2 KB)
+      📄 waterFixedCharge.ts  (3.8 KB)
+  📁 lib\tiers/
+    📄 disclosureRequest.ts  (1.5 KB)
+    📄 tier2Analysis.ts  (2.2 KB)
+    📄 tier3Report.ts  (1.7 KB)
+    📄 tierClassifier.ts  (1.9 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
-    📄 bill-validator.test.ts  (3.4 KB)
-    📄 bill-validator.ts  (3.6 KB)
-    📄 huc.rules.ts  (2.3 KB)
+    📄 bill-validator.test.ts  (5.0 KB)
+    📄 bill-validator.ts  (5.0 KB)
+    📄 huc.rules.ts  (2.4 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
     📄 rates.rules.ts  (1.9 KB)
@@ -1023,6 +1266,8 @@ NODE_ENV=
   📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
 📁 supabase/
+  📁 supabase\.temp/
+    📄 cli-latest  (0.0 KB)
   📁 supabase\migrations/
     📄 .gitkeep  (0.0 KB)
     📄 001_initial_schema.sql  (3.3 KB)
@@ -1037,13 +1282,16 @@ NODE_ENV=
     📄 011_fix_status_constraint.sql  (0.4 KB)
     📄 012_phase12_seo_pages.sql  (0.8 KB)
     📄 013_multi_bill.sql  (3.5 KB)
+    📄 014_coverage_tiers.sql  (0.9 KB)
+    📄 015_disclosure_ownership.sql  (0.8 KB)
+    📄 016_escalation_system.sql  (1.1 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (3.3 KB)
-  📄 index.ts  (7.7 KB)
+  📄 analysis.ts  (3.9 KB)
+  📄 index.ts  (7.8 KB)
 ```
 
 ### Directive Goals

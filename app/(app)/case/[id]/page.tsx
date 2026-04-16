@@ -7,6 +7,8 @@ import { ArrowLeft, ExternalLink, ShieldAlert } from 'lucide-react';
 import { ConfirmResolution } from '@/components/cases/ConfirmResolution';
 import { PublicProtectorModal } from '@/components/cases/PublicProtectorModal';
 import { DeleteCaseButton } from '@/components/cases/DeleteCaseButton';
+import { EscalationTimeline } from '@/components/cases/EscalationTimeline';
+import { lookupWardCouncillor } from '@/lib/escalation/wardCouncillorLookup';
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -41,6 +43,15 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
   const totalBilled = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(c.total_billed || 0);
   const totalRecoverable = new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(c.recoverable || 0);
+
+  // Fetch prior letters for Escalation Timeline
+  const { data: priorLettersData } = await supabase
+    .from('escalation_letters')
+    .select('*')
+    .eq('case_id', caseId)
+    .order('step', { ascending: true });
+
+  const wardCouncillor = c.escalation_step >= 1 ? await lookupWardCouncillor(c.municipality, c.property_address || '') : null;
 
   return (
     <main className="min-h-screen bg-off-white py-12 md:py-16">
@@ -104,6 +115,17 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
               ) : (
                 <CaseTimeline events={caseEventsData} />
               )}
+            </div>
+
+            <div className="bg-white border border-light-grey rounded-3xl p-8 md:p-10 mb-8">
+              <h2 className="font-display text-2xl md:text-3xl text-navy uppercase tracking-wide mb-8">
+                Dispute Timeline
+              </h2>
+              <EscalationTimeline 
+                caseRecord={c} 
+                priorLetters={priorLettersData || []} 
+                wardCouncillor={wardCouncillor} 
+              />
             </div>
           </div>
 

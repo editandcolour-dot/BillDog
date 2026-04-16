@@ -141,7 +141,7 @@ async function callWithRetry<T>(operation: () => Promise<T>, maxRetries: number 
   }
 }
 
-export async function analyseBill(billText: string): Promise<AnalysisResult> {
+export async function analyseBill(billText: string, municipalityCode: string = 'CoCT'): Promise<AnalysisResult> {
   const client = getClaudeClient();
 
   // Try deterministic parser first
@@ -151,7 +151,7 @@ export async function analyseBill(billText: string): Promise<AnalysisResult> {
   let findingsCount = 0;
 
   if (parsedBill) {
-    const findings = validateBill(parsedBill);
+    const findings = validateBill(parsedBill, municipalityCode);
     systemPrompt = buildGroundedSystemPrompt(findings, parsedBill);
     isGroundTruth = true;
     findingsCount = findings.length;

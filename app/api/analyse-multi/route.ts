@@ -7,6 +7,10 @@ import { analyseCrossBill } from '@/lib/claude/analyse-cross-bill';
 import type { AnalysisResult, CaseBill } from '@/types/analysis';
 import type { ServiceType } from '@/types';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+import { classifyMunicipality } from '@/lib/tiers/tierClassifier';
+import { generateTransparencyReport } from '@/lib/tiers/tier3Report';
+import { getCurrentTariffYear } from '@/lib/tariff/tariffLookup';
+import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
 
 const analyseLimiter = getRateLimiter(5, '1 h');
 
@@ -117,8 +121,19 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', bill.id);
 
-        // 6e. Claude analysis
-        const analysis = await analyseBill(billText);
+        // 6e. Claude analysis (passing municipality)
+        const analysis = await analyseBill(billText, caseRecord.municipality);
+        const tier = classifyMunicipality(caseRecord.municipality);
+        
+        let transparencyReport = null;
+        let pendingReanalysis = false;
+        
+        if (tier === 3) {
+          // If the deterministic parser failed, provide a mock object for Universal Checks to run
+          const pb = parseCoctBill(billText) || { rates: [], hucCharges: [], invoiceNumber: 'N/A', billingDate: analysis.bill_period || 'N/A' } as any;
+          transparencyReport = generateTransparencyReport(caseRecord.municipality, getCurrentTariffYear(), pb);
+          pendingReanalysis = true;
+        }
 
         // 6f. Prescription check
         const prescriptionWarnings = analysis.errors.map(err => {
@@ -133,6 +148,9 @@ export async function POST(request: NextRequest) {
           errors_found: analysis.errors,
           recoverable: analysis.total_recoverable,
           analysis_status: 'complete',
+          coverage_tier: tier,
+          pending_reanalysis: pendingReanalysis,
+          transparency_report: transparencyReport,
           updated_at: new Date().toISOString(),
         }).eq('id', bill.id);
 

@@ -8,11 +8,11 @@ export function verifyElectricityHUCharge(
   const tariffYear = getTariffYearForDate(billingDate);
   const db = loadTariffDb(municipality, tariffYear);
 
-  if (!db || !db.electricity || !db.electricity.home_user || db.electricity.home_user.fixed_charge_incl_vat === undefined) {
+  if (!db || !db.electricity || !db.electricity.home_user || db.electricity.home_user.fixed_charge_excl_vat === undefined) {
     return { result: 'UNKNOWN' };
   }
 
-  const expectedAmount = db.electricity.home_user.fixed_charge_incl_vat;
+  const expectedAmount = db.electricity.home_user.fixed_charge_excl_vat;
   const tolerance = 0.10;
   const delta = billedAmount - expectedAmount;
   

@@ -1,0 +1,133 @@
+municipality_code,municipality_name,province,type,ombudsman_type,ombudsman_email,municipal_manager_email,billing_phone,billing_email,billing_portal,public_protector_province,public_protector_phone,public_protector_email,escalation_notes
+CoCT,City of Cape Town,Western Cape,Metro,INDEPENDENT,ombudsman@capetown.gov.za,municipalmanager@capetown.gov.za,0860 103 089,accounts@capetown.gov.za,https://web1.capetown.gov.za/web1/oats/,western_cape,021 423 8644,,Must first lodge with billing dept and get reference number
+CoJ,City of Johannesburg,Gauteng,Metro,INDEPENDENT,complaints@joburgombudsman.org.za,municipalmanager@joburg.org.za,0860 562 874,,https://www.joburgombudsman.org.za,gauteng,011 492 2807,,Must have CoJ Care Connect reference number first
+ETH,eThekwini,KwaZulu-Natal,Metro,INTERNAL_UNIT,ombuds@durban.gov.za,municipalmanager@durban.gov.za,031 311 9111,,https://www.durban.gov.za/city_services/revenue_services,kwazulu_natal,072 756 9103,mlungisik@pprotect.org,Internal unit not independent; use PP KZN for formal escalation
+CoT,City of Tshwane,Gauteng,Metro,NONE,,municipalmanager@tshwane.gov.za,012 358 9999,accountqueries@tshwane.gov.za,https://www.tshwane.gov.za/?page_id=43898,gauteng,011 492 2807,,No independent ombudsman; escalate to municipal manager then PP Gauteng
+CoE,City of Ekurhuleni,Gauteng,Metro,BY_LAW_NO_EMAIL,,municipalmanager@ekurhuleni.gov.za,086 054 3000,,https://www.ekurhuleni.gov.za,gauteng,011 492 2807,,Ombudsman by-law exists but no public email; LEGAL HOLD on 2024/25 electricity tariffs
+NMBM,Nelson Mandela Bay Metro,Eastern Cape,Metro,NONE,,municipalmanager@mandelametro.gov.za,041 506 1111,,,eastern_cape,040 635 1286,,No independent ombudsman
+BCM,Buffalo City Metro,Eastern Cape,Metro,NONE,,municipalmanager@buffalocity.gov.za,043 705 2000,info@buffalocity.gov.za,,eastern_cape,040 635 1286,,No independent ombudsman
+MMM,Mangaung Metro (CENTLEC),Free State,Metro,NONE,,municipalmanager@mangaung.co.za,051 405 8000,,https://www.mangaung.co.za,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman; CENTLEC supplies electricity
+george,George,Western Cape,Local,NONE,,municipalmanager@george.gov.za,044 801 9111,gmun@george.gov.za,,western_cape,021 423 8644,,No independent ombudsman
+drakenstein,Drakenstein,Western Cape,Local,NONE,,municipalmanager@drakenstein.gov.za,021 807 4500,,,western_cape,021 423 8644,,No independent ombudsman
+stellenbosch,Stellenbosch,Western Cape,Local,NONE,,municipalmanager@stellenbosch.gov.za,021 808 8111,info@stellenbosch.gov.za,,western_cape,021 423 8644,,No independent ombudsman
+overstrand,Overstrand,Western Cape,Local,NONE,,municipalmanager@overstrand.gov.za,028 313 8000,,,western_cape,021 423 8644,,No independent ombudsman
+saldanha-bay,Saldanha Bay,Western Cape,Local,NONE,,municipalmanager@saldanhabay.gov.za,022 701 7000,,,western_cape,021 423 8644,,No independent ombudsman
+swartland,Swartland,Western Cape,Local,NONE,,municipalmanager@swartland.org.za,022 487 9400,,,western_cape,021 423 8644,,No independent ombudsman
+theewaterskloof,Theewaterskloof,Western Cape,Local,NONE,,municipalmanager@twk.org.za,028 214 3300,,,western_cape,021 423 8644,,No independent ombudsman
+breede-valley,Breede Valley,Western Cape,Local,NONE,,municipalmanager@bvlm.gov.za,023 348 2600,,,western_cape,021 423 8644,,No independent ombudsman
+mossel-bay,Mossel Bay,Western Cape,Local,NONE,,municipalmanager@mosselbay.gov.za,044 606 5000,,,western_cape,021 423 8644,,No independent ombudsman
+knysna,Knysna,Western Cape,Local,NONE,,municipalmanager@knysna.gov.za,044 302 6900,,,western_cape,021 423 8644,,No independent ombudsman
+bitou,Bitou,Western Cape,Local,NONE,,municipalmanager@bitou.gov.za,044 501 3000,,,western_cape,021 423 8644,,No independent ombudsman
+hessequa,Hessequa,Western Cape,Local,NONE,,municipalmanager@hessequa.gov.za,028 713 8000,,,western_cape,021 423 8644,,No independent ombudsman
+langeberg,Langeberg,Western Cape,Local,NONE,,municipalmanager@langeberg.gov.za,023 626 8100,,,western_cape,021 423 8644,,No independent ombudsman
+witzenberg,Witzenberg,Western Cape,Local,NONE,,municipalmanager@witzenberg.gov.za,023 316 1943,,,western_cape,021 423 8644,,No independent ombudsman
+bergrivier,Bergrivier,Western Cape,Local,NONE,,municipalmanager@bergrivier.gov.za,022 913 6000,,,western_cape,021 423 8644,,No independent ombudsman
+cederberg,Cederberg,Western Cape,Local,NONE,,municipalmanager@cederberg.gov.za,027 482 8000,,,western_cape,021 423 8644,,No independent ombudsman
+matzikama,Matzikama,Western Cape,Local,NONE,,municipalmanager@matzikama.gov.za,027 201 3300,,,western_cape,021 423 8644,,No independent ombudsman
+beaufort-west,Beaufort West,Western Cape,Local,NONE,,municipalmanager@beaufortwest.gov.za,023 415 8400,,,western_cape,021 423 8644,,No independent ombudsman
+laingsburg,Laingsburg,Western Cape,Local,NONE,,municipalmanager@laingsburg.gov.za,023 551 1019,,,western_cape,021 423 8644,,No independent ombudsman
+prince-albert,Prince Albert,Western Cape,Local,NONE,,municipalmanager@princealbert.gov.za,023 541 1320,,,western_cape,021 423 8644,,No independent ombudsman
+cape-agulhas,Cape Agulhas,Western Cape,Local,NONE,,municipalmanager@capeagulhas.gov.za,028 425 5500,,,western_cape,021 423 8644,,No independent ombudsman
+swellendam,Swellendam,Western Cape,Local,NONE,,municipalmanager@swellendam.gov.za,028 514 8200,,,western_cape,021 423 8644,,No independent ombudsman
+kannaland,Kannaland,Western Cape,Local,NONE,,municipalmanager@kannaland.gov.za,044 213 3313,,,western_cape,021 423 8644,,No independent ombudsman
+oudtshoorn,Oudtshoorn,Western Cape,Local,NONE,,municipalmanager@oudtshoorn.gov.za,044 203 3000,,,western_cape,021 423 8644,,No independent ombudsman
+emfuleni,Emfuleni,Gauteng,Local,NONE,,municipalmanager@emfuleni.gov.za,016 950 5000,,,gauteng,011 492 2807,,No independent ombudsman
+mogale-city,Mogale City,Gauteng,Local,NONE,,municipalmanager@mogalecity.gov.za,011 951 2000,,,gauteng,011 492 2807,,No independent ombudsman
+merafong,Merafong,Gauteng,Local,NONE,,municipalmanager@merafong.gov.za,018 788 9500,,,gauteng,011 492 2807,,No independent ombudsman
+lesedi,Lesedi,Gauteng,Local,NONE,,municipalmanager@lesedi.gov.za,016 340 1111,,,gauteng,011 492 2807,,No independent ombudsman
+midvaal,Midvaal,Gauteng,Local,NONE,,municipalmanager@midvaal.gov.za,016 360 7400,,,gauteng,011 492 2807,,No independent ombudsman
+randwest,Rand West City,Gauteng,Local,NONE,,municipalmanager@randwestcity.gov.za,011 411 5700,,,gauteng,011 492 2807,,No independent ombudsman
+westrand-distributors,Westrand Distributors,Gauteng,Local,NONE,,municipalmanager@westrand.gov.za,011 411 5700,,,gauteng,011 492 2807,,No independent ombudsman
+amahlathi,Amahlathi,Eastern Cape,Local,NONE,,municipalmanager@amahlathi.gov.za,043 614 3200,,,eastern_cape,040 635 1286,,No independent ombudsman
+blue-crane-route,Blue Crane Route,Eastern Cape,Local,NONE,,municipalmanager@bluecraneroute.gov.za,046 683 0001,,,eastern_cape,040 635 1286,,No independent ombudsman
+dr-beyers-naude,Dr Beyers Naude,Eastern Cape,Local,NONE,,municipalmanager@dbnm.gov.za,049 892 8700,,,eastern_cape,040 635 1286,,No independent ombudsman
+emalahleni-ec,Emalahleni EC,Eastern Cape,Local,NONE,,municipalmanager@emalamuni.gov.za,047 878 2000,,,eastern_cape,040 635 1286,,No independent ombudsman
+elundini,Elundini,Eastern Cape,Local,NONE,,municipalmanager@elundini.gov.za,039 257 0092,,,eastern_cape,040 635 1286,,No independent ombudsman
+enoch-mgijima,Enoch Mgijima,Eastern Cape,Local,NONE,,municipalmanager@emm.gov.za,045 807 5900,,,eastern_cape,040 635 1286,,No independent ombudsman
+great-kei,Great Kei,Eastern Cape,Local,NONE,,municipalmanager@greatkei.gov.za,040 841 1056,,,eastern_cape,040 635 1286,,No independent ombudsman
+inxuba-yethemba,Inxuba Yethemba,Eastern Cape,Local,NONE,,municipalmanager@inxubayethemba.gov.za,048 881 3112,,,eastern_cape,040 635 1286,,No independent ombudsman
+king-sabata-dalindyebo,King Sabata Dalindyebo,Eastern Cape,Local,NONE,,municipalmanager@ksd.gov.za,047 501 3200,,,eastern_cape,040 635 1286,,No independent ombudsman
+kouga,Kouga,Eastern Cape,Local,NONE,,municipalmanager@kouga.gov.za,042 200 2200,,,eastern_cape,040 635 1286,,No independent ombudsman
+kou-kamma,Kou-Kamma,Eastern Cape,Local,NONE,,municipalmanager@koukamma.gov.za,042 280 2700,,,eastern_cape,040 635 1286,,No independent ombudsman
+makana,Makana,Eastern Cape,Local,NONE,,municipalmanager@makana.gov.za,046 603 6000,,,eastern_cape,040 635 1286,,No independent ombudsman
+matatiele,Matatiele,Eastern Cape,Local,NONE,,municipalmanager@matatiele.gov.za,039 737 3260,,,eastern_cape,040 635 1286,,No independent ombudsman
+mbizana,Mbizana,Eastern Cape,Local,NONE,,municipalmanager@mbizana.gov.za,039 253 7800,,,eastern_cape,040 635 1286,,No independent ombudsman
+ndlambe,Ndlambe,Eastern Cape,Local,NONE,,municipalmanager@ndlambe.gov.za,046 676 1201,,,eastern_cape,040 635 1286,,No independent ombudsman
+raymond-mhlaba,Raymond Mhlaba,Eastern Cape,Local,NONE,,municipalmanager@raymondmhlaba.gov.za,046 645 1012,,,eastern_cape,040 635 1286,,No independent ombudsman
+sakhisizwe,Sakhisizwe,Eastern Cape,Local,NONE,,municipalmanager@sakhisizwe.gov.za,045 931 7777,,,eastern_cape,040 635 1286,,No independent ombudsman
+senqu,Senqu,Eastern Cape,Local,NONE,,municipalmanager@senqu.gov.za,051 603 1300,,,eastern_cape,040 635 1286,,No independent ombudsman
+sundays-river,Sundays River Valley,Eastern Cape,Local,NONE,,municipalmanager@srv.gov.za,042 203 1300,,,eastern_cape,040 635 1286,,No independent ombudsman
+umsobomvu,Umsobomvu,Eastern Cape,Local,NONE,,municipalmanager@umsobomvu.gov.za,051 753 1003,,,eastern_cape,040 635 1286,,No independent ombudsman
+walter-sisulu,Walter Sisulu,Eastern Cape,Local,NONE,,municipalmanager@wslm.gov.za,051 633 1881,,,eastern_cape,040 635 1286,,No independent ombudsman
+ba-phalaborwa,Ba-Phalaborwa,Limpopo,Local,NONE,,municipalmanager@baphalaborwa.gov.za,015 780 0300,,,limpopo,,,No independent ombudsman; contact PP head office 0800 11 20 40
+bela-bela,Bela-Bela,Limpopo,Local,NONE,,municipalmanager@belabela.gov.za,014 736 8000,,,limpopo,,,No independent ombudsman
+blouberg,Blouberg,Limpopo,Local,NONE,,municipalmanager@blouberg.gov.za,015 491 9600,,,limpopo,,,No independent ombudsman
+elias-motsoaledi,Elias Motsoaledi,Limpopo,Local,NONE,,municipalmanager@eliasmotsoaledi.gov.za,013 262 3400,,,limpopo,,,No independent ombudsman
+ephraim-mogale,Ephraim Mogale,Limpopo,Local,NONE,,municipalmanager@ephraimogale.gov.za,013 268 7800,,,limpopo,,,No independent ombudsman
+greater-letaba,Greater Letaba,Limpopo,Local,NONE,,municipalmanager@greaterletaba.gov.za,015 309 6900,,,limpopo,,,No independent ombudsman
+greater-tzaneen,Greater Tzaneen,Limpopo,Local,NONE,,municipalmanager@tzaneen.gov.za,015 307 8000,,,limpopo,,,No independent ombudsman
+lephalale,Lephalale,Limpopo,Local,NONE,,municipalmanager@lephalale.gov.za,014 763 3100,,,limpopo,,,No independent ombudsman
+makhado,Makhado,Limpopo,Local,NONE,,municipalmanager@makhado.gov.za,015 519 3000,,,limpopo,,,No independent ombudsman
+modimolle-mookgophong,Modimolle-Mookgophong,Limpopo,Local,NONE,,municipalmanager@modimolle.gov.za,014 717 9700,,,limpopo,,,No independent ombudsman
+mogalakwena,Mogalakwena,Limpopo,Local,NONE,,municipalmanager@mogalakwena.gov.za,015 491 9600,,,limpopo,,,No independent ombudsman
+molemole,Molemole,Limpopo,Local,NONE,,municipalmanager@molemole.gov.za,015 501 5900,,,limpopo,,,No independent ombudsman
+musina,Musina,Limpopo,Local,NONE,,municipalmanager@musina.gov.za,015 534 7000,,,limpopo,,,No independent ombudsman
+polokwane,Polokwane,Limpopo,Local,NONE,,municipalmanager@polokwane.gov.za,015 290 2000,,,limpopo,,,No independent ombudsman
+thabazimbi,Thabazimbi,Limpopo,Local,NONE,,municipalmanager@thabazimbi.gov.za,014 777 1911,,,limpopo,,,No independent ombudsman
+city-of-matlosana,City of Matlosana,North West,Local,NONE,,municipalmanager@matlosana.gov.za,018 487 8000,,,north_west,018 381 1060,,No independent ombudsman
+ditsobotla,Ditsobotla,North West,Local,NONE,,municipalmanager@ditsobotla.gov.za,018 632 5051,,,north_west,018 381 1060,,No independent ombudsman
+greater-taung,Greater Taung,North West,Local,NONE,,municipalmanager@greatertatung.gov.za,053 994 9500,,,north_west,018 381 1060,,No independent ombudsman
+jb-marks,JB Marks,North West,Local,NONE,,municipalmanager@jbmarks.gov.za,018 299 5000,,,north_west,018 381 1060,,No independent ombudsman
+kgetleng-rivier,Kgetleng Rivier,North West,Local,NONE,,municipalmanager@kgetlengrivier.gov.za,018 369 8200,,,north_west,018 381 1060,,No independent ombudsman
+lekwa-teemane,Lekwa-Teemane,North West,Local,NONE,,municipalmanager@lekwateemane.gov.za,053 951 0300,,,north_west,018 381 1060,,No independent ombudsman
+madibeng,Madibeng,North West,Local,NONE,,municipalmanager@madibeng.gov.za,012 318 5000,,,north_west,018 381 1060,,LEGAL HOLD: 2024/25 tariffs under NERSA redetermination
+mamusa,Mamusa,North West,Local,NONE,,municipalmanager@mamusa.gov.za,053 963 1013,,,north_west,018 381 1060,,No independent ombudsman
+maquassi-hills,Maquassi Hills,North West,Local,NONE,,municipalmanager@maquassihills.gov.za,018 596 3801,,,north_west,018 381 1060,,No independent ombudsman
+naledi-nw,Naledi North West,North West,Local,NONE,,municipalmanager@naledi.gov.za,053 927 0310,,,north_west,018 381 1060,,No independent ombudsman
+ramotshere-moiloa,Ramotshere Moiloa,North West,Local,NONE,,municipalmanager@ramotsheremoiloa.gov.za,018 642 1241,,,north_west,018 381 1060,,No independent ombudsman
+rustenburg,Rustenburg,North West,Local,NONE,,municipalmanager@rustenburg.gov.za,014 590 3000,,,north_west,018 381 1060,,No independent ombudsman
+tswaing,Tswaing,North West,Local,NONE,,municipalmanager@tswaing.gov.za,018 383 1131,,,north_west,018 381 1060,,No independent ombudsman
+centlec-mangaung,CENTLEC Mangaung,Free State,Local,NONE,,municipalmanager@mangaung.co.za,051 405 8000,info@centlec.co.za,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman; electricity via CENTLEC
+dihlabeng,Dihlabeng,Free State,Local,NONE,,municipalmanager@dihlabeng.gov.za,058 303 5800,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+kopanong,Kopanong,Free State,Local,NONE,,municipalmanager@kopanong.gov.za,051 713 7600,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+letsemeng,Letsemeng,Free State,Local,NONE,,municipalmanager@letsemeng.gov.za,053 205 9600,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+mafube,Mafube,Free State,Local,NONE,,municipalmanager@mafube.gov.za,058 863 8100,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+maluti-a-phofung,Maluti-a-Phofung,Free State,Local,NONE,,municipalmanager@maluti.fs.gov.za,058 718 3700,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+mantsopa,Mantsopa,Free State,Local,NONE,,municipalmanager@mantsopa.fs.gov.za,051 924 2910,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+metsimaholo,Metsimaholo,Free State,Local,NONE,,municipalmanager@metsimaholo.gov.za,016 973 2121,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+masilonyana,Masilonyana,Free State,Local,NONE,,municipalmanager@masilonyana.gov.za,057 732 3052,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+matjhabeng,Matjhabeng,Free State,Local,NONE,,municipalmanager@matjhabeng.gov.za,057 391 3111,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+mohokare,Mohokare,Free State,Local,NONE,,municipalmanager@mohokare.gov.za,051 673 9600,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+moqhaka,Moqhaka,Free State,Local,NONE,,municipalmanager@moqhaka.gov.za,056 213 2200,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+nala,Nala,Free State,Local,NONE,,municipalmanager@nala.gov.za,056 515 1213,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+ngwathe,Ngwathe,Free State,Local,NONE,,municipalmanager@ngwathe.gov.za,056 812 0900,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+nketoana,Nketoana,Free State,Local,NONE,,municipalmanager@nketoana.gov.za,058 863 8111,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+setsoto,Setsoto,Free State,Local,NONE,,municipalmanager@setsoto.gov.za,051 933 2301,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+tokologo,Tokologo,Free State,Local,NONE,,municipalmanager@tokologo.gov.za,053 356 0080,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+tswelopele,Tswelopele,Free State,Local,NONE,,municipalmanager@tswelopele.gov.za,056 416 0400,,,free_state,069 525 4236,vanessam@pprotect.org,No independent ombudsman
+dawid-kruiper,Dawid Kruiper,Northern Cape,Local,NONE,,municipalmanager@dawid-kruiper.gov.za,054 338 7200,,,northern_cape,,,No independent ombudsman; PP head office 0800 11 20 40
+dikgatlong,Dikgatlong,Northern Cape,Local,NONE,,municipalmanager@dikgatlong.gov.za,053 531 0880,,,northern_cape,,,No independent ombudsman
+emthanjeni,Emthanjeni,Northern Cape,Local,NONE,,municipalmanager@emthanjeni.gov.za,053 631 0026,,,northern_cape,,,No independent ombudsman
+gamagara,Gamagara,Northern Cape,Local,NONE,,municipalmanager@gamagara.gov.za,053 739 0200,,,northern_cape,,,No independent ombudsman
+ga-segonyana,Ga-Segonyana,Northern Cape,Local,NONE,,municipalmanager@gasegonyana.gov.za,053 712 9600,,,northern_cape,,,No independent ombudsman
+hantam,Hantam,Northern Cape,Local,NONE,,municipalmanager@hantam.gov.za,027 341 8500,,,northern_cape,,,No independent ombudsman
+joe-morolong,Joe Morolong,Northern Cape,Local,NONE,,municipalmanager@joemorlong.gov.za,053 712 9000,,,northern_cape,,,No independent ombudsman
+kai-garib,Kai Garib,Northern Cape,Local,NONE,,municipalmanager@kaigarib.gov.za,054 432 8700,,,northern_cape,,,No independent ombudsman
+kamiesberg,Kamiesberg,Northern Cape,Local,NONE,,municipalmanager@kamiesberg.gov.za,027 672 1023,,,northern_cape,,,No independent ombudsman
+kareeberg,Kareeberg,Northern Cape,Local,NONE,,municipalmanager@kareeberg.gov.za,053 382 8700,,,northern_cape,,,No independent ombudsman
+karoo-hoogland,Karoo Hoogland,Northern Cape,Local,NONE,,municipalmanager@karoohoogland.gov.za,023 561 1041,,,northern_cape,,,No independent ombudsman
+kgatelopele,Kgatelopele,Northern Cape,Local,NONE,,municipalmanager@kgatelopele.gov.za,053 384 0037,,,northern_cape,,,No independent ombudsman
+khai-ma,Khai-Ma,Northern Cape,Local,NONE,,municipalmanager@khai-ma.gov.za,027 761 8600,,,northern_cape,,,No independent ombudsman
+magareng,Magareng,Northern Cape,Local,NONE,,municipalmanager@magareng.gov.za,053 531 0069,,,northern_cape,,,No independent ombudsman
+nama-khoi,Nama Khoi,Northern Cape,Local,NONE,,municipalmanager@namakhoi.gov.za,027 718 8100,,,northern_cape,,,No independent ombudsman
+phokwane,Phokwane,Northern Cape,Local,NONE,,municipalmanager@phokwane.gov.za,053 474 0085,,,northern_cape,,,No independent ombudsman
+renosterberg,Renosterberg,Northern Cape,Local,NONE,,municipalmanager@renosterberg.gov.za,053 661 0073,,,northern_cape,,,No independent ombudsman
+richtersveld,Richtersveld,Northern Cape,Local,NONE,,municipalmanager@richtersveld.gov.za,027 831 1010,,,northern_cape,,,No independent ombudsman
+siyancuma,Siyancuma,Northern Cape,Local,NONE,,municipalmanager@siyancuma.gov.za,053 621 0065,,,northern_cape,,,No independent ombudsman
+siyathemba,Siyathemba,Northern Cape,Local,NONE,,municipalmanager@siyathemba.gov.za,053 353 2080,,,northern_cape,,,No independent ombudsman
+sol-plaatje,Sol Plaatje,Northern Cape,Local,NONE,,municipalmanager@solplaatje.gov.za,053 830 6911,,,northern_cape,,,No independent ombudsman; MM position disputed Jan 2026
+thembelihle,Thembelihle,Northern Cape,Local,NONE,,municipalmanager@thembelihle.gov.za,053 204 0900,,,northern_cape,,,No independent ombudsman
+tsantsabane,Tsantsabane,Northern Cape,Local,NONE,,municipalmanager@tsantsabane.gov.za,053 313 9500,,,northern_cape,,,No independent ombudsman
+ubuntu,Ubuntu,Northern Cape,Local,NONE,,municipalmanager@ubuntu.gov.za,053 621 1000,,,northern_cape,,,No independent ombudsman
+msunduzi,Msunduzi,KwaZulu-Natal,Local,NONE,,municipalmanager@msunduzi.gov.za,033 392 3000,,,kwazulu_natal,072 756 9103,mlungisik@pprotect.org,LEGAL HOLD: 2024/25 tariffs under NERSA redetermination
+newcastle,Newcastle,KwaZulu-Natal,Local,NONE,,municipalmanager@newcastle.gov.za,034 328 7600,,,kwazulu_natal,072 756 9103,mlungisik@pprotect.org,No independent ombudsman
