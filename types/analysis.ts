@@ -20,7 +20,76 @@ export interface AnalysisResult {
     model: string;
     tokensUsed: number;
     durationMs: number;
+    groundTruth?: boolean;
+    findingsCount?: number;
+    parserUsed?: string;
   };
+}
+
+// ── Ground Truth types ────────────────────────────────────
+
+export interface RatesSegment {
+  fromDate: string;
+  rateableValue: number;
+  annualRate: number;
+  daysInYear: number;
+  billingDays: number;
+  billedAmount: number;
+  rebateBase?: number;
+  rebateBilledAmount?: number;
+}
+
+export interface HucCharge {
+  month: string;       // e.g. "02.2025"
+  amount: number;
+  label: string;
+}
+
+export interface ReturnedDebit {
+  description: string;
+  amount: number;
+}
+
+export interface DishonourFee {
+  amount: number;
+}
+
+export interface ParsedBill {
+  invoiceNumber: string;
+  billingDate: string;
+  totalDue: number;
+  ratesPeriod: {
+    from: string;
+    to: string;
+    days: number;
+  } | null;
+  valuation: {
+    total: number;
+    exemption: number;
+    rateable: number;
+    fromDate: string;
+  } | null;
+  rates: RatesSegment[];
+  hucCharges: HucCharge[];
+  returnedDebits: ReturnedDebit[];
+  dishonourFees: DishonourFee[];
+}
+
+export type FindingType =
+  | 'RATES_CALC_ERROR'
+  | 'REBATE_CALC_ERROR'
+  | 'HUC_AMOUNT_WRONG'
+  | 'UNKNOWN_RATE_APPLIED';
+
+export interface ValidationFinding {
+  type: FindingType;
+  description: string;
+  billedAmount: number;
+  expectedAmount?: number;
+  discrepancy?: number;
+  lineReference: string;
+  invoiceNumber: string;
+  billingDate: string;
 }
 
 // ── Multi-bill types ──────────────────────────────────────

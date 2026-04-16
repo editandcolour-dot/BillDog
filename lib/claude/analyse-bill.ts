@@ -1,5 +1,8 @@
 import { getClaudeClient } from './client';
 import { AnalysisResult } from '@/types/analysis';
+import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
+import { validateBill } from '@/lib/validators/bill-validator';
+import { buildGroundedSystemPrompt } from './grounded-prompt';
 
 const CLAUDE_TIMEOUT_MS = 45_000;
 const MODEL = 'claude-sonnet-4-20250514';
@@ -141,6 +144,22 @@ async function callWithRetry<T>(operation: () => Promise<T>, maxRetries: number 
 export async function analyseBill(billText: string): Promise<AnalysisResult> {
   const client = getClaudeClient();
 
+  // Try deterministic parser first
+  const parsedBill = parseCoctBill(billText);
+  let systemPrompt = ANALYSIS_SYSTEM_PROMPT;
+  let isGroundTruth = false;
+  let findingsCount = 0;
+
+  if (parsedBill) {
+    const findings = validateBill(parsedBill);
+    systemPrompt = buildGroundedSystemPrompt(findings, parsedBill);
+    isGroundTruth = true;
+    findingsCount = findings.length;
+    console.log(`[claude/analyse] Using Ground Truth architecture. Found ${findingsCount} validated errors.`);
+  } else {
+    console.log('[claude/analyse] Bill not recognized as CoCT. Falling back to AI-only analysis.');
+  }
+
   const MAX_BILL_TEXT_CHARS = 8000;
   let trimmedText = billText;
   
@@ -157,8 +176,10 @@ export async function analyseBill(billText: string): Promise<AnalysisResult> {
     return client.messages.create({
       model: MODEL,
       max_tokens: 2000,
-      system: ANALYSIS_SYSTEM_PROMPT,
-      messages: [{ role: 'user', content: trimmedText }],
+      system: systemPrompt,
+      // If we have grounded truth, we don't strictly need to pass all the text,
+      // but passing it helps Claude write the summary in case we need extra context.
+      messages: [{ role: 'user', content: isGroundTruth && findingsCount === 0 ? "No findings. Generate clean bill JSON." : trimmedText }],
     });
   };
 
@@ -178,6 +199,9 @@ export async function analyseBill(billText: string): Promise<AnalysisResult> {
       model: MODEL,
       tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
       durationMs: duration,
+      groundTruth: isGroundTruth,
+      findingsCount,
+      parserUsed: isGroundTruth ? 'coct-regex' : undefined,
     },
   };
 }

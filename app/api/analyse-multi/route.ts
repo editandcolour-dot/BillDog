@@ -203,16 +203,19 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
     }).eq('id', caseId);
 
+    const groundTruthCount = analysed.filter(b => b.analysis._meta?.groundTruth).length;
+
     // 10. Log event
     await supabase.from('case_events').insert({
       case_id: caseId,
       event_type: 'multi_analysis_complete',
-      note: `${analysed.length} bills analysed (${failedCount} failed). R${totalRecoverable.toFixed(2)} recoverable.`,
+      note: `${analysed.length} bills analysed (${failedCount} failed). ${groundTruthCount} used Ground Truth. R${totalRecoverable.toFixed(2)} recoverable.`,
       metadata: {
         bills_analysed: analysed.length,
         bills_failed: failedCount,
         total_recoverable: totalRecoverable,
         has_cross_analysis: !!crossAnalysis,
+        ground_truth_count: groundTruthCount,
       },
     });
 

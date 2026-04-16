@@ -171,6 +171,9 @@ export async function POST(request: NextRequest) {
         confidence: analysis.confidence,
         errors_found: analysis.errors.length,
         total_recoverable: analysis.total_recoverable,
+        ground_truth: analysis._meta?.groundTruth,
+        findings_count: analysis._meta?.findingsCount,
+        parser_used: analysis._meta?.parserUsed,
       },
     });
 

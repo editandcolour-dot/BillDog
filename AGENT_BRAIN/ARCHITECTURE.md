@@ -590,9 +590,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-15T15:46:05.777133+00:00
+> Last scanned: 2026-04-16T13:50:42.550288+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -625,7 +627,7 @@ NODE_ENV=
   📄 test_bill.pdf  (0.6 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (224.1 KB)
+  📄 tsconfig.tsbuildinfo  (225.5 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
   📁 .agents\skills/
@@ -696,11 +698,11 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (41.2 KB)
-  📄 FAULT_LOG.md  (2.0 KB)
+  📄 ARCHITECTURE.md  (43.8 KB)
+  📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
-  📄 PROJECT_MEMORY.md  (2.6 KB)
-  📄 STATE.md  (1.0 KB)
+  📄 PROJECT_MEMORY.md  (2.9 KB)
+  📄 STATE.md  (0.8 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -716,7 +718,8 @@ NODE_ENV=
     📄 2026-04-04.md  (0.9 KB)
     📄 2026-04-05.md  (0.7 KB)
     📄 2026-04-06.md  (0.2 KB)
-    📄 2026-04-15.md  (0.8 KB)
+    📄 2026-04-15.md  (1.4 KB)
+    📄 2026-04-16.md  (1.5 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -731,10 +734,10 @@ NODE_ENV=
     📄 layout.tsx  (0.9 KB)
     📁 app\(app)\analysis/
       📁 app\(app)\analysis\[id]/
-        📄 page.tsx  (16.5 KB)
+        📄 page.tsx  (17.1 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (9.0 KB)
+        📄 page.tsx  (9.1 KB)
         📁 app\(app)\case\[id]\verify/
           📄 page.tsx  (3.3 KB)
     📁 app\(app)\dashboard/
@@ -745,7 +748,7 @@ NODE_ENV=
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
-      📄 page.tsx  (14.1 KB)
+      📄 page.tsx  (14.5 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
@@ -809,12 +812,12 @@ NODE_ENV=
   📁 app\api/
     📄 .gitkeep  (0.0 KB)
     📁 app\api\analyse/
-      📄 route.ts  (7.0 KB)
+      📄 route.ts  (7.1 KB)
     📁 app\api\analyse-multi/
-      📄 route.ts  (8.0 KB)
+      📄 route.ts  (8.2 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (6.0 KB)
+        📄 route.ts  (8.6 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (2.0 KB)
         📁 app\api\cases\[id]\verify/
@@ -850,7 +853,7 @@ NODE_ENV=
     📁 app\api\upload/
       📄 route.ts  (3.7 KB)
     📁 app\api\upload-multi/
-      📄 route.ts  (5.9 KB)
+      📄 route.ts  (4.3 KB)
     📁 app\api\user/
       📁 app\api\user\delete/
         📄 route.ts  (2.1 KB)
@@ -877,6 +880,7 @@ NODE_ENV=
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
+    📄 DeleteCaseButton.tsx  (2.8 KB)
     📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
     📄 CaseCard.tsx  (3.4 KB)
@@ -885,7 +889,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 CameraCapture.tsx  (11.0 KB)
     📄 LoginForm.tsx  (2.9 KB)
-    📄 MultiFileUploader.tsx  (10.0 KB)
+    📄 MultiFileUploader.tsx  (12.4 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
     📄 SignupForm.tsx  (6.8 KB)
     📄 UploadFlow.tsx  (2.9 KB)
@@ -908,7 +912,7 @@ NODE_ENV=
     📄 SkipLink.tsx  (0.4 KB)
     📄 index.ts  (0.1 KB)
   📁 components\reports/
-    📄 BillTimeline.tsx  (2.4 KB)
+    📄 BillTimeline.tsx  (2.8 KB)
     📄 CrossAnalysisReport.tsx  (3.0 KB)
   📁 components\ui/
     📄 .gitkeep  (0.0 KB)
@@ -958,12 +962,13 @@ NODE_ENV=
   📄 social-monitor.ts  (4.8 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
-    📄 analyse-bill.ts  (6.9 KB)
+    📄 analyse-bill.ts  (8.0 KB)
     📄 analyse-cross-bill.ts  (4.6 KB)
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
     📄 generate-letter.ts  (6.0 KB)
+    📄 grounded-prompt.ts  (1.9 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\data/
@@ -973,6 +978,8 @@ NODE_ENV=
     📄 stage-config.ts  (12.7 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
+  📁 lib\parsers/
+    📄 coct-bill-parser.ts  (6.5 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
     📄 charge.ts  (3.6 KB)
@@ -999,8 +1006,12 @@ NODE_ENV=
     📄 server.ts  (0.7 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
+    📄 bill-validator.test.ts  (3.4 KB)
+    📄 bill-validator.ts  (3.6 KB)
+    📄 huc.rules.ts  (2.3 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
+    📄 rates.rules.ts  (1.9 KB)
     📄 sa-id.ts  (1.5 KB)
 📁 public/
   📄 .gitkeep  (0.0 KB)
@@ -1031,7 +1042,7 @@ NODE_ENV=
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (1.9 KB)
+  📄 analysis.ts  (3.3 KB)
   📄 index.ts  (7.7 KB)
 ```
 
