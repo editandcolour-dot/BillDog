@@ -15,7 +15,7 @@ export function ConfirmResolution({ caseId }: ConfirmResolutionProps) {
   const [error, setError] = useState<string | null>(null);
 
   const amount = parseFloat(amountRecovered || '0');
-  const fee = Math.round(amount * 0.20 * 100) / 100;
+  const fee = Math.round(amount * 0.15 * 100) / 100;
   const net = amount - fee;
 
   const handleConfirm = async () => {
@@ -78,7 +78,7 @@ export function ConfirmResolution({ caseId }: ConfirmResolutionProps) {
           <span className="text-navy font-bold">R{amount.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-base">
-          <span className="text-grey font-medium">Billdog fee (20%)</span>
+          <span className="text-grey font-medium">Billdog fee (15%)</span>
           <span className="text-navy font-bold">R{fee.toFixed(2)}</span>
         </div>
         <hr className="border-light-grey my-2" />

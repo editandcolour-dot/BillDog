@@ -61,7 +61,7 @@ export default function TermsOfServicePage() {
             </p>
             <ul className="list-disc list-inside space-y-2 mt-3">
               <li><strong>No upfront charges.</strong> You pay nothing to upload, analyse, or send a dispute letter.</li>
-              <li><strong>20% success fee.</strong> If your dispute results in a billing correction or refund, we charge 20% of the amount recovered.</li>
+              <li><strong>15% success fee.</strong> If your dispute results in a billing correction or refund, we charge 15% of the amount recovered.</li>
               <li><strong>You confirm the outcome.</strong> We only charge after you confirm that the municipality has corrected the billing error or issued a refund.</li>
               <li><strong>Minimum fee:</strong> R50. If the success fee calculates to less than R50, we waive it entirely.</li>
             </ul>

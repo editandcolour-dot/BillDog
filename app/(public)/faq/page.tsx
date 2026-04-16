@@ -41,7 +41,7 @@ const PRICING_FAQ = [
   {
     question: 'What does Billdog cost?',
     answer:
-      'Nothing upfront. Billdog charges a 20% success fee — we only charge you if we successfully recover money. If we find no errors, or if the dispute is unsuccessful, you pay R0. Ever.',
+      'Nothing upfront. Billdog charges a 15% success fee — we only charge you if we successfully recover money. If we find no errors, or if the dispute is unsuccessful, you pay R0. Ever.',
   },
   {
     question: 'When do I get charged?',
@@ -51,12 +51,12 @@ const PRICING_FAQ = [
   {
     question: 'Can I see an example?',
     answer:
-      'Sure. If your bill has R3,200 in errors and the municipality corrects them, Billdog\'s fee is R640 (20% of R3,200). You keep R2,560. If the municipality doesn\'t correct the errors, you pay R0.',
+      'Sure. If your bill has R3,200 in errors and the municipality corrects them, Billdog\'s fee is R480 (15% of R3,200). You keep R2,720. If the municipality doesn\'t correct the errors, you pay R0.',
   },
   {
     question: 'Are there any hidden fees?',
     answer:
-      'No. No subscription fees, no setup fees, no analysis fees, no cancellation fees. The 20% success fee is the only charge, and it only applies on confirmed recovery.',
+      'No. No subscription fees, no setup fees, no analysis fees, no cancellation fees. The 15% success fee is the only charge, and it only applies on confirmed recovery.',
   },
 ];
 

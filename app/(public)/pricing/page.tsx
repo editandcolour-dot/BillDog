@@ -4,11 +4,11 @@ import { ScrollReveal } from '@/components/ui/ScrollReveal';
 export const metadata: Metadata = {
   title: 'Pricing | Billdog',
   description:
-    'Billdog operates on a 20% success fee. No upfront costs. You only pay when we recover money for you.',
+    'Billdog operates on a 15% success fee. No upfront costs. You only pay when we recover money for you.',
   openGraph: {
     title: 'Pricing | Billdog',
     description:
-      'No upfront costs. 20% success fee — only if we win. See how it works with a real example.',
+      'No upfront costs. 15% success fee — only if we win. See how it works with a real example.',
     url: 'https://billdog.co.za/pricing',
   },
 };
@@ -29,7 +29,7 @@ export default function PricingPage() {
             WE ONLY WIN IF <span className="text-orange">YOU WIN</span>
           </h1>
           <p className="mt-6 text-white/60 text-lg leading-relaxed max-w-2xl mx-auto">
-            Zero upfront cost. Zero risk. We take 20% of what we recover — and only if we actually recover it.
+            Zero upfront cost. Zero risk. We take 15% of what we recover — and only if we actually recover it.
           </p>
         </div>
       </section>
@@ -46,7 +46,7 @@ export default function PricingPage() {
                     Success Fee
                   </span>
                   <div className="flex items-baseline justify-center gap-1">
-                    <span className="font-display text-[5rem] md:text-[6rem] text-white leading-none">20</span>
+                    <span className="font-display text-[5rem] md:text-[6rem] text-white leading-none">15</span>
                     <span className="font-display text-3xl text-orange">%</span>
                   </div>
                   <p className="mt-2 text-white/50 text-sm font-medium">
@@ -112,12 +112,12 @@ export default function PricingPage() {
                   <span className="text-error font-bold text-lg">R3,200.00</span>
                 </div>
                 <div className="flex justify-between items-center pb-4 border-b border-light-grey">
-                  <span className="text-grey font-medium">Billdog fee (20%)</span>
-                  <span className="text-navy font-bold text-lg">R640.00</span>
+                  <span className="text-grey font-medium">Billdog fee (15%)</span>
+                  <span className="text-navy font-bold text-lg">R480.00</span>
                 </div>
                 <div className="flex justify-between items-center bg-success/5 rounded-xl p-4">
                   <span className="text-navy font-bold text-lg">You keep</span>
-                  <span className="text-success font-bold text-2xl font-display">R2,560.00</span>
+                  <span className="text-success font-bold text-2xl font-display">R2,720.00</span>
                 </div>
               </div>
 

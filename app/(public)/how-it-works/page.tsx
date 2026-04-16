@@ -71,8 +71,8 @@ const STEPS = [
     ),
     title: 'You Get Paid',
     description:
-      'When the municipality corrects your bill, you save money. We only take 20% of what we recover — if we don\'t win, you don\'t pay. Ever.',
-    detail: 'You only pay 20% of what we recover — nothing if we don\'t win.',
+      'When the municipality corrects your bill, you save money. We only take 15% of what we recover — if we don\'t win, you don\'t pay. Ever.',
+    detail: 'You only pay 15% of what we recover — nothing if we don\'t win.',
   },
 ] as const;
 

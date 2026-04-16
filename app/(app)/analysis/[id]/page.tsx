@@ -152,7 +152,7 @@ export default function AnalysisResultsPage() {
           
           <h1 className="text-4xl md:text-5xl font-bebas text-navy mb-4 tracking-wide">Analysing your bill...</h1>
           <p className="text-slate-600 text-lg md:text-xl font-medium">
-            This usually takes 30-60 seconds.
+            This may take a few moments depending on the number of bills.
           </p>
           <p className="text-slate-500 text-sm mt-3 leading-relaxed max-w-sm">
             We are applying legal algorithms and South African municipal prescriptions to verify every cent.

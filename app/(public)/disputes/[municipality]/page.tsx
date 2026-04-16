@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${data.name} Billing Disputes | Billdog`,
-    description: `Learn how to dispute your ${data.name} municipal bill. We generate AI powered legal letters citing Section 102. 20% success fee only.`,
+    description: `Learn how to dispute your ${data.name} municipal bill. We generate AI powered legal letters citing Section 102. 15% success fee only.`,
     openGraph: {
       title: `${data.name} Billing Disputes | Billdog`,
       description: `Dispute ${data.name} bills without a lawyer. Section 102 compliant.`,
