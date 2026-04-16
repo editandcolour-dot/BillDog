@@ -176,3 +176,81 @@ export async function PATCH(
   }
 }
 
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const resolvedParams = await params;
+    const caseId = resolvedParams.id;
+
+    // 1. Fetch case and verify ownership
+    const { data: caseRecord, error: caseError } = await supabase
+      .from('cases')
+      .select('id, user_id, bill_url, status')
+      .eq('id', caseId)
+      .eq('user_id', user.id)
+      .single();
+
+    if (caseError || !caseRecord) {
+      return NextResponse.json({ error: 'Case not found or access denied' }, { status: 404 });
+    }
+
+    // 2. Block deletion of resolved cases with charges (financial audit trail)
+    if (caseRecord.status === 'resolved') {
+      return NextResponse.json({
+        error: 'Resolved cases with billing history cannot be deleted. Contact support if needed.',
+      }, { status: 400 });
+    }
+
+    // 3. Delete associated case_bills and their storage files
+    const { data: caseBills } = await supabase
+      .from('case_bills')
+      .select('id, bill_url')
+      .eq('case_id', caseId);
+
+    if (caseBills && caseBills.length > 0) {
+      // Delete storage files for multi-bill uploads
+      const storagePaths = caseBills
+        .map(b => b.bill_url)
+        .filter(Boolean);
+
+      if (storagePaths.length > 0) {
+        await supabase.storage.from('bills').remove(storagePaths);
+      }
+
+      // Delete case_bills rows
+      await supabase.from('case_bills').delete().eq('case_id', caseId);
+    }
+
+    // 4. Delete the single-bill storage file (if legacy single-bill case)
+    if (caseRecord.bill_url) {
+      await supabase.storage.from('bills').remove([caseRecord.bill_url]);
+    }
+
+    // 5. Delete case_events (cascade should handle this, but be explicit)
+    await supabase.from('case_events').delete().eq('case_id', caseId);
+
+    // 6. Delete the case itself
+    const { error: deleteError } = await supabase
+      .from('cases')
+      .delete()
+      .eq('id', caseId)
+      .eq('user_id', user.id);
+
+    if (deleteError) {
+      console.error('[Cases DELETE] Failed:', deleteError);
+      return NextResponse.json({ error: 'Failed to delete case.' }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, message: 'Case and all associated data deleted.' });
+
+  } catch (err: unknown) {
+    console.error('[Cases DELETE Error]', err);
+    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
+  }
+}

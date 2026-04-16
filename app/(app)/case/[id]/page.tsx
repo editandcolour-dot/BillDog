@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft, ExternalLink, ShieldAlert } from 'lucide-react';
 import { ConfirmResolution } from '@/components/cases/ConfirmResolution';
 import { PublicProtectorModal } from '@/components/cases/PublicProtectorModal';
+import { DeleteCaseButton } from '@/components/cases/DeleteCaseButton';
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -180,6 +181,9 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
                 </p>
               </div>
             )}
+
+            {/* Delete Case */}
+            <DeleteCaseButton caseId={c.id} caseStatus={c.status} />
             
           </div>
 
