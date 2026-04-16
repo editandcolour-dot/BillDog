@@ -1,0 +1,270 @@
+{
+  "last_updated": "2026-04-16",
+  "description": "Master index of all South African municipalities with tariff source URLs and coverage status for Billdog",
+  "total_municipalities": 257,
+  "licensed_electricity_distributors": 178,
+  "coverage_status": {
+    "COMPLETE": "JSON file with confirmed rates exists",
+    "PARTIAL": "JSON file exists but some rates unconfirmed",
+    "LEGAL_HOLD": "Tariffs under court-ordered redetermination — do not use",
+    "STUB": "Source URL identified, rates not yet extracted",
+    "ESKOM_SUPPLY": "Eskom supplies this area directly — municipal tariff not applicable for electricity",
+    "NOT_STARTED": "No data collected yet"
+  },
+  "metros": {
+    "CoCT": {
+      "name": "City of Cape Town",
+      "province": "Western Cape",
+      "electricity_distributor": "CoCT direct",
+      "coverage": "COMPLETE",
+      "years": ["2022/23", "2023/24", "2024/25", "2025/26"],
+      "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/"
+    },
+    "CoJ": {
+      "name": "City of Johannesburg",
+      "province": "Gauteng",
+      "electricity_distributor": "City Power (SOC)",
+      "coverage": "PARTIAL",
+      "legal_alert": "2024/25 under court-ordered NERSA redetermination",
+      "source_url": "https://joburg.org.za/documents_/Documents/"
+    },
+    "CoT": {
+      "name": "City of Tshwane",
+      "province": "Gauteng",
+      "electricity_distributor": "City of Tshwane direct",
+      "coverage": "PARTIAL",
+      "source_url": "https://www.tshwane.gov.za/?page_id=6924"
+    },
+    "CoE": {
+      "name": "City of Ekurhuleni",
+      "province": "Gauteng",
+      "electricity_distributor": "City of Ekurhuleni direct",
+      "coverage": "PARTIAL",
+      "legal_alert": "2024/25 under court-ordered NERSA redetermination",
+      "source_url": "https://www.ekurhuleni.gov.za/for-me/tariffs/"
+    },
+    "ETH": {
+      "name": "eThekwini Municipality",
+      "province": "KwaZulu-Natal",
+      "electricity_distributor": "eThekwini direct",
+      "coverage": "PARTIAL",
+      "source_url": "https://www.durban.gov.za/pages/government/documents?d=Tariffs"
+    },
+    "NMBM": {
+      "name": "Nelson Mandela Bay Municipality",
+      "province": "Eastern Cape",
+      "electricity_distributor": "NMBM direct",
+      "coverage": "PARTIAL",
+      "source_url": "https://www.nelsonmandelabay.gov.za"
+    },
+    "BCM": {
+      "name": "Buffalo City Metropolitan Municipality",
+      "province": "Eastern Cape",
+      "electricity_distributor": "BCM direct",
+      "coverage": "PARTIAL",
+      "source_url": "https://www.buffalocity.gov.za/folder.php?id=cN4AwbLgG"
+    },
+    "MMM": {
+      "name": "Mangaung Metropolitan Municipality",
+      "province": "Free State",
+      "electricity_distributor": "CENTLEC (SOC) Ltd",
+      "coverage": "PARTIAL",
+      "source_url": "https://centlec.co.za/Tariffs"
+    }
+  },
+  "secondary_municipalities": {
+    "Mbombela": {
+      "name": "City of Mbombela",
+      "province": "Mpumalanga",
+      "electricity_distributor": "City of Mbombela direct",
+      "nersa_license": "NER326",
+      "coverage": "PARTIAL",
+      "source_url": "https://www.mbombela.gov.za/wp-content/uploads/2025/07/Elecricity-2025-2026.pdf"
+    },
+    "Msunduzi": {
+      "name": "Msunduzi Municipality (Pietermaritzburg)",
+      "province": "KwaZulu-Natal",
+      "electricity_distributor": "Msunduzi direct",
+      "coverage": "LEGAL_HOLD",
+      "legal_alert": "2024/25 under court-ordered NERSA redetermination",
+      "source_url": "http://www.msunduzi.gov.za"
+    },
+    "Polokwane": {
+      "name": "Polokwane Municipality",
+      "province": "Limpopo",
+      "electricity_distributor": "Polokwane direct",
+      "coverage": "STUB",
+      "source_url": "https://www.polokwane.gov.za/wp-content/uploads/2024/07/NERSA-Approval-Letter-for-Polokwane-Municipality-Electricity-Tariffs-for-the-period-1-July-2024-30-June-2025.pdf"
+    },
+    "George": {
+      "name": "George Municipality",
+      "province": "Western Cape",
+      "electricity_distributor": "George Municipality direct",
+      "coverage": "STUB",
+      "source_url": "https://www.george.gov.za",
+      "notes": "George confirmed using IBT from 2022/23 onwards after cost of supply study. No fixed charge for residential (capacity-based)."
+    },
+    "Rustenburg": {
+      "name": "Rustenburg Local Municipality",
+      "province": "North West",
+      "electricity_distributor": "Rustenburg direct",
+      "coverage": "STUB",
+      "source_url": "https://www.rustenburg.gov.za"
+    },
+    "Emfuleni": {
+      "name": "Emfuleni Local Municipality (Vereeniging)",
+      "province": "Gauteng",
+      "electricity_distributor": "Emfuleni direct",
+      "coverage": "STUB",
+      "source_url": "https://emfuleni.gov.za/wp-content/uploads/2025/07/2024_2025_Electricity_Tariff_Book.pdf"
+    },
+    "MogaleCity": {
+      "name": "Mogale City Local Municipality (Krugersdorp)",
+      "province": "Gauteng",
+      "electricity_distributor": "Mogale City direct",
+      "coverage": "STUB",
+      "source_url": "https://www.mogalecity.gov.za"
+    },
+    "Drakenstein": {
+      "name": "Drakenstein Local Municipality (Paarl)",
+      "province": "Western Cape",
+      "electricity_distributor": "Drakenstein direct",
+      "coverage": "STUB",
+      "source_url": "https://www.drakenstein.gov.za"
+    },
+    "Stellenbosch": {
+      "name": "Stellenbosch Municipality",
+      "province": "Western Cape",
+      "electricity_distributor": "Stellenbosch direct",
+      "coverage": "STUB",
+      "source_url": "https://www.stellenbosch.gov.za"
+    },
+    "SolPlaatje": {
+      "name": "Sol Plaatje Municipality (Kimberley)",
+      "province": "Northern Cape",
+      "electricity_distributor": "Sol Plaatje direct",
+      "coverage": "STUB",
+      "source_url": "https://www.solplaatje.org.za"
+    },
+    "Matlosana": {
+      "name": "City of Matlosana (Klerksdorp)",
+      "province": "North West",
+      "electricity_distributor": "Matlosana direct",
+      "coverage": "STUB",
+      "source_url": "https://www.matlosana.gov.za"
+    },
+    "Newcastle": {
+      "name": "Newcastle Local Municipality",
+      "province": "KwaZulu-Natal",
+      "electricity_distributor": "Newcastle direct",
+      "coverage": "STUB",
+      "source_url": "https://www.newcastle.gov.za"
+    },
+    "uMhlathuze": {
+      "name": "uMhlathuze Local Municipality (Richards Bay)",
+      "province": "KwaZulu-Natal",
+      "electricity_distributor": "uMhlathuze direct",
+      "coverage": "STUB",
+      "source_url": "https://www.umhlathuze.gov.za"
+    },
+    "Emalahleni": {
+      "name": "Emalahleni Local Municipality (Witbank)",
+      "province": "Mpumalanga",
+      "electricity_distributor": "Emalahleni direct",
+      "coverage": "STUB",
+      "source_url": "https://www.emalahleni.gov.za"
+    },
+    "SteveTshwete": {
+      "name": "Steve Tshwete Local Municipality (Middelburg)",
+      "province": "Mpumalanga",
+      "electricity_distributor": "Steve Tshwete direct",
+      "coverage": "STUB",
+      "source_url": "https://www.stevetshwete.gov.za"
+    },
+    "GovanMbeki": {
+      "name": "Govan Mbeki Local Municipality (Secunda)",
+      "province": "Mpumalanga",
+      "electricity_distributor": "Govan Mbeki direct",
+      "coverage": "STUB",
+      "source_url": "https://www.govanmbeki.gov.za"
+    },
+    "Msukaligwa": {
+      "name": "Msukaligwa Local Municipality (Ermelo)",
+      "province": "Mpumalanga",
+      "electricity_distributor": "Msukaligwa direct",
+      "coverage": "STUB",
+      "source_url": "https://www.msukaligwa.gov.za"
+    },
+    "BaPhalaborwa": {
+      "name": "Ba-Phalaborwa Local Municipality",
+      "province": "Limpopo",
+      "electricity_distributor": "Ba-Phalaborwa direct",
+      "coverage": "STUB",
+      "source_url": "https://www.baphalaborwa.gov.za"
+    },
+    "GreaterTzaneen": {
+      "name": "Greater Tzaneen Local Municipality",
+      "province": "Limpopo",
+      "electricity_distributor": "Greater Tzaneen direct",
+      "coverage": "STUB",
+      "source_url": "https://www.tzaneen.gov.za"
+    },
+    "Madibeng": {
+      "name": "Madibeng Local Municipality (Brits)",
+      "province": "North West",
+      "electricity_distributor": "Madibeng direct",
+      "coverage": "LEGAL_HOLD",
+      "legal_alert": "2024/25 under court-ordered NERSA redetermination",
+      "source_url": "https://www.madibeng.gov.za"
+    },
+    "Mafikeng": {
+      "name": "Mafikeng Local Municipality",
+      "province": "North West",
+      "electricity_distributor": "Mafikeng direct",
+      "coverage": "STUB",
+      "source_url": "https://www.mafikeng.gov.za"
+    },
+    "Swartland": {
+      "name": "Swartland Municipality",
+      "province": "Western Cape",
+      "electricity_distributor": "Swartland direct",
+      "coverage": "STUB",
+      "source_url": "https://www.swartland.org.za"
+    },
+    "Hessequa": {
+      "name": "Hessequa Municipality",
+      "province": "Western Cape",
+      "electricity_distributor": "Hessequa direct",
+      "coverage": "STUB",
+      "source_url": "https://www.hessequa.gov.za"
+    },
+    "SaldanhaBay": {
+      "name": "Saldanha Bay Municipality",
+      "province": "Western Cape",
+      "electricity_distributor": "Saldanha Bay direct",
+      "coverage": "STUB",
+      "source_url": "https://www.saldanhabay.gov.za"
+    }
+  },
+  "eskom_direct_supply_areas": {
+    "description": "In these areas Eskom (not a municipality) supplies electricity directly to consumers. Municipal tariff verification for electricity is NOT applicable — Eskom's own tariff book applies.",
+    "note": "Eskom tariff book: https://www.eskom.co.za/distribution/tariffs-and-charges/",
+    "examples": [
+      "Most rural areas",
+      "Some areas within metropolitan boundaries where Eskom retained supply",
+      "Free State rural areas (parts of Mangaung excluded from CENTLEC)",
+      "Parts of Limpopo"
+    ]
+  },
+  "legal_holds_summary": {
+    "municipalities_under_2024_25_redetermination": [
+      "City of Johannesburg (City Power)",
+      "City of Ekurhuleni",
+      "Msunduzi Municipality",
+      "Madibeng Municipality"
+    ],
+    "court_order_date": "2026-01-15",
+    "nersa_deadline": "2026-06-30",
+    "action_for_billdog": "Return UNKNOWN for all electricity charge verifications for these municipalities for tariff_year 2024/25 until redetermination is published on nersa.org.za"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "municipality": "Emfuleni (Vereeniging/Vanderbijlpark)",
+  "municipality_slug": "emfuleni",
+  "province": "Gauteng",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "confidence": "SECONDARY",
+  "source_url": "https://www.snapandtrack.co.za/electricity-tariffs/gauteng/emfuleni",
+  "vat_rate": 0.15,
+  "electricity": {
+    "IBT_FBE_low_prepaid_ckwh": {
+      "block1_0_to_50": 199.98,
+      "block2_51_to_350": 233.85,
+      "block3_351_to_600": 312.36,
+      "block4_above_600": 375.75
+    },
+    "IBT_standard_prepaid_ckwh": {
+      "block1_0_to_50": 267.48,
+      "block2_51_to_350": 301.22,
+      "block3_351_to_600": 403.08,
+      "block4_above_600": 483.69
+    },
+    "fixed_basic_charge_rand_per_month": 418.18,
+    "notes": "snap&track SECONDARY. Fixed charge R418.18/month. IBT structure."
+  },
+  "water": {
+    "notes": "Rates not yet captured. See official_source or municipality website."
+  },
+  "property_rates": {
+    "notes": "Rates not yet captured."
+  },
+  "official_source": "https://emfuleni.gov.za/wp-content/uploads/2025/07/2024_2025_Electricity_Tariff_Book.pdf"
+}

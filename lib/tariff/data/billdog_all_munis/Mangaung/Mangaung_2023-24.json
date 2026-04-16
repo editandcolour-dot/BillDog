@@ -1,0 +1,46 @@
+{
+  "municipality": "Mangaung Metropolitan Municipality",
+  "municipality_code": "MMM",
+  "electricity_distributor": "CENTLEC (SOC) Ltd",
+  "tariff_year": "2023/24",
+  "effective_from": "2023-07-01",
+  "effective_to": "2024-06-30",
+  "gazette_source": "NERSA Approval Letter for CENTLEC Mangaung 2023/24",
+  "source_url": "https://www.centlec.co.za/Tariffs/ViewFile?filePath=wwwroot/UploadedFiles/Tariffs/Centlec+Mangaung+Tariff+Approval+Letter++2023-24+Draft_4737.pdf",
+  "vat_rate": 0.15,
+  "notes": "Electricity in Mangaung distributed by CENTLEC (SOC) Ltd, a wholly-owned municipal entity. CENTLEC is separately licensed by NERSA. Mangaung municipality handles water/sewerage/refuse/rates directly.",
+  "electricity": {
+    "distributor": "CENTLEC",
+    "nersa_approved": true,
+    "tariff_structure": "seasonal (summer/winter) IBT + Homeflex (TOU-like single phase)",
+    "tariff_I_indigent_IBT": {
+      "summer": {
+        "block1_0_to_50kwh_cents_per_kwh": 171.10,
+        "block2_51_to_350kwh_cents_per_kwh": 182.09,
+        "block3_above_350kwh_cents_per_kwh": 248.47
+      },
+      "winter": {
+        "block1_0_to_50kwh_cents_per_kwh": 217.33,
+        "block2_51_to_350kwh_cents_per_kwh": 232.05,
+        "block3_above_350kwh_cents_per_kwh": 275.28
+      }
+    },
+    "tariff_II_domestic_IBT": {
+      "summer": {
+        "block1_0_to_350kwh_cents_per_kwh": 219.404,
+        "block2_above_350kwh_cents_per_kwh": 253.312
+      },
+      "winter": {
+        "block1_0_to_350kwh_cents_per_kwh": 271.268,
+        "block2_above_350kwh_cents_per_kwh": 329.117
+      },
+      "notes": "CONFIRMED from NERSA approval letter. Note: CENTLEC uses seasonal differentiation (summer/winter) unlike CoCT."
+    },
+    "tariff_homeflex_single_phase": {
+      "basic_charge_excl_vat": 234.71,
+      "energy_peak_summer_cents_per_kwh": 305.02,
+      "notes": "CONFIRMED from NERSA approval letter. Homeflex is a TOU-adjacent tariff."
+    }
+  },
+  "confidence_overall": "CONFIRMED for CENTLEC electricity from NERSA approval letter."
+}

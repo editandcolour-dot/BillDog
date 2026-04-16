@@ -1,0 +1,42 @@
+{
+  "municipality": "eThekwini Metropolitan Municipality",
+  "municipality_code": "ETH",
+  "tariff_year": "2024/25",
+  "effective_from": "2024-07-01",
+  "effective_to": "2025-06-30",
+  "gazette_source": "eThekwini Council Minutes Special Budget Meeting March 2024",
+  "source_url": "https://dag.durban.gov.za/uploads/0000/6/2025/08/10/minutes-council-2024-03-19-special-budget.pdf",
+  "vat_rate": 0.15,
+  "notes": "eThekwini initially proposed higher increases. Council revised downward after public pressure. Electricity: 14% → 12.72% approved. Water: 14.9% → 10.9% approved. Note: eThekwini supplies electricity directly (not via entity like CoJ/Mangaung).",
+  "electricity": {
+    "approved_average_increase_pct": 12.72,
+    "tariff_structure": "multi-scale system (Scale 3/4 credit, Scale 8/9/13 prepaid)",
+    "free_basic_electricity_kwh": 65,
+    "fbe_qualifying_threshold_kwh_per_month": 150,
+    "tariff_scale_3_4_credit": {
+      "description": "Standard credit meter domestic customers",
+      "notes": "Detailed rates require eThekwini tariff booklet. Source: https://www.durban.gov.za"
+    },
+    "tariff_scale_8_9_13_prepaid": {
+      "description": "Prepaid meter domestic customers",
+      "notes": "eThekwini does not use a separate flat 'home user charge' like CoCT. Prepaid structure is consumption-only."
+    },
+    "nersa_approved": true
+  },
+  "water": {
+    "approved_increase_pct": 10.9,
+    "water_authority": "eThekwini Water and Sanitation",
+    "bulk_water_supplier": "Umgeni Water (uMngeni-uThukela Water)",
+    "notes": "Bulk water increase from Umgeni was 9.5% which drove the 10.9% end-user increase. Detailed step tariff requires official tariff booklet."
+  },
+  "refuse": {
+    "domestic_increase_pct": 7.0,
+    "notes": "Reduced from proposed 8% after public participation."
+  },
+  "property_rates": {
+    "approved_increase_pct": 6.5,
+    "notes": "Reduced from proposed 7.9% after public participation."
+  },
+  "confidence_overall": "SECONDARY",
+  "action_required": "Fetch full tariff booklet from https://www.durban.gov.za for specific rates per scale/block."
+}

@@ -1,0 +1,24 @@
+{
+  "municipality": "Bela-Bela",
+  "municipality_slug": "bela-bela",
+  "province": "Limpopo",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "confidence": "SECONDARY",
+  "source_url": "https://www.snapandtrack.co.za/electricity-tariffs/limpopo/bela-bela",
+  "vat_rate": 0.15,
+  "electricity": {
+    "approved_increase_pct": 11.1,
+    "tariff_structure": "UNKNOWN",
+    "nersa_approved": true,
+    "rates": "PENDING \u2014 fetch from source_url",
+    "notes": "Increase % confirmed from NERSA via snap&track. Specific block rates require fetch from official municipal tariff book."
+  },
+  "water": {
+    "notes": "Rates not yet captured. See official_source or municipality website."
+  },
+  "property_rates": {
+    "notes": "Rates not yet captured."
+  }
+}

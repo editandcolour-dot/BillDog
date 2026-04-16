@@ -1,0 +1,27 @@
+{
+  "municipality": "Msunduzi Municipality",
+  "municipality_code": "MSU",
+  "province": "KwaZulu-Natal",
+  "tariff_year": "2024/25",
+  "effective_from": "2024-07-01",
+  "effective_to": "2025-06-30",
+  "legal_status": "UNDER_REDETERMINATION - See LEGAL_ALERT file",
+  "gazette_source": "Msunduzi Draft Register of Tariffs and Charges 2024/2025",
+  "source_url": "http://www.msunduzi.gov.za/site/search/downloadencode/Draft%20Register%20of%20Tariffs%20and%20Charges%20-2024-2025.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "applied_increase_pct": 17.00,
+    "nersa_approved_increase_pct": 13.32,
+    "nersa_approved": "UNDER_REVIEW",
+    "notes": "DO NOT USE FOR DISPUTES. Tariffs under court-ordered redetermination.",
+    "draft_rates_source": "http://www.msunduzi.gov.za"
+  },
+  "water": {
+    "approved_increase_pct": 12.00,
+    "notes": "Water tariffs not affected by electricity redetermination."
+  },
+  "refuse": {
+    "approved_increase_pct": 12.00
+  },
+  "confidence_overall": "UNVERIFIED - Legal redetermination pending. Do not surface to users."
+}

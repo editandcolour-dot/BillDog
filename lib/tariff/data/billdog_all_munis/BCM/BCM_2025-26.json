@@ -1,0 +1,51 @@
+{
+  "municipality": "Buffalo City Metropolitan Municipality",
+  "municipality_code": "BCM",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "gazette_source": "Buffalo City Tariff Book 2025/26 (31 March 2025)",
+  "source_url": "https://www.buffalocity.gov.za/CM/uploads/documents/202531030317434230946.AnnexureF-TariffBook2025_26FINAL003.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "tariff_structure": "multi-scale: prepayment (1.1.x) and credit metering (1.2.x)",
+    "scale_1B_prepaid_non_indigent": {
+      "description": "Non-indigent domestic prepaid, 70A single phase",
+      "basic_monthly_service_charge_excl_vat": 423.90,
+      "basic_monthly_service_charge_incl_vat": 489.61,
+      "energy_block1_0_to_2000kwh_excl_vat": 3.01,
+      "energy_block1_incl_vat": 3.48,
+      "energy_block2_above_2000kwh_excl_vat": 3.61,
+      "energy_block2_incl_vat": 4.17,
+      "notes": "CONFIRMED from official BCM tariff book 2025/26. Note: BCM basic charge is significantly higher than CoCT (R489.61 vs R390.87). Different structure and cost recovery model."
+    },
+    "scale_1B_prepaid_non_indigent_prior_year_2024_25": {
+      "basic_monthly_service_charge_excl_vat": 376.00,
+      "basic_monthly_service_charge_incl_vat": 465.59,
+      "energy_block1_excl_vat": 2.67,
+      "energy_block2_above_2000kwh_excl_vat": 3.20
+    },
+    "scale_1A_credit_domestic": {
+      "description": "Domestic and commercial credit meter, 1-phase 70A",
+      "basic_monthly_service_charge_excl_vat": 748.59,
+      "basic_monthly_service_charge_incl_vat": 864.63,
+      "energy_rate_excl_vat": 3.48,
+      "energy_rate_incl_vat": 4.02,
+      "prior_year_basic_charge_excl_vat": 664.00
+    },
+    "scale_1C_indigent_prepaid": {
+      "description": "Indigent & pensioner domestic prepaid, 3-part block",
+      "energy_block1_first_100kwh": 0.00,
+      "energy_block2_excl_vat": 2.60,
+      "energy_block3_above_300kwh_excl_vat": 3.00
+    },
+    "nersa_approved": true,
+    "increase_pct": 12.70
+  },
+  "water": {
+    "increase_pct": 8.54,
+    "notes": "Amatola Water bulk tariff drives BCM water increases. Detailed step tariff requires water section (pages 13-21) of tariff book.",
+    "source_required": "Pages 13-21 of BCM tariff book"
+  },
+  "confidence_overall": "CONFIRMED for electricity scales 1A, 1B, 1C from official gazette."
+}

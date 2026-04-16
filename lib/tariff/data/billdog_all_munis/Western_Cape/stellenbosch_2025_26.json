@@ -1,0 +1,34 @@
+{
+  "municipality": "Stellenbosch",
+  "municipality_slug": "stellenbosch",
+  "province": "Western Cape",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "confidence": "SECONDARY",
+  "source_url": "https://www.snapandtrack.co.za/electricity-tariffs/western-cape/stellenbosch",
+  "vat_rate": 0.15,
+  "electricity": {
+    "lifeline_prepaid_ckwh": {
+      "block1_0_to_50": 191,
+      "block2_51_to_300": 239,
+      "block3_301_to_600": 358,
+      "block4_above_600": 409
+    },
+    "standard_prepaid_ckwh": {
+      "block1_0_to_50": 191,
+      "block2_51_to_300": 245,
+      "block3_301_to_600": 345,
+      "block4_above_600": 406
+    },
+    "standard_prepaid_high_usage_fixed_charge_rand_per_month": 261.54,
+    "notes": "snap&track SECONDARY source. Rates are cents/kWh. Fixed charge applies to >600kWh customers."
+  },
+  "water": {
+    "notes": "Rates not yet captured. See official_source or municipality website."
+  },
+  "property_rates": {
+    "notes": "Rates not yet captured."
+  },
+  "official_source": "https://stellenbosch.gov.za/download/appendix-3-final-tariff-proposals-2025-2026-may-2025/"
+}

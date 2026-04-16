@@ -1,0 +1,23 @@
+{
+  "municipality": "Mangaung Metropolitan Municipality",
+  "municipality_code": "MMM",
+  "electricity_distributor": "CENTLEC (SOC) Ltd",
+  "tariff_year": "2024/25",
+  "effective_from": "2024-07-01",
+  "effective_to": "2025-06-30",
+  "gazette_source": "CENTLEC NERSA Tariff Approval 2024/25",
+  "source_url": "https://centlec.co.za/Tariffs",
+  "vat_rate": 0.15,
+  "electricity": {
+    "distributor": "CENTLEC",
+    "approved_increase_pct": 13.72,
+    "nersa_approved": true,
+    "notes": "13.72% increase approved. Detailed block rates require CENTLEC 2024/25 tariff schedule.",
+    "source_required": "https://centlec.co.za/Tariffs for confirmed 2024/25 rates"
+  },
+  "water": {
+    "approved_increase_pct": 10.00,
+    "notes": "Detailed step tariff requires Mangaung budget annexure."
+  },
+  "confidence_overall": "SECONDARY - increase % confirmed, specific rates require CENTLEC tariff schedule."
+}

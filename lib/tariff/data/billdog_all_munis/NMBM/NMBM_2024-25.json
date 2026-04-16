@@ -1,0 +1,40 @@
+{
+  "municipality": "Nelson Mandela Bay Municipality",
+  "municipality_code": "NMBM",
+  "tariff_year": "2024/25",
+  "effective_from": "2024-07-01",
+  "effective_to": "2025-06-30",
+  "gazette_source": "NMBM Tariff Book 2024/25",
+  "source_url": "https://www.nelsonmandelabay.gov.za/DataRepository/Documents/nmbm-tariff-booklet-20242025_Cng5N.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "average_increase_pct": 12.88,
+    "application_2025_26_increase": 12.80,
+    "notes": "NMBM proposed 12.80% increase for 2025/26. Detailed 2024/25 residential fixed charge and block rates require electricity section of tariff booklet (pages 18-31). SSL blocked direct fetch of electricity section.",
+    "nersa_approved": true,
+    "source_required": "Pages 18-31 of https://www.nelsonmandelabay.gov.za NMBM tariff booklet"
+  },
+  "water": {
+    "fixed_charge": null,
+    "tariff_structure": "stepped block by daily consumption rate (kl/day, not kl/month)",
+    "consumption_rates_residential_excl_vat": {
+      "step1_0_to_0_3kl_per_day": 19.60,
+      "step2_0_3_to_0_5kl_per_day": 21.26,
+      "step3_0_5_to_0_8kl_per_day": 29.71,
+      "step4_0_8_to_1_0kl_per_day": 51.29,
+      "step5_1_0_to_1_6kl_per_day": 93.79,
+      "step6_above_1_6kl_per_day": 125.06,
+      "notes": "CONFIRMED from official NMBM tariff booklet 2024/25. NMBM uses DAILY consumption rate (kl/day), not monthly (kl/month) — important structural difference from CoCT."
+    },
+    "consumption_rates_residential_incl_vat": {
+      "step1": 22.53,
+      "step2": 24.45,
+      "step3": 34.17,
+      "step4": 58.98,
+      "step5": 107.86,
+      "step6": 143.82
+    }
+  },
+  "confidence_overall": "CONFIRMED for water. SECONDARY for electricity (need pages 18-31).",
+  "important_structural_note": "NMBM water tariff uses kl/DAY billing (not kl/month). Billdog parser must convert billing period days to daily rate to apply correct step. This is unique to NMBM among SA metros."
+}

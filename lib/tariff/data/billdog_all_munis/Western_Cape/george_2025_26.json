@@ -1,0 +1,36 @@
+{
+  "municipality": "George",
+  "municipality_slug": "george",
+  "province": "Western Cape",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "confidence": "SECONDARY",
+  "source_url": "https://www.snapandtrack.co.za/electricity-tariffs/western-cape/george",
+  "vat_rate": 0.15,
+  "electricity": {
+    "domestic_20A_lifeline": {
+      "fixed_charge_excl_vat": 0,
+      "energy_block1_0_to_400kwh_ckwh": 260.2,
+      "energy_block2_above_400kwh_ckwh": 376.6
+    },
+    "domestic_20A_standard": {
+      "fixed_charge_excl_vat": 0,
+      "flat_rate_ckwh": 344.0
+    },
+    "domestic_30A_plus": {
+      "notes": "Fixed basic charge + capacity charge per amp + reduced energy charge. Rates require George tariff book pages 31-45.",
+      "source_required": "https://www.george.gov.za/wp-content/uploads/2024/06/GM-Final-Tariffs-2024-2025.pdf"
+    }
+  },
+  "water": {
+    "notes": "Rates not yet captured. See official_source or municipality website."
+  },
+  "property_rates": {
+    "residential_rate_in_rand": 0.006197,
+    "first_exempt_value": 230000,
+    "2025_26_rate_in_rand": 0.006538
+  },
+  "notes": "Unique capacity-based tariff (since 2022). 20A = no fixed charge, subsidised. 30A+ = basic + capacity + reduced energy. IBT removed.",
+  "official_source": "https://www.george.gov.za/wp-content/uploads/2025/03/GM-DRAFT-Tariff-Book-2025-2026.pdf"
+}

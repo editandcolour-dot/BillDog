@@ -1,0 +1,49 @@
+{
+  "municipality": "Drakenstein (Paarl)",
+  "municipality_slug": "drakenstein",
+  "province": "Western Cape",
+  "tariff_year": "2025/26",
+  "effective_from": "2025-07-01",
+  "effective_to": "2026-06-30",
+  "confidence": "CONFIRMED",
+  "source_url": "https://www.drakenstein.gov.za/sites/dw/DocumentLibrary/Annexure%20B_Tariffs%202025-2026%20Revised_new.pdf",
+  "vat_rate": 0.15,
+  "electricity": {
+    "domestic_energy_rates_excl_vat": {
+      "lifeline_20A_below_400kwh_ckwh": 221.47,
+      "lifeline_20A_above_400kwh_ckwh": 306.85,
+      "domestic_1phase_above_30A_ckwh": 289.1,
+      "domestic_3phase_above_20A_ckwh": 306.85,
+      "feed_in_tariff_ckwh": 95.06
+    },
+    "domestic_fixed_capacity_charges_per_month_excl_vat": {
+      "rate_per_amp_1phase_30A": 9.29,
+      "rate_per_amp_above_30A_1phase": 11.89,
+      "rate_per_amp_3phase": 10.2,
+      "1phase_30A": 278.7,
+      "1phase_40A": 475.6,
+      "1phase_50A": 594.5,
+      "1phase_60A": 713.4,
+      "1phase_70A": 832.3,
+      "1phase_80A": 951.2,
+      "1phase_90A": 1070.1,
+      "3phase_20A": 612.0,
+      "3phase_30A": 918.0,
+      "3phase_40A": 1224.0,
+      "3phase_50A": 1530.0,
+      "3phase_60A": 1836.0,
+      "3phase_70A": 2142.0,
+      "3phase_80A": 2448.0,
+      "3phase_100A": 3060.0,
+      "3phase_150A": 4590.0
+    }
+  },
+  "water": {
+    "notes": "Rates not yet captured. See official_source or municipality website."
+  },
+  "property_rates": {
+    "residential_rate_in_rand": 0.0060055,
+    "first_exempt_value": 335000
+  },
+  "notes": "Capacity-based tariff (Rand/Amp/month). Fixed charge varies by ampere limit chosen."
+}
