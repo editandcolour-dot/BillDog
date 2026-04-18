@@ -40,7 +40,7 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     name_first: String(params.userName).split(' ')[0].trim(),
     email_address: String(params.userEmail).trim(),
     m_payment_id: String(params.userId).trim(),
-    amount: '0.00',                          // Zero charge — tokenise only
+    amount: '5.00',                          // R5 auth/reversal (zero-value not enabled)
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
   };
