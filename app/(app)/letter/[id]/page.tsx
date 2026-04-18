@@ -176,8 +176,6 @@ export default function LetterPreviewPage() {
       }
       if (data.action && data.fields) {
         // PayFast requires HTML form POST — GET redirects are blocked by CloudFront
-        console.error('[PayFast Debug] Full Hashing String evaluated on Server:', data.debugString);
-        console.error('[PayFast Debug] MD5 Expected:', data.fields.signature);
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = data.action;

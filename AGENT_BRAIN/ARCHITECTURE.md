@@ -600,9 +600,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-16T15:49:15.828446+00:00
+> Last scanned: 2026-04-18T09:16:32.101245+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -629,13 +631,14 @@ NODE_ENV=
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
   📄 railway_test.js  (1.2 KB)
+  📄 scratch.js  (1.9 KB)
   📄 setup_test_data.js  (2.0 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 test_bill.pdf  (0.6 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (235.4 KB)
+  📄 tsconfig.tsbuildinfo  (235.7 KB)
   📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
@@ -707,11 +710,11 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (54.6 KB)
+  📄 ARCHITECTURE.md  (55.3 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
-  📄 STATE.md  (0.8 KB)
+  📄 STATE.md  (0.9 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
@@ -728,7 +731,7 @@ NODE_ENV=
     📄 2026-04-05.md  (0.7 KB)
     📄 2026-04-06.md  (0.2 KB)
     📄 2026-04-15.md  (1.4 KB)
-    📄 2026-04-16.md  (1.5 KB)
+    📄 2026-04-16.md  (1.8 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -753,7 +756,7 @@ NODE_ENV=
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.8 KB)
+        📄 page.tsx  (19.9 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
@@ -898,7 +901,7 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
     📄 DeleteCaseButton.tsx  (2.9 KB)
-    📄 EscalationTimeline.tsx  (5.4 KB)
+    📄 EscalationTimeline.tsx  (6.0 KB)
     📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
     📄 CaseCard.tsx  (3.4 KB)
@@ -1005,7 +1008,7 @@ NODE_ENV=
   📁 lib\escalation/
     📄 contactLookup.ts  (2.7 KB)
     📄 escalate-dispute.ts  (15.7 KB)
-    📄 escalationEngine.ts  (6.4 KB)
+    📄 escalationEngine.ts  (6.9 KB)
     📄 letterGenerator.ts  (5.7 KB)
     📄 stage-config.ts  (12.7 KB)
     📄 wardCouncillorLookup.ts  (3.4 KB)
@@ -1018,7 +1021,7 @@ NODE_ENV=
     📄 charge.ts  (3.6 KB)
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (2.4 KB)
+    📄 tokenise.ts  (3.4 KB)
     📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
@@ -1241,7 +1244,7 @@ NODE_ENV=
       📁 lib\tariff\data\{metros/
     📁 lib\tariff\verifiers/
       📄 electricityHUCharge.ts  (1.2 KB)
-      📄 waterFixedCharge.ts  (3.8 KB)
+      📄 waterFixedCharge.ts  (4.3 KB)
   📁 lib\tiers/
     📄 disclosureRequest.ts  (1.5 KB)
     📄 tier2Analysis.ts  (2.2 KB)

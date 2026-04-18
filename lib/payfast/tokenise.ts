@@ -58,10 +58,9 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
   const safePassphrase = (rawPassphrase && rawPassphrase !== 'undefined') ? rawPassphrase.trim() : '';
 
   // Generate signature
-  const gen = generateSignature(sortedData, safePassphrase);
-  sortedData.signature = gen.signature;
+  sortedData.signature = generateSignature(sortedData, safePassphrase);
 
-  return { action, fields: sortedData, debugString: gen.debugString };
+  return { action, fields: sortedData };
 }
 
 // Ensure 100% parity with PHP's urlencode() for PayFast strict signature validation
@@ -75,9 +74,9 @@ function payfastUrlEncode(str: string): string {
     .replace(/\*/g, '%2A');
 }
 
-export function generateSignature(data: Record<string, string>, passphrase: string): { signature: string, debugString: string } {
+export function generateSignature(data: Record<string, string>, passphrase: string): string {
   const paramString = Object.entries(data)
-    .filter(([key]) => key !== 'signature' && key !== 'debugString')
+    .filter(([key]) => key !== 'signature')
     .map(([key, val]) => `${key}=${payfastUrlEncode((val ?? '').trim())}`)
     .join('&');
 
@@ -85,8 +84,5 @@ export function generateSignature(data: Record<string, string>, passphrase: stri
     ? `${paramString}&passphrase=${payfastUrlEncode(passphrase)}`
     : paramString;
 
-  return {
-    signature: crypto.createHash('md5').update(withPassphrase).digest('hex'),
-    debugString: withPassphrase
-  };
+  return crypto.createHash('md5').update(withPassphrase).digest('hex');
 }
