@@ -19,11 +19,13 @@ export async function POST() {
     const merchantId = process.env['PAYFAST_MERCHANT_ID'];
     const merchantKey = process.env['PAYFAST_MERCHANT_KEY'];
     const passphrase = process.env['PAYFAST_PASSPHRASE'];
+    const itnUrl = process.env['PAYFAST_ITN_URL'];
 
     const missing = [];
     if (!merchantId) missing.push('ID');
     if (!merchantKey) missing.push('KEY');
     if (!passphrase) missing.push('PASS');
+    if (!itnUrl) missing.push('ITN');
 
     if (missing.length > 0) {
       console.error('[payfast/tokenise] Missing PAYFAST env vars:', missing.join(', '));

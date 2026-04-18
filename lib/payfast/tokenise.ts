@@ -43,6 +43,7 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     amount: '5.00',                          // R5 auth/reversal (zero-value not enabled)
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
+    email_confirmation: '0',
   };
 
   // Alphabetize keys as per PayFast strict MD5 spec to prevent browser/JSON object reordering
@@ -75,9 +76,12 @@ function payfastUrlEncode(str: string): string {
 }
 
 export function generateSignature(data: Record<string, string>, passphrase: string): string {
-  const paramString = Object.entries(data)
-    .filter(([key]) => key !== 'signature')
-    .map(([key, val]) => `${key}=${payfastUrlEncode((val ?? '').trim())}`)
+  const sortedKeys = Object.keys(data)
+    .filter((key) => key !== 'signature')
+    .sort();
+
+  const paramString = sortedKeys
+    .map((key) => `${key}=${payfastUrlEncode((data[key] ?? '').trim())}`)
     .join('&');
 
   const withPassphrase = passphrase 
