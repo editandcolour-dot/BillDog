@@ -190,7 +190,7 @@ subject: 'Great news — your dispute was resolved — Billdog'
 
 **Content must include:**
 - Amount recovered
-- Billdog fee (20%)
+- Billdog fee (15%)
 - Net amount to user
 - Thank you message
 - Link to case dashboard
@@ -203,7 +203,7 @@ subject: `Billdog fee receipt — Case ${caseId}`
 **Content must include:**
 - Case ID
 - Amount recovered by dispute
-- Billdog fee charged (20%)
+- Billdog fee charged (15%)
 - Date of charge
 - VAT number (if Billdog is VAT registered)
 

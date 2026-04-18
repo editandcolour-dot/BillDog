@@ -97,20 +97,20 @@ Throughout the workflow, display a visual progress bar before starting each phas
 
 **Format specifications:**
 - 20 characters wide (use █ for filled, ░ for empty)
-- Percentage based on current step (Step 1=20%, Step 2=40%, Step 3=60%, Step 4=80%, Step 5=100%)
+- Percentage based on current step (Step 1=15%, Step 2=40%, Step 3=60%, Step 4=80%, Step 5=100%)
 - Step counter showing current/total (e.g., "Step 3/5")
 - Brief description of current phase
 
 **Display the progress bar using:**
 ```bash
-echo "[████░░░░░░░░░░░░░░] 20% - Step 1/5: Brainstorming & Planning"
+echo "[████░░░░░░░░░░░░░░] 15% - Step 1/5: Brainstorming & Planning"
 ```
 
 ### Phase 1: Brainstorming & Planning
 
 **Progress:** Display before starting this phase:
 ```bash
-echo "[████░░░░░░░░░░░░░░] 20% - Step 1/5: Brainstorming & Planning"
+echo "[████░░░░░░░░░░░░░░] 15% - Step 1/5: Brainstorming & Planning"
 ```
 
 Display progress:

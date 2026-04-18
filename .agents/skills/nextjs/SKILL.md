@@ -453,10 +453,10 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Pricing | Billdog',
-  description: 'No upfront costs. We only charge 20% of what we recover. If we don\'t win, you don\'t pay.',
+  description: 'No upfront costs. We only charge 15% of what we recover. If we don\'t win, you don\'t pay.',
   openGraph: {
     title: 'Pricing | Billdog',
-    description: 'No upfront costs. 20% success fee only.',
+    description: 'No upfront costs. 15% success fee only.',
     url: 'https://billdog.co.za/pricing',
     images: ['/og-image.png'],
   },

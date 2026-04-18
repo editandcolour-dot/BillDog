@@ -15,7 +15,7 @@
 | Product Name | Billdog |
 | Domain | billdog.co.za |
 | One-liner | AI-powered municipal billing dispute service for South African property owners |
-| Revenue Model | 20% success fee on recovered funds. Zero upfront cost to user. |
+| Revenue Model | 15% success fee on recovered funds. Zero upfront cost to user. |
 | Legal Basis | Section 102, Municipal Systems Act (No. 32 of 2000) |
 | Target Market v1 | South African residential property owners |
 | Target Market v2 | Commercial and industrial property owners |
@@ -185,7 +185,7 @@ municipality_email text                       -- where letter was sent
 response_notes  text                          -- municipality response summary
 resolved_at     timestamptz
 amount_recovered numeric(12,2)               -- confirmed by user on resolution
-fee_charged     numeric(12,2)                 -- 20% of amount_recovered
+fee_charged     numeric(12,2)                 -- 15% of amount_recovered
 escalation_stage  int DEFAULT 1               -- current stage (1-7)
 next_action_at    timestamptz                  -- when next escalation fires
 last_escalation_at timestamptz                -- prevents double-sends
@@ -602,9 +602,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-18T09:16:32.101245+00:00
+> Last scanned: 2026-04-18T09:29:22.785192+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -638,7 +640,7 @@ NODE_ENV=
   📄 test_bill.pdf  (0.6 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (235.7 KB)
+  📄 tsconfig.tsbuildinfo  (235.9 KB)
   📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
@@ -710,7 +712,7 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (55.3 KB)
+  📄 ARCHITECTURE.md  (55.4 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
@@ -756,7 +758,7 @@ NODE_ENV=
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.9 KB)
+        📄 page.tsx  (19.8 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
@@ -1021,7 +1023,7 @@ NODE_ENV=
     📄 charge.ts  (3.6 KB)
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (3.4 KB)
+    📄 tokenise.ts  (3.2 KB)
     📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
@@ -1328,8 +1330,8 @@ NODE_ENV=
 
 > Human/agent authored. Preserved across scanner runs. Add entries — never delete.
 
-**DD-001** | 2026-03-27 | Success fee model (20%)
-Rationale: Zero friction for user acquisition. "Found money" psychology means 20% is readily accepted. Validated by US medical bill service Billdog (different market, same model). Card-on-file via PayFast avoids trust problem of post-resolution invoicing.
+**DD-001** | 2026-03-27 | Success fee model (15%)
+Rational: Zero friction for user acquisition. "Found money" psychology means 15% is readily accepted. Validated by US medical bill service Billdog (different market, same model). Card-on-file via PayFast avoids trust problem of post-resolution invoicing.
 
 **DD-002** | 2026-03-27 | Next.js over plain HTML
 Rationale: Landing page prototype is HTML but production build uses Next.js for SSR/SEO, API routes, auth middleware, and future scalability. Railway deployment supports Node.js natively.

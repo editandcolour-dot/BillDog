@@ -307,7 +307,7 @@ if (status === CASE_STATUS.SENT) { ... }
 ```typescript
 // ❌ BANNED
 // const oldCalculation = amount * 0.15;
-const fee = amount * 0.2; // changed from 15% to 20%
+const fee = amount * 0.15; // changed from 15% to 15%
 
 // ✅ REQUIRED
 /** Success fee rate applied to recovered billing amounts. */
@@ -316,7 +316,7 @@ const SUCCESS_FEE_RATE = 0.2;
 /**
  * Calculate the success fee for a resolved dispute.
  * @param recoveredAmount - The confirmed amount recovered from the municipality.
- * @returns The fee to charge the user (20% of recovered amount).
+ * @returns The fee to charge the user (15% of recovered amount).
  * @throws {DisputeError} If recovered amount is negative or zero.
  */
 function calculateSuccessFee(recoveredAmount: number): number {

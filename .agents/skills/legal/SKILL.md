@@ -69,7 +69,7 @@ The privacy policy at `/privacy` must contain all of the following sections:
 The terms of service at `/terms` must contain all of the following:
 
 1. **Service description** — AI-powered municipal billing dispute platform; analyses bills, generates dispute letters, sends to municipalities on user's behalf
-2. **Success fee model** — 20% of funds recovered; charged only after user confirms resolution
+2. **Success fee model** — 15% of funds recovered; charged only after user confirms resolution
 3. **No upfront charges** — user pays nothing unless money is recovered
 4. **User obligations** — provide accurate information, upload genuine bills, respond to municipality communications
 5. **Billdog liability limitations** — not a law firm, not legal advice, no guarantee of outcomes, AI-powered analysis with human-reviewed letters

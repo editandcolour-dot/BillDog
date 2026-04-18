@@ -115,7 +115,7 @@ Each processor handles user data on Billdog's behalf. Each requires a **Data Pro
   <label class="flex items-start gap-3 min-h-[44px]">
     <input type="checkbox" required class="mt-1" />
     <span class="text-sm text-grey">
-      I agree to the 20% success fee on funds recovered through disputed charges, 
+      I agree to the 15% success fee on funds recovered through disputed charges, 
       as described in our <a href="/terms" class="text-blue underline">Terms of Service</a>.
     </span>
   </label>

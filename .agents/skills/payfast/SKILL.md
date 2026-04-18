@@ -7,7 +7,7 @@ description: PayFast card-on-file tokenisation and success-fee charging for Bill
 
 > **Consumed by:** Payment Agent — read before building any payment functionality
 > **Project:** Billdog — SA municipal billing dispute platform
-> **Revenue model:** 20% success fee on recovered amounts — charged only on confirmed resolution
+> **Revenue model:** 15% success fee on recovered amounts — charged only on confirmed resolution
 > **Security:** See `security` skill for ITN validation, IP whitelisting, and signature verification
 > **Rule:** Money is involved. Every charge must be explicit, confirmed, and idempotent. No speculative charges. No silent failures.
 
@@ -20,7 +20,7 @@ description: PayFast card-on-file tokenisation and success-fee charging for Bill
 | Use Case | ✅ / ❌ | Details |
 |---|---|---|
 | Card-on-file tokenisation | ✅ | Save card at signup without charging |
-| Success fee charge | ✅ | Charge 20% of recovered amount on resolution |
+| Success fee charge | ✅ | Charge 15% of recovered amount on resolution |
 | Subscriptions | ❌ | Not a subscription product |
 | Once-off payment at signup | ❌ | No upfront fees — tokenise only |
 
@@ -46,9 +46,9 @@ PAYFAST_MODE=sandbox                   # 'sandbox' or 'production'
 
 ### PayFast Fees
 - PayFast charges a per-transaction fee — check [payfast.co.za/fees](https://payfast.co.za/fees) for current rates
-- Factor PayFast fees into the 20% success fee calculation
+- Factor PayFast fees into the 15% success fee calculation
 - Display the **net amount** to the user after PayFast fees are deducted
-- Billdog absorbs the PayFast fee — the user pays exactly 20%
+- Billdog absorbs the PayFast fee — the user pays exactly 15%
 
 ---
 
@@ -312,7 +312,7 @@ export async function processSuccessFee(
     await supabase.from('case_events').insert({
       case_id: caseId,
       event_type: 'fee_charged',
-      note: `Success fee of R${fee.toFixed(2)} charged (20% of R${amountRecovered.toFixed(2)}).`,
+      note: `Success fee of R${fee.toFixed(2)} charged (15% of R${amountRecovered.toFixed(2)}).`,
     });
     // Send receipt email (see resend skill)
   } else {
@@ -380,7 +380,7 @@ Card saved → Return to letter preview → "Send Dispute Letter"
 ```
 💳 Add your card now
 You only pay when we recover money for you.
-20% success fee — charged only on confirmed resolution.
+15% success fee — charged only on confirmed resolution.
 No recovery, no charge. Guaranteed.
 ```
 
@@ -402,7 +402,7 @@ On the case resolution page — requires **explicit user action**:
       <span class="text-navy font-bold">R1,200.00</span>
     </div>
     <div class="flex justify-between text-base">
-      <span class="text-grey">Billdog fee (20%)</span>
+      <span class="text-grey">Billdog fee (15%)</span>
       <span class="text-navy">R240.00</span>
     </div>
     <hr class="border-light-grey" />

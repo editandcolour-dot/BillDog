@@ -184,7 +184,7 @@ The hero is the first thing users see. It sets the tone.
 | CTA | "Dispute My Bill" | "Submit for Review" |
 | Value prop | "We fight. You save." | "Our service helps optimise your billing outcomes." |
 | Trust | "R12.4M recovered for South Africans" | "We have processed thousands of cases." |
-| Pricing | "We only win if you win. 20% of what we recover." | "Success-based fee structure applies." |
+| Pricing | "We only win if you win. 15% of what we recover." | "Success-based fee structure applies." |
 
 ### Rules
 - Headlines in Bebas Neue should feel like a **punchy newspaper headline**.
