@@ -25,6 +25,12 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
   if (!appUrl || appUrl === 'undefined') appUrl = 'https://www.billdog.co.za';
   if (appUrl.endsWith('/')) appUrl = appUrl.slice(0, -1);
 
+  // CRITICAL FIX: Payfast PRODUCTION completely strips 'localhost' out of return_url/cancel_url before computing the hash.
+  // This silent removal results in a "Signature Mismatch". We MUST send a valid internet URL to production.
+  if (!isSandbox && appUrl.includes('localhost')) {
+    appUrl = 'https://www.billdog.co.za';
+  }
+
   const data: Record<string, string> = {
     merchant_id: String(process.env['PAYFAST_MERCHANT_ID']).trim(),
     merchant_key: String(process.env['PAYFAST_MERCHANT_KEY']).trim(),
