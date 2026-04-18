@@ -34,31 +34,50 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     name_first: String(params.userName).split(' ')[0].trim(),
     email_address: String(params.userEmail).trim(),
     m_payment_id: String(params.userId).trim(),
-    amount: '5.00',                          // PayFast R5 minimum — auto-refunded on tokenisation
+    amount: '0.00',                          // Zero charge — tokenise only
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
-    email_confirmation: '0',
   };
 
-  // Drop empty or undefined values to avoid breaking signature
-  const cleanData: Record<string, string> = {};
-  for (const [k, v] of Object.entries(data)) {
-    if (v !== '' && v !== 'undefined') cleanData[k] = v;
-  }
+  // Alphabetize keys as per PayFast strict MD5 spec to prevent browser/JSON object reordering
+  const sortedData: Record<string, string> = {};
+  Object.keys(data).sort().forEach(key => {
+    if (data[key] !== '' && data[key] !== 'undefined' && data[key] !== undefined) {
+      sortedData[key] = data[key];
+    }
+  });
+
+  // Handle undefined passphrase cleanly
+  const rawPassphrase = process.env['PAYFAST_PASSPHRASE'];
+  const safePassphrase = (rawPassphrase && rawPassphrase !== 'undefined') ? rawPassphrase.trim() : '';
 
   // Generate signature
-  const signature = generateSignature(cleanData, String(process.env['PAYFAST_PASSPHRASE']).trim());
-  cleanData.signature = signature;
+  const signature = generateSignature(sortedData, safePassphrase);
+  sortedData.signature = signature;
 
-  return { action, fields: cleanData };
+  return { action, fields: sortedData };
+}
+
+// Ensure 100% parity with PHP's urlencode() for PayFast strict signature validation
+function payfastUrlEncode(str: string): string {
+  return encodeURIComponent(str)
+    .replace(/%20/g, '+')
+    .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/\*/g, '%2A');
 }
 
 export function generateSignature(data: Record<string, string>, passphrase: string): string {
   const paramString = Object.entries(data)
     .filter(([key]) => key !== 'signature')
-    .map(([key, val]) => `${key}=${encodeURIComponent((val ?? '').trim()).replace(/%20/g, '+')}`)
+    .map(([key, val]) => `${key}=${payfastUrlEncode((val ?? '').trim())}`)
     .join('&');
 
-  const withPassphrase = `${paramString}&passphrase=${(passphrase ?? '').trim()}`;
+  const withPassphrase = passphrase 
+    ? `${paramString}&passphrase=${payfastUrlEncode(passphrase)}`
+    : paramString;
+
   return crypto.createHash('md5').update(withPassphrase).digest('hex');
 }
