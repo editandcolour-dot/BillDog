@@ -57,54 +57,45 @@ function getSectionSubtotal(chunk: string): number {
 
 function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']): GeneralCharge[] {
   const charges: GeneralCharge[] = [];
-  const lines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  // 1. Merge continuation lines (lines that start with a number or symbol that belongs to the previous line)
+  const rawLines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const lines: string[] = [];
+  for (const line of rawLines) {
+    // If it starts with &, #, or a word, it's a new line
+    if (line.match(/^(&|#|[A-Za-z])/)) {
+      lines.push(line);
+    } else if (lines.length > 0) {
+      lines[lines.length - 1] += ' ' + line;
+    } else {
+      lines.push(line);
+    }
+  }
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     
-    // Multi-tier parsing (Pass 1 & Pass 2)
-    if (line.startsWith('&') && line.includes('(1)')) {
-      let isTriple = false;
-      let tripleTotal = 0;
-      if (i + 1 < lines.length && lines[i + 1].startsWith('(3)')) {
-         isTriple = true;
-         const match = lines[i+1].match(/([\d,]+\.\d+)\s*$/);
-         if (match) tripleTotal = parseAmount(match[1]);
-      }
-      
-      if (isTriple) {
-        charges.push({ serviceType, description: line + ' ' + lines[i+1], amount: tripleTotal, hasVat: true });
-        // We concatenate lines[i+1] so full tier kl string is searchable
-      } else {
-        const match = line.match(/^(&.*?\(1\).*?)([\d,]+\.\d+)\s*$/);
-        if (match) {
-           charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: true });
-        }
+    // 2. All & prefixed lines that end in a rand amount (including split-tier which are now merged)
+    if (line.startsWith('&')) {
+      const amountMatch = line.match(/(-?[\d,]+\.\d+)\s*$/);
+      if (amountMatch) {
+         charges.push({ serviceType, description: line, amount: parseAmount(amountMatch[1]), hasVat: true });
       }
     } 
-    // Water Fixed Basic Charge
+    // Water Fixed Basic Charge (non-VAT form fallback)
     else if (serviceType === 'water' && line.toLowerCase().includes('fixed basic charge')) {
-        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
-        console.log(`[RAW_PARSER_DEBUG] WATER_FIXED parsed! line="${line}", matched=${!!match}, amount=${match ? match[2] : 'N/A'}`);
-        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
+        const match = line.match(/^(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: false });
     }
-    // Refuse Charge
+    // Refuse Charge (non-VAT form fallback)
     else if (serviceType === 'refuse' && line.toLowerCase().includes('refuse charge')) {
-        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
-        if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
+        const match = line.match(/^(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: false });
     }
-    // Sundries (HUC, City-wide cleaning, etc.)
+    // Sundries fallback
     else if (serviceType === 'sundry' && line.match(/(Home User Charge|Elec HU service|cleaning|Dishonoured|Returned cheque)/i)) {
-        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
-        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
-    }
-    // Catch-all for any other VAT-able items we missed
-    else if (line.startsWith('&')) {
-        const amountMatch = line.match(/(-?[\d,]+\.\d+)\s*$/);
-        if (amountMatch) {
-            const amount = parseAmount(amountMatch[1]);
-            charges.push({ serviceType, description: line, amount, hasVat: true });
-        }
+        const match = line.match(/^(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: false });
     }
   }
   

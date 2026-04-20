@@ -145,8 +145,11 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
     if (bill.waterCharges) {
        for (const wc of bill.waterCharges) {
          if (wc.description.toLowerCase().includes('fixed basic charge') && wc.description.includes('20mm')) {
-           const verification = await verifyWaterFixedCharge(wc.amount, wc.description, bill.billingDate, municipalityCode, bill.valuation?.total);
-           console.log(`[FIXED_BASIC] description="${wc.description}" amount=${wc.amount} expected=${verification.approved_amount}`);
+           const dateMatch = wc.description.match(/From\s+(\d{2}\/\d{2}\/\d{4})/i);
+           const fixedBasicDate = dateMatch ? dateMatch[1] : bill.billingDate;
+           
+           const verification = await verifyWaterFixedCharge(wc.amount, wc.description, fixedBasicDate, municipalityCode, bill.valuation?.total);
+           console.log(`[FIXED_BASIC] description="${wc.description}" date=${fixedBasicDate} amount=${wc.amount} expected=${verification.approved_amount}`);
            if (verification.result === 'FAIL' && tier === 1) {
              findings.push({
                 type: 'WATER_FIXED_CHARGE_WRONG',
