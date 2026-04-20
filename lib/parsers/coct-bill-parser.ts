@@ -12,7 +12,8 @@ const RE_BILLING_DATE = /Account\s+details\s+as\s+at\s+(\d{2}\/\d{2}\/\d{4})/i;
 const RE_TOTAL_DUE = /Current\s+account:\s*Total\s+due\s+([\d,]+\.?\d*)/i;
 const RE_RATES_PERIOD = /\(\s*Period\s+(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})\s*\)\s*(\d+)\s*Days/i;
 const RE_VALUATION = /Rateable\s+portion\s+of\s+valuation\s+From\s*:\s*(\d{2}\/\d{2}\/\d{4})\s+R\s+([\d,]+)\s*-\s*R\s+([\d,]+)\s*=\s*R\s+([\d,]+)/i;
-const RE_RATES_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*?)(-?)\s*$/gm;
+const RE_RATES_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*)\s*$/gm;
+const RE_REBATE_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*)-\s*$/gm;
 const RE_VAT_LINE = /Add 15% VAT on amounts marked with\s*(?:&|&\s*above)\s+([\d,]+\.?\d*)/i;
 
 // ── Helpers ──────────────────────────────────────────────
@@ -155,19 +156,21 @@ export function parseCoctBill(text: string): ParsedBill | null {
   RE_RATES_LINE.lastIndex = 0;
   let rm;
   while ((rm = RE_RATES_LINE.exec(chunkRates)) !== null) {
-    const isRebate = rm[7] === '-';
+    const fromDate = rm[1], value = parseAmount(rm[2]), annualRate = parseFloat(rm[3]);
+    const daysInYear = parseInt(rm[4], 10), billingDays = parseInt(rm[5], 10), amount = parseAmount(rm[6]);
+    rates.push({ fromDate, rateableValue: value, annualRate, daysInYear, billingDays, billedAmount: amount });
+  }
+
+  RE_REBATE_LINE.lastIndex = 0;
+  while ((rm = RE_REBATE_LINE.exec(chunkRates)) !== null) {
     const fromDate = rm[1], value = parseAmount(rm[2]), annualRate = parseFloat(rm[3]);
     const daysInYear = parseInt(rm[4], 10), billingDays = parseInt(rm[5], 10), amount = parseAmount(rm[6]);
 
-    if (isRebate) {
-      const parent = rates.find(r => r.fromDate === fromDate && r.annualRate === annualRate && r.billingDays === billingDays);
-      if (parent) {
-        parent.rebateBase = value; parent.rebateBilledAmount = amount;
-      } else {
-        rates.push({ fromDate, rateableValue: 0, annualRate, daysInYear, billingDays, billedAmount: 0, rebateBase: value, rebateBilledAmount: amount });
-      }
+    const parent = rates.find(r => r.fromDate === fromDate && r.annualRate === annualRate && r.billingDays === billingDays);
+    if (parent) {
+      parent.rebateBase = value; parent.rebateBilledAmount = amount;
     } else {
-      rates.push({ fromDate, rateableValue: value, annualRate, daysInYear, billingDays, billedAmount: amount });
+      rates.push({ fromDate, rateableValue: value, annualRate, daysInYear, billingDays, billedAmount: 0, rebateBase: value, rebateBilledAmount: amount });
     }
   }
 

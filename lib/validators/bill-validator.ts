@@ -74,17 +74,20 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
         (seg.rateableValue * seg.annualRate / seg.daysInYear * seg.billingDays).toFixed(2)
       );
 
-      if (Math.abs(seg.annualRate - expectedRate) > 0.0000001) {
-        findings.push({
-          type: 'UNKNOWN_RATE_APPLIED',
-          description: `Rate applied (${seg.annualRate}) doesn't match known CoCT rate for this period (${expectedRate})`,
-          billedAmount: seg.billedAmount,
-          expectedAmount: parseFloat((seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays).toFixed(2)),
-          discrepancy: parseFloat((seg.billedAmount - (seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays)).toFixed(2)),
-          lineReference: `Rates segment from ${seg.fromDate}: R${seg.rateableValue} @ ${seg.annualRate}`,
-          invoiceNumber: bill.invoiceNumber,
-          billingDate: bill.billingDate,
-        });
+      // never run RATES_CALC_ERROR or UNKNOWN_RATE_APPLIED checks against a rebate segment (under 1M)
+      if (seg.rateableValue >= 1000000) {
+        if (Math.abs(seg.annualRate - expectedRate) > 0.0000001) {
+          findings.push({
+            type: 'UNKNOWN_RATE_APPLIED',
+            description: `Rate applied (${seg.annualRate}) doesn't match known CoCT rate for this period (${expectedRate})`,
+            billedAmount: seg.billedAmount,
+            expectedAmount: parseFloat((seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays).toFixed(2)),
+            discrepancy: parseFloat((seg.billedAmount - (seg.rateableValue * expectedRate / seg.daysInYear * seg.billingDays)).toFixed(2)),
+            lineReference: `Rates segment from ${seg.fromDate}: R${seg.rateableValue} @ ${seg.annualRate}`,
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+          });
+        }
       }
     }
 
