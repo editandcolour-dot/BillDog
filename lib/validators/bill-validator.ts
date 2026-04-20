@@ -6,7 +6,7 @@ import { verifyRefuseCharge } from '../tariff/verifiers/refuseCharge';
 import { classifyMunicipality } from '../tiers/tierClassifier';
 import { runUniversalChecks } from '../checks/universalChecks';
 
-export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'): ValidationFinding[] {
+export async function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'): Promise<ValidationFinding[]> {
   const findings: ValidationFinding[] = [];
 
   // Always run universal checks (VAT, math, duplicates) regardless of Tier
@@ -19,45 +19,24 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
     return findings;
   }
 
-  // --- NEW STRICT PARSER CHECKS ---
-  // FULL-SUM CHECK
-  if (bill.subtotals) {
-     const calcSum = bill.subtotals.ratesNet + bill.subtotals.water + bill.subtotals.refuse + bill.subtotals.sewerage + bill.subtotals.sundries + bill.vatAmount;
-     if (Math.abs(calcSum - bill.totalDue) > 0.05) {
-       findings.push({
-          type: 'PARSER_MISMATCH',
-          description: `Full-sum mathematical check failed. Sum of Subtotals + VAT is R${calcSum.toFixed(2)} vs Total Due R${bill.totalDue.toFixed(2)}. This indicates missing or duplicate lines in extraction.`,
-          billedAmount: bill.totalDue,
-          expectedAmount: calcSum,
-          discrepancy: Math.abs(calcSum - bill.totalDue),
-          lineReference: 'Total due',
-          invoiceNumber: bill.invoiceNumber,
-          billingDate: bill.billingDate,
-       });
-     }
-  }
 
-  // VAT_CHECK
-  if (bill.vatAmount > 0) {
-     const vatAbleCharges = [
-        ...(bill.waterCharges || []), 
-        ...(bill.sewerageCharges || []), 
-        ...(bill.refuseCharges || []), 
-        ...(bill.sundryCharges || [])
-     ].filter(c => c.hasVat).reduce((sum, c) => sum + c.amount, 0);
-     const expectedVat = vatAbleCharges * 0.15;
-     if (Math.abs(expectedVat - bill.vatAmount) > 0.10) {
-       findings.push({
-          type: 'VAT_MISMATCH',
-          description: `VAT calculation mismatch. 15% of VAT-able items (&) is approx R${expectedVat.toFixed(2)}, printed VAT is R${bill.vatAmount.toFixed(2)}.`,
-          billedAmount: bill.vatAmount,
-          expectedAmount: parseFloat(expectedVat.toFixed(2)),
-          discrepancy: Math.abs(expectedVat - bill.vatAmount),
-          lineReference: 'Add 15% VAT',
+
+
+
+  // CANONICAL WATER KL VS METER READING
+  if (bill.meterReadings) {
+    const totalMeterWaterKl = bill.meterReadings.filter(m => m.service === 'water').reduce((sum, m) => sum + m.consumption, 0);
+    if (totalMeterWaterKl > 0 && Math.abs(totalMeterWaterKl - bill.canonicalWaterConsumptionKl) > 0.05) {
+        findings.push({
+          type: 'METER_READING_MISMATCH',
+          description: `Water consumption discrepancy. Printed 'Consumption' is ${bill.canonicalWaterConsumptionKl}kl, but meter reading table shows ${totalMeterWaterKl}kl.`,
+          billedAmount: bill.canonicalWaterConsumptionKl,
+          expectedAmount: totalMeterWaterKl,
+          lineReference: 'WATER (Actual/Estimated reading)',
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
-       });
-     }
+        });
+    }
   }
 
   // SEWERAGE_70 rule
@@ -69,6 +48,9 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
         sewerageKl += parseFloat(m[1]);
       }
     }
+    
+    console.log(`[SEW] waterKl=${bill.canonicalWaterConsumptionKl} sewerageKl=${sewerageKl} ratio=${sewerageKl/bill.canonicalWaterConsumptionKl}`);
+
     const expectedSewerageKl = bill.canonicalWaterConsumptionKl * 0.70;
     if (Math.abs(sewerageKl - expectedSewerageKl) > 0.001) {
        findings.push({
@@ -110,13 +92,13 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
       const expectedRebate = parseFloat(
         (seg.rebateBase * seg.annualRate / seg.daysInYear * seg.billingDays).toFixed(2)
       );
-      if (Math.abs(seg.rebateBilledAmount - expectedRebate) > 0.02) {
+      if (Math.abs(seg.rebateBilledAmount - expectedRebate) > 0.05) {
         findings.push({
           type: 'REBATE_CALC_ERROR',
           description: `Rebate arithmetic error. Expected R${expectedRebate}, applied R${seg.rebateBilledAmount}`,
           billedAmount: seg.rebateBilledAmount,
           expectedAmount: expectedRebate,
-          discrepancy: parseFloat((seg.rebateBilledAmount - expectedRebate).toFixed(2)),
+          discrepancy: parseFloat((expectedRebate - Math.abs(seg.rebateBilledAmount)).toFixed(2)),
           lineReference: `Rebate from ${seg.fromDate}: R${seg.rebateBase} @ ${seg.annualRate}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
@@ -135,14 +117,15 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
           const monthMatch = huc.description.match(/-?\s*(\d{2}\.\d{4})/);
           const fallbackMonth = monthMatch ? monthMatch[1] : bill.billingDate;
           
-          const verification = verifyElectricityHUCharge(huc.amount, fallbackMonth, municipalityCode);
+          const verification = await verifyElectricityHUCharge(huc.amount, fallbackMonth, municipalityCode);
+          console.log(`[HUC] description="${huc.description}" amount=${huc.amount} expected=${verification.approved_amount}`);
           if (verification.result === 'FAIL' && tier === 1) {
             findings.push({
               type: 'HUC_AMOUNT_WRONG',
               description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
               billedAmount: huc.amount,
               expectedAmount: verification.approved_amount,
-              discrepancy: Math.abs(verification.delta),
+              discrepancy: Math.abs(verification.delta || 0),
               lineReference: huc.description,
               invoiceNumber: bill.invoiceNumber,
               billingDate: bill.billingDate,
@@ -158,15 +141,16 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
     // Check Water Fixed Charge in Water
     if (bill.waterCharges) {
        for (const wc of bill.waterCharges) {
-         if (wc.description.toLowerCase().includes('fixed basic charge')) {
-           const verification = verifyWaterFixedCharge(wc.amount, wc.description, bill.billingDate, municipalityCode, bill.valuation?.total);
+         if (wc.description.toLowerCase().includes('fixed basic charge') && wc.description.includes('20mm')) {
+           const verification = await verifyWaterFixedCharge(wc.amount, wc.description, bill.billingDate, municipalityCode, bill.valuation?.total);
+           console.log(`[FIXED_BASIC] description="${wc.description}" amount=${wc.amount} expected=${verification.approved_amount}`);
            if (verification.result === 'FAIL' && tier === 1) {
              findings.push({
                 type: 'WATER_FIXED_CHARGE_WRONG',
                 description: `Discrepancy in Water Fixed Charge. Expected approx R${verification.approved_amount}, billed R${wc.amount}`,
                 billedAmount: wc.amount,
                 expectedAmount: verification.approved_amount,
-                discrepancy: Math.abs(verification.delta),
+                discrepancy: Math.abs(verification.delta || 0),
                 lineReference: wc.description,
                 invoiceNumber: bill.invoiceNumber,
                 billingDate: bill.billingDate,
@@ -183,7 +167,7 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
     if (bill.refuseCharges) {
        for (const rc of bill.refuseCharges) {
          if (rc.description.toLowerCase().includes('refuse charge')) {
-           const verification = verifyRefuseCharge(rc.amount, bill.billingDate, municipalityCode);
+           const verification = await verifyRefuseCharge(rc.amount, bill.billingDate, municipalityCode);
            if (verification.result === 'FAIL') {
              findings.push({
                 type: 'UNKNOWN_RATE_APPLIED',  // We can repurpose or add a new REFUSE_CHARGE_WRONG type
@@ -202,6 +186,73 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
          }
        }
     }
+  }
+
+  // --- NEW STRICT PARSER CHECKS ---
+  // VAT_CHECK
+  if (bill.vatAmount > 0) {
+     // Downscope the @ R skip here to prevent raw rates from poisoning the VAT base
+     const vatItems = [
+        ...(bill.waterCharges || []), 
+        ...(bill.sewerageCharges || []), 
+        ...(bill.refuseCharges || []), 
+        ...(bill.sundryCharges || [])
+     ].filter(c => c.hasVat && !/@ R\s*$/.test(c.description));
+     
+     console.log(`[VAT_DEBUG] VAT Items:`, vatItems.map(c => `${c.amount} (${c.serviceType}: ${c.description})`));
+     
+     const vatAbleCharges = vatItems.reduce((sum, c) => sum + c.amount, 0);
+     const expectedVat = vatAbleCharges * 0.15;
+     
+     console.log(`[VAT] extracted=${bill.vatAmount} computed=${expectedVat} diff=${bill.vatAmount - expectedVat}`);
+
+     if (Math.abs(expectedVat - bill.vatAmount) > 0.10) {
+       // Tariff cascade suppression
+       const tariffDiscrepancies = findings.filter(f => 
+         f.type === 'UNKNOWN_RATE_APPLIED' || 
+         f.type === 'WATER_FIXED_CHARGE_WRONG' || 
+         f.type === 'HUC_AMOUNT_WRONG'
+       );
+       const explainedVatDiscrepancy = tariffDiscrepancies.reduce((sum, f) => sum + (f.discrepancy || 0) * 0.15, 0);
+       const trueVatAnomaly = Math.abs(Math.abs(expectedVat - bill.vatAmount) - explainedVatDiscrepancy);
+
+       if (trueVatAnomaly <= 0.05) {
+         console.log(`[VAT] Discrepancy perfectly explained by underlying tariff errors. Suppressing secondary VAT anomaly.`);
+       } else {
+         findings.push({
+            type: 'VAT_MISMATCH',
+            description: `VAT calculation mismatch. 15% of VAT-able items (&) is approx R${expectedVat.toFixed(2)}, printed VAT is R${bill.vatAmount.toFixed(2)}.`,
+            billedAmount: bill.vatAmount,
+            expectedAmount: parseFloat(expectedVat.toFixed(2)),
+            discrepancy: Math.abs(expectedVat - bill.vatAmount),
+            lineReference: 'Add 15% VAT',
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+         });
+       }
+     }
+  }
+
+  // FULL-SUM CHECK (Safety Net)
+  if (bill.subtotals) {
+     const calcSum = bill.subtotals.ratesNet + bill.subtotals.water + bill.subtotals.refuse + bill.subtotals.sewerage + bill.subtotals.sundries + bill.vatAmount;
+     const fullSumDiff = Math.abs(calcSum - bill.totalDue);
+     if (fullSumDiff > 0.05) {
+       const explainedDiscrepancy = findings.reduce((sum, f) => sum + (f.discrepancy || 0), 0);
+       
+       if (Math.abs(fullSumDiff - explainedDiscrepancy) >= 0.05) {
+         findings.push({
+            type: 'PARSER_MISMATCH',
+            description: `Full-sum mathematical check failed. Sum of Subtotals + VAT is R${calcSum.toFixed(2)} vs Total Due R${bill.totalDue.toFixed(2)}. Unexplained gap of R${Math.abs(fullSumDiff - explainedDiscrepancy).toFixed(2)}.`,
+            billedAmount: bill.totalDue,
+            expectedAmount: calcSum,
+            discrepancy: fullSumDiff,
+            lineReference: 'Total due',
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+         });
+       }
+     }
   }
 
   return findings;

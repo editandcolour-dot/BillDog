@@ -1,63 +1,46 @@
+import { resolveTariff } from '../tariff-resolver';
+
 export interface RefuseVerificationResult {
   result: 'PASS' | 'FAIL' | 'SKIP';
   approved_amount?: number;
   delta?: number;
-  confidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY';
+  confidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
   source_url?: string;
 }
 
-export function verifyRefuseCharge(
+export async function verifyRefuseCharge(
   billedAmount: number,
-  billingDateStr: string, // format DD/MM/YYYY
+  billingDateStr: string, // format DD/MM/YYYY or MM.YYYY
   municipalityCode = 'CoCT'
-): RefuseVerificationResult {
-  if (municipalityCode !== 'CoCT') {
+): Promise<RefuseVerificationResult> {
+  const normMunicipality = municipalityCode === 'City of Cape Town' ? 'CoCT' : municipalityCode;
+
+  const resolution = await resolveTariff({
+    municipality: normMunicipality,
+    tariffType: 'REFUSE',
+    billingDate: billingDateStr,
+    // Typically a standard 240L bin, can dynamically supply if multiple bins exist
+    subKey: '240L'
+  });
+
+  if (resolution.result === 'SKIP' || !resolution.amount) {
     return { result: 'SKIP' };
   }
 
-  const parts = billingDateStr.split('/');
-  let date: Date;
-  if (parts.length === 3) {
-    date = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
-  } else {
-    // If we can't parse the date, skip determinism
-    return { result: 'SKIP' };
-  }
+  const approvedAmount = resolution.amount;
 
-  const time = date.getTime();
-  const d2022 = new Date(2022, 6, 1).getTime(); // 1 Jul 2022
-  const d2023 = new Date(2023, 6, 1).getTime(); // 1 Jul 2023
-  const d2024 = new Date(2024, 6, 1).getTime(); // 1 Jul 2024
-  const d2025 = new Date(2025, 6, 1).getTime(); // 1 Jul 2025
-  const d2026 = new Date(2026, 6, 1).getTime(); // 1 Jul 2026
-
-  let approvedAmount = 0;
-  let source_url = 'https://www.capetown.gov.za/Family%20and%20home/residential-utility-services/residential-tariffs-and-ranges';
-
-  if (time >= d2022 && time < d2023) {
-    approvedAmount = 149.13;
-  } else if (time >= d2023 && time < d2024) {
-    approvedAmount = 157.30;
-  } else if (time >= d2024 && time < d2025) {
-    approvedAmount = 166.26;
-  } else if (time >= d2025 && time < d2026) {
-    approvedAmount = 178.52;
-  } else {
-    // Out of known range
-    return { result: 'SKIP' };
-  }
-
-  // Exact match because it is a flat fee, but we allow 1 cent precision differences
+  // Exact match because it is a flat fee, but we allow 2 cent precision differences
   const delta = billedAmount - approvedAmount;
   if (Math.abs(delta) > 0.02) {
     return {
       result: 'FAIL',
       approved_amount: approvedAmount,
-      delta,
-      confidence: 'CONFIRMED',
-      source_url
+      delta: parseFloat(delta.toFixed(2)),
+      confidence: resolution.verified ? 'CONFIRMED' : 'UNVERIFIED',
+      source_url: resolution.source === 'gazette' ? 'Gazette' : 'Cache'
     };
   }
 
   return { result: 'PASS' };
 }
+

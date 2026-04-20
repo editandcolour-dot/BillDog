@@ -12,7 +12,7 @@ import { generateTransparencyReport } from '@/lib/tiers/tier3Report';
 import { getCurrentTariffYear } from '@/lib/tariff/tariffLookup';
 import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
 
-const analyseLimiter = getRateLimiter(5, '1 h');
+const analyseLimiter = getRateLimiter(100, '1 h');
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5min — up to 36 bills

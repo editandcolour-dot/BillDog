@@ -151,7 +151,7 @@ export async function analyseBill(billText: string, municipalityCode: string = '
   let findingsCount = 0;
 
   if (parsedBill) {
-    const findings = validateBill(parsedBill, municipalityCode);
+    const findings = await validateBill(parsedBill, municipalityCode);
     systemPrompt = buildGroundedSystemPrompt(findings, parsedBill);
     isGroundTruth = true;
     findingsCount = findings.length;

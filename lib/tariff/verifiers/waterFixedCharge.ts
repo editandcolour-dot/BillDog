@@ -1,116 +1,59 @@
-import { VerificationResult, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
+import { resolveTariff } from '../tariff-resolver';
 
-export function verifyWaterFixedCharge(
+export interface VerificationResult {
+  result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
+  approved_amount?: number;
+  billed_amount?: number;
+  delta?: number;
+  tariff_year?: string;
+  source_document?: string;
+  source_url?: string;
+  confidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
+}
+
+export async function verifyWaterFixedCharge(
   billedAmount: number,
   billedLabel: string,
   billingDate: string,
   municipality: string,
   propertyValue?: number
-): VerificationResult {
-  const tariffYear = getTariffYearForDate(billingDate);
-  const db = loadTariffDb(municipality, tariffYear);
+): Promise<VerificationResult> {
+  const normMunicipality = municipality === 'City of Cape Town' ? 'CoCT' : municipality;
 
-  if (!db || !db.water) {
-    return { result: 'UNKNOWN' };
-  }
+  // Determine size
+  const meterMatch = billedLabel.match(/\((\d+)mm\s*-/i);
+  const size = meterMatch ? `${meterMatch[1]}mm` : '20mm';
 
-  // 1. Handle Multiplier (e.g., "... x 2 ...")
-  let effectiveBilledAmount = billedAmount;
   const multiplierMatch = billedLabel.match(/x\s*(\d+)/i);
-  let multiplier = 1;
-  if (multiplierMatch) {
-    multiplier = parseInt(multiplierMatch[1], 10);
-    effectiveBilledAmount = billedAmount / multiplier;
+  const multiplier = multiplierMatch ? parseInt(multiplierMatch[1], 10) : 1;
+  const effectiveBilledAmount = billedAmount / multiplier;
+
+  const resolution = await resolveTariff({
+    municipality: normMunicipality,
+    tariffType: 'WATER_FIXED_BASIC',
+    billingDate,
+    subKey: size
+  });
+
+  if (resolution.result === 'SKIP' || !resolution.amount) {
+    return { result: 'SKIP' };
   }
 
-  // 2. Pre-2025/26 logic vs Post-2025/26 logic
-  const isPost2025 = tariffYear >= '2025/26';
-  const method = db.water.fixed_charge_method || (isPost2025 ? 'property_value' : 'meter_size');
-
-  let expectedAmount: number | null = null;
-  let confidence: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED' = 'UNVERIFIED';
-  let legalBasis: string | null = null;
-
-  if (method === 'property_value') {
-    const chargeMap = db.water.fixed_basic_charge_by_property_value_excl_vat;
-    if (!chargeMap) return fallbackUnknown();
-
-    // Try extracting band from label first
-    const bandMatch = billedLabel.match(/\(R\s*([\d\s]+)\s*-\s*R\s*([\d\s]+)\)/i);
-    
-    if (bandMatch) {
-      const lowerBound = bandMatch[1].replace(/\s/g, '');
-      const upperBound = bandMatch[2].replace(/\s/g, '');
-      const bandKey = `band_${lowerBound}_to_${upperBound}`;
-      
-      if (chargeMap[bandKey] !== undefined && chargeMap[bandKey] !== null) {
-        expectedAmount = chargeMap[bandKey] as number;
-      }
-    } else if (propertyValue !== undefined && propertyValue > 0) {
-      // Fallback: reverse engineer the property band dynamically using global context
-      for (const key of Object.keys(chargeMap)) {
-        if (key.startsWith('band_')) {
-          const parts = key.replace('band_', '').split('_to_');
-          const lb = parseInt(parts[0], 10);
-          const ub = parseInt(parts[1], 10);
-          if (propertyValue >= lb && propertyValue <= ub) {
-            expectedAmount = chargeMap[key] as number;
-            break;
-          }
-        }
-      }
-    }
-
-    if (expectedAmount !== null) {
-      confidence = chargeMap['notes'] && chargeMap['notes'].includes('Confirmed from actual bills') 
-        ? 'BILL-VERIFIED' : 'UNVERIFIED';
-    } else {
-      return fallbackUnknown();
-    }
-  } else {
-    // meter_size
-    // Old tariff database entries aren't currently provided in full, so we mock based on VERIFICATION_STATUS.md
-    // We expect the JSON db.water.fixed_basic_charge_by_meter_size_excl_vat or similar to eventually be populated
-    const meterMatch = billedLabel.match(/\((\d+)mm\s*-/i);
-    const size = meterMatch ? meterMatch[1] : '20'; // Default 20mm
-    const chargeMap = db.water.fixed_basic_charge_by_meter_size_excl_vat || db.water.fixed_basic_charge_by_meter_size_incl_vat; // Temporary fallback
-    if (chargeMap && chargeMap[`${size}mm`]) {
-      expectedAmount = chargeMap[`${size}mm`];
-      confidence = 'BILL-VERIFIED';
-    } else {
-      // Fallback matching what we know from VERIFICATION_STATUS if db lacks it
-      if (size === '20') {
-         if (tariffYear === '2022/23') expectedAmount = 116.86;
-         else if (tariffYear === '2023/24') expectedAmount = 126.91;
-         else if (tariffYear === '2024/25') expectedAmount = 135.54;
-         if (expectedAmount) confidence = 'BILL-VERIFIED';
-      }
-    }
-  }
-
-  if (expectedAmount === null || confidence === 'UNVERIFIED') {
-    return fallbackUnknown();
-  }
-
+  const expectedAmount = resolution.amount;
+  const expectedTotal = expectedAmount * multiplier;
   const tolerance = 0.10;
-  const delta = effectiveBilledAmount - expectedAmount;
 
-  if (Math.abs(delta) <= tolerance) {
-    return { result: 'PASS' };
+  if (Math.abs(billedAmount - expectedTotal) <= tolerance) {
+    return { result: 'PASS', approved_amount: parseFloat(expectedTotal.toFixed(2)) };
   } else {
     return {
       result: 'FAIL',
-      approved_amount: parseFloat((expectedAmount * multiplier).toFixed(2)),
+      approved_amount: parseFloat(expectedTotal.toFixed(2)),
       billed_amount: billedAmount,
-      delta: parseFloat((delta * multiplier).toFixed(2)),
-      tariff_year: tariffYear,
-      source_document: db.gazette_source || 'Unknown Gazette',
-      source_url: db.source_url || 'Unknown URL',
-      confidence: confidence as 'CONFIRMED' | 'BILL-VERIFIED',
+      delta: parseFloat((billedAmount - expectedTotal).toFixed(2)),
+      source_document: resolution.source === 'gazette' ? 'Gazette Extract' : 'Tariff Cache',
+      source_url: 'N/A',
+      confidence: resolution.verified ? 'CONFIRMED' : 'UNVERIFIED'
     };
   }
-}
-
-function fallbackUnknown(): VerificationResult {
-  return { result: 'UNKNOWN' };
 }

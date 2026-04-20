@@ -6,7 +6,7 @@ import { checkPrescription } from '@/lib/validators/prescription';
 import type { ServiceType } from '@/types';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
 
-const analyseLimiter = getRateLimiter(20, '1 h');
+const analyseLimiter = getRateLimiter(100, '1 h');
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow Vercel/NextJS to run up to 60s for LLM

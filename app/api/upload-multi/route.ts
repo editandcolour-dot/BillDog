@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
 
-const uploadLimiter = getRateLimiter(5, '1 h');
+const uploadLimiter = getRateLimiter(100, '1 h');
 const MAX_BILLS = 36;
 
 export const dynamic = 'force-dynamic';

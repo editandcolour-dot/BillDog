@@ -72,9 +72,10 @@ function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']
       }
       
       if (isTriple) {
-        charges.push({ serviceType, description: line, amount: tripleTotal, hasVat: true });
+        charges.push({ serviceType, description: line + ' ' + lines[i+1], amount: tripleTotal, hasVat: true });
+        // We concatenate lines[i+1] so full tier kl string is searchable
       } else {
-        const match = line.match(/^(&\s+\(1\).*?)([\d,]+\.\d+)\s*$/);
+        const match = line.match(/^(&.*?\(1\).*?)([\d,]+\.\d+)\s*$/);
         if (match) {
            charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: true });
         }
@@ -83,6 +84,7 @@ function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']
     // Water Fixed Basic Charge
     else if (serviceType === 'water' && line.toLowerCase().includes('fixed basic charge')) {
         const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
+        console.log(`[RAW_PARSER_DEBUG] WATER_FIXED parsed! line="${line}", matched=${!!match}, amount=${match ? match[2] : 'N/A'}`);
         if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
     }
     // Refuse Charge
@@ -91,11 +93,17 @@ function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']
         if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
     }
     // Sundries (HUC, City-wide cleaning, etc.)
-    else if (serviceType === 'sundry') {
-       if (line.match(/(Home User Charge|Elec HU service|cleaning|Dishonoured|Returned cheque)/i)) {
-          const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
-          if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
-       }
+    else if (serviceType === 'sundry' && line.match(/(Home User Charge|Elec HU service|cleaning|Dishonoured|Returned cheque)/i)) {
+        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
+    }
+    // Catch-all for any other VAT-able items we missed
+    else if (line.startsWith('&')) {
+        const amountMatch = line.match(/(-?[\d,]+\.\d+)\s*$/);
+        if (amountMatch) {
+            const amount = parseAmount(amountMatch[1]);
+            charges.push({ serviceType, description: line, amount, hasVat: true });
+        }
     }
   }
   
@@ -105,6 +113,7 @@ function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']
 // ── Main parser ─────────────────────────────────────────
 
 export function parseCoctBill(text: string): ParsedBill | null {
+  console.log(`[FULL_TEXT_DEBUG]\n${text}\n============`);
   if (!isCoctBill(text)) return null;
 
   const billingDateMatch = text.match(RE_BILLING_DATE);
@@ -117,6 +126,7 @@ export function parseCoctBill(text: string): ParsedBill | null {
   // 1. Chunking
   const chunkRates = extractChunk(text, 'PROPERTY RATES', ['WATER', 'REFUSE', 'SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
   const chunkWater = extractChunk(text, 'WATER', ['REFUSE', 'SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
+  console.log(`[CHUNK_WATER] ===\n${chunkWater}\n===`);
   const chunkRefuse = extractChunk(text, 'REFUSE', ['SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
   const chunkSewerage = extractChunk(text, 'SEWERAGE', ['SUNDRIES', 'Add 15% VAT']);
   const chunkSundries = extractChunk(text, 'SUNDRIES', ['Add 15% VAT']);

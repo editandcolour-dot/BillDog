@@ -114,7 +114,8 @@ export type FindingType =
   | 'OVER_APPROVED_INCREASE'
   | 'PARSER_MISMATCH'
   | 'VAT_MISMATCH'
-  | 'SEWERAGE_RATIO_ERROR';
+  | 'SEWERAGE_RATIO_ERROR'
+  | 'METER_READING_MISMATCH';
 
 export interface ValidationFinding {
   type: FindingType;
@@ -128,7 +129,7 @@ export interface ValidationFinding {
   // Tariff Verification extensions
   legalBasis?: string | null;
   sourceUrl?: string | null;
-  verificationConfidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY'; // UNVERIFIED explicitly excluded
+  verificationConfidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
 }
 
 // ── Multi-bill types ──────────────────────────────────────

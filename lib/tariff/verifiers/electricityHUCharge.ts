@@ -1,35 +1,50 @@
-import { VerificationResult, getTariffYearForDate, loadTariffDb } from '../tariffLookup';
+import { resolveTariff } from '../tariff-resolver';
 
-export function verifyElectricityHUCharge(
+export interface VerificationResult {
+  result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
+  approved_amount?: number;
+  billed_amount?: number;
+  delta?: number;
+  tariff_year?: string;
+  source_document?: string;
+  source_url?: string;
+  confidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
+}
+
+export async function verifyElectricityHUCharge(
   billedAmount: number,
   billingDate: string,
   municipality: string
-): VerificationResult {
-  const tariffYear = getTariffYearForDate(billingDate);
-  const db = loadTariffDb(municipality, tariffYear);
+): Promise<VerificationResult> {
+  const normMunicipality = municipality === 'City of Cape Town' ? 'CoCT' : municipality;
 
-  if (!db || !db.electricity || !db.electricity.home_user || db.electricity.home_user.fixed_charge_excl_vat === undefined) {
-    return { result: 'UNKNOWN' };
+  const resolution = await resolveTariff({
+    municipality: normMunicipality,
+    tariffType: 'HUC',
+    billingDate,
+  });
+
+  if (resolution.result === 'SKIP' || !resolution.amount) {
+    console.warn(`[HUC] No tariff entry found via resolver. Skipping.`);
+    return { result: 'SKIP' };
   }
 
-  const expectedAmount = db.electricity.home_user.fixed_charge_excl_vat;
+  const expected = resolution.amount;
   const tolerance = 0.10;
-  const delta = billedAmount - expectedAmount;
+  const delta = billedAmount - expected;
   
   if (Math.abs(delta) <= tolerance) {
-    return { result: 'PASS' };
+    return { result: 'PASS', approved_amount: expected };
   } else {
-    // If we have no gazette source mapped for some reason, we shouldn't surface it if it's strictly UNVERIFIED,
-    // but CoCT is CONFIRMED per statuses.
     return {
       result: 'FAIL',
-      approved_amount: expectedAmount,
+      approved_amount: expected,
       billed_amount: billedAmount,
       delta: parseFloat(delta.toFixed(2)),
-      tariff_year: tariffYear,
-      source_document: db.gazette_source || 'Unknown Gazette',
-      source_url: db.source_url || 'Unknown URL',
-      confidence: 'CONFIRMED',
+      source_document: resolution.source === 'gazette' ? 'Gazette Extract' : 'Tariff Cache',
+      source_url: resolution.source === 'gazette' ? 'N/A' : 'N/A',
+      confidence: resolution.verified ? 'CONFIRMED' : 'UNVERIFIED',
     };
   }
 }
+

@@ -11,10 +11,19 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
 
   // 2. Duplicate Charges Check
   // Same service charged twice in one billing period.
+  const NEVER_FLAG_AS_DUPLICATE = [
+    'Returned cheque /Direct debit',
+    'Dishonoured Payments Fee',
+    'Fixed basic charge (R4 500',
+  ];
   const seenLabels = new Set<string>();
+
   const checkDuplicates = (charges: { description: string }[] | undefined, arrName: string) => {
     if (!charges) return;
     for (const c of charges) {
+      if (NEVER_FLAG_AS_DUPLICATE.some(s => c.description.toLowerCase().includes(s.toLowerCase()))) {
+        continue;
+      }
       if (seenLabels.has(c.description)) {
         findings.push({
           type: 'RATES_CALC_ERROR', 

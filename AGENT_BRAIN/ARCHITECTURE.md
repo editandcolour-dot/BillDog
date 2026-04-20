@@ -604,9 +604,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-18T09:29:22.785192+00:00
+> Last scanned: 2026-04-20T18:03:07.386641+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -630,14 +632,22 @@ NODE_ENV=
   📄 next.config.mjs  (1.6 KB)
   📄 package-lock.json  (299.0 KB)
   📄 package.json  (1.2 KB)
+  📄 payfast_response.html  (12.6 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
   📄 railway_test.js  (1.2 KB)
-  📄 scratch.js  (1.9 KB)
+  📄 scratch.js  (1.8 KB)
   📄 setup_test_data.js  (2.0 KB)
   📄 tailwind.config.ts  (1.0 KB)
   📄 test-results.txt  (8.2 KB)
   📄 test_bill.pdf  (0.6 KB)
+  📄 test_payfast_dryrun.js  (2.7 KB)
+  📄 test_payfast_no_passphrase.js  (2.4 KB)
+  📄 test_payfast_order.js  (2.5 KB)
+  📄 test_payfast_permutations.js  (2.3 KB)
+  📄 test_payfast_prod.js  (2.3 KB)
+  📄 test_pf.html  (12.7 KB)
+  📄 test_pf.js  (1.8 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
   📄 tsconfig.tsbuildinfo  (235.9 KB)
@@ -716,8 +726,9 @@ NODE_ENV=
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
-  📄 STATE.md  (0.9 KB)
+  📄 STATE.md  (1.4 KB)
   📄 TECH_STACK.md  (0.1 KB)
+  📄 payfast-diagnostic-memory.md  (4.1 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
     📄 2026-03-26.md  (0.9 KB)
@@ -734,6 +745,7 @@ NODE_ENV=
     📄 2026-04-06.md  (0.2 KB)
     📄 2026-04-15.md  (1.4 KB)
     📄 2026-04-16.md  (1.8 KB)
+    📄 2026-04-18.md  (1.7 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -867,7 +879,7 @@ NODE_ENV=
       📁 app\api\payfast\test-form/
         📄 route.ts  (7.3 KB)
       📁 app\api\payfast\tokenise/
-        📄 route.ts  (2.6 KB)
+        📄 route.ts  (2.7 KB)
     📁 app\api\send-letter/
       📄 route.ts  (4.6 KB)
     📁 app\api\upload/
@@ -894,6 +906,8 @@ NODE_ENV=
   📁 app\fonts/
     📄 GeistMonoVF.woff  (66.3 KB)
     📄 GeistVF.woff  (64.7 KB)
+  📁 app\payfast-test-dom/
+    📄 page.tsx  (1.5 KB)
 📁 components/
   📁 components\analysis/
     📄 .gitkeep  (0.0 KB)
@@ -993,7 +1007,7 @@ NODE_ENV=
   📄 rate-limit.ts  (1.2 KB)
   📄 social-monitor.ts  (4.8 KB)
   📁 lib\checks/
-    📄 universalChecks.ts  (2.3 KB)
+    📄 universalChecks.ts  (2.7 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (8.3 KB)
@@ -1002,7 +1016,7 @@ NODE_ENV=
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
     📄 generate-letter.ts  (6.0 KB)
-    📄 grounded-prompt.ts  (2.0 KB)
+    📄 grounded-prompt.ts  (2.8 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\data/
@@ -1017,13 +1031,13 @@ NODE_ENV=
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\parsers/
-    📄 coct-bill-parser.ts  (7.5 KB)
+    📄 coct-bill-parser.ts  (9.4 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
-    📄 charge.ts  (3.6 KB)
+    📄 charge.ts  (3.8 KB)
     📄 idempotency.ts  (0.3 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (3.2 KB)
+    📄 tokenise.ts  (3.9 KB)
     📄 validate.ts  (3.0 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
@@ -1043,6 +1057,9 @@ NODE_ENV=
     📄 client.ts  (0.2 KB)
     📄 server.ts  (0.7 KB)
   📁 lib\tariff/
+    📄 gazette-fetcher.ts  (0.8 KB)
+    📄 gazette-parser.ts  (0.3 KB)
+    📄 tariff-resolver.ts  (3.4 KB)
     📄 tariffLookup.ts  (4.3 KB)
     📁 lib\tariff\data/
       📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
@@ -1245,8 +1262,9 @@ NODE_ENV=
           📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
       📁 lib\tariff\data\{metros/
     📁 lib\tariff\verifiers/
-      📄 electricityHUCharge.ts  (1.2 KB)
-      📄 waterFixedCharge.ts  (4.3 KB)
+      📄 electricityHUCharge.ts  (1.5 KB)
+      📄 refuseCharge.ts  (1.4 KB)
+      📄 waterFixedCharge.ts  (1.9 KB)
   📁 lib\tiers/
     📄 disclosureRequest.ts  (1.5 KB)
     📄 tier2Analysis.ts  (2.2 KB)
@@ -1254,8 +1272,8 @@ NODE_ENV=
     📄 tierClassifier.ts  (1.9 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
-    📄 bill-validator.test.ts  (5.0 KB)
-    📄 bill-validator.ts  (5.0 KB)
+    📄 bill-validator.test.ts  (5.1 KB)
+    📄 bill-validator.ts  (11.6 KB)
     📄 huc.rules.ts  (2.4 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
@@ -1268,6 +1286,7 @@ NODE_ENV=
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
   📄 generate_test_bill.py  (10.9 KB)
+  📄 seed-tariff-cache.ts  (3.1 KB)
   📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
 📁 supabase/
@@ -1290,12 +1309,13 @@ NODE_ENV=
     📄 014_coverage_tiers.sql  (0.9 KB)
     📄 015_disclosure_ownership.sql  (0.8 KB)
     📄 016_escalation_system.sql  (1.1 KB)
+    📄 018_tariff_resolver.sql  (1.5 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (3.9 KB)
+  📄 analysis.ts  (4.6 KB)
   📄 index.ts  (7.8 KB)
 ```
 

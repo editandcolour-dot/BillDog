@@ -3,7 +3,7 @@ import { validateBill } from './bill-validator';
 import { ParsedBill } from '@/types/analysis';
 
 describe('bill-validator', () => {
-  it('returns zero findings for a correct bill', () => {
+  it('returns zero findings for a correct bill', async () => {
     const bill: ParsedBill = {
       invoiceNumber: 'INV001',
       billingDate: '15/07/2024',
@@ -34,11 +34,11 @@ describe('bill-validator', () => {
       dishonourFees: []
     };
 
-    const findings = validateBill(bill);
+    const findings = await validateBill(bill);
     expect(findings).toHaveLength(0);
   });
 
-  it('flags UNKNOWN_RATE_APPLIED when wrong rate is applied', () => {
+  it('flags UNKNOWN_RATE_APPLIED when wrong rate is applied', async () => {
     const bill: ParsedBill = {
       invoiceNumber: 'INV002',
       billingDate: '15/07/2024',
@@ -61,13 +61,13 @@ describe('bill-validator', () => {
       dishonourFees: []
     };
 
-    const findings = validateBill(bill);
+    const findings = await validateBill(bill);
     expect(findings).toHaveLength(1);
     expect(findings[0].type).toBe('UNKNOWN_RATE_APPLIED');
     expect(findings[0].expectedAmount).toBe(545.01);
   });
 
-  it('flags RATES_CALC_ERROR on arithmetic mistake', () => {
+  it('flags RATES_CALC_ERROR on arithmetic mistake', async () => {
     const bill: ParsedBill = {
       invoiceNumber: 'INV003',
       billingDate: '15/07/2024',
@@ -90,14 +90,14 @@ describe('bill-validator', () => {
       dishonourFees: []
     };
 
-    const findings = validateBill(bill);
+    const findings = await validateBill(bill);
     expect(findings).toHaveLength(1);
     expect(findings[0].type).toBe('RATES_CALC_ERROR');
     expect(findings[0].expectedAmount).toBe(545.01);
     expect(findings[0].discrepancy).toBe(54.99); // 600 - 545.01
   });
 
-  it('flags HUC_AMOUNT_WRONG when HUC is incorrect', () => {
+  it('flags HUC_AMOUNT_WRONG when HUC is incorrect', async () => {
     const bill: ParsedBill = {
       invoiceNumber: 'INV004',
       billingDate: '15/07/2024',
@@ -116,7 +116,7 @@ describe('bill-validator', () => {
       dishonourFees: []
     };
 
-    const findings = validateBill(bill);
+    const findings = await validateBill(bill);
     expect(findings).toHaveLength(1);
     expect(findings[0].type).toBe('HUC_AMOUNT_WRONG');
     expect(findings[0].expectedAmount).toBe(281.78);
@@ -124,7 +124,7 @@ describe('bill-validator', () => {
   });
 
   describe('Tier classification behavior', () => {
-    it('Tier 1: strictly runs tariff verification', () => {
+    it('Tier 1: strictly runs tariff verification', async () => {
       const bill: ParsedBill = {
         invoiceNumber: 'T1', billingDate: '15/07/2024', totalDue: 0,
         ratesPeriod: null, valuation: null, rates: [],
@@ -132,11 +132,11 @@ describe('bill-validator', () => {
         returnedDebits: [], dishonourFees: []
       };
       // CoCT is Tier 1
-      const findings = validateBill(bill, 'CoCT');
+      const findings = await validateBill(bill, 'CoCT');
       expect(findings.some(f => f.type === 'HUC_AMOUNT_WRONG')).toBe(true);
     });
 
-    it('Tier 3: skips tariff json verification and relies exclusively on Universal Checks via Silence', () => {
+    it('Tier 3: skips tariff json verification and relies exclusively on Universal Checks via Silence', async () => {
       const bill: ParsedBill = {
         invoiceNumber: 'T3', billingDate: '15/07/2024', totalDue: 0,
         ratesPeriod: null, valuation: null, rates: [],
@@ -145,9 +145,9 @@ describe('bill-validator', () => {
         returnedDebits: [], dishonourFees: []
       };
       
-      const findings = validateBill(bill, 'NMBM'); // wait NMBM is Tier 1 for water but we handle overall classification. Let's use a known Tier 3 code.
+      const findings = await validateBill(bill, 'NMBM'); // wait NMBM is Tier 1 for water but we handle overall classification. Let's use a known Tier 3 code.
       // Dihlabeng local municipality will map to Tier 3 fallback
-      const findingsT3 = validateBill(bill, 'Dihlabeng');
+      const findingsT3 = await validateBill(bill, 'Dihlabeng');
       expect(findingsT3).toHaveLength(0); // Silence is golden for Tier 3
     });
   });
