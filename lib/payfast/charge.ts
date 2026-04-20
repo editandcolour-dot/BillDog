@@ -30,15 +30,20 @@ export async function chargeToken(params: {
 
   const timestamp = new Date().toISOString();
 
+  // Generate API signature — order: merchant-id, version, timestamp (PayFast API header order)
+  const headerPairs: [string, string][] = [
+    ['merchant-id', process.env.PAYFAST_MERCHANT_ID!],
+    ['version', 'v1'],
+    ['timestamp', timestamp],
+  ];
+  const signature = generateSignature(headerPairs, process.env.PAYFAST_PASSPHRASE!);
+
   const headers: Record<string, string> = {
     'merchant-id': process.env.PAYFAST_MERCHANT_ID!,
     'version': 'v1',
     'timestamp': timestamp,
+    'signature': signature,
   };
-
-  // Generate API signature
-  const signature = generateSignature(headers, process.env.PAYFAST_PASSPHRASE!);
-  headers.signature = signature;
 
   try {
     const response = await fetch(

@@ -1,5 +1,16 @@
 import crypto from 'crypto';
 
+/**
+ * PHP-style urlencode parity.
+ * encodeURIComponent gets us 95% there, but PHP's urlencode:
+ *   - encodes spaces as '+' (not '%20')
+ *   - leaves '~' unencoded (encodeURIComponent already does this)
+ */
+function payfastUrlEncode(val: string): string {
+  return encodeURIComponent(val.trim())
+    .replace(/%20/g, '+');
+}
+
 interface TokeniseParams {
   userId: string;
   userEmail: string;
@@ -31,7 +42,24 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     appUrl = 'https://www.billdog.co.za';
   }
 
-  const data: Record<string, string> = {
+  // PAYFAST CANONICAL FIELD ORDER — matches the exact order from PayFast's
+  // working example. Their docs say ksort() but the hash string they provided
+  // uses THIS order. Do NOT alphabetize.
+  const PAYFAST_FIELD_ORDER = [
+    'merchant_id',
+    'merchant_key',
+    'return_url',
+    'cancel_url',
+    'notify_url',
+    'name_first',
+    'email_address',
+    'm_payment_id',
+    'amount',
+    'item_name',
+    'subscription_type',
+  ] as const;
+
+  const fieldValues: Record<string, string> = {
     merchant_id: String(process.env['PAYFAST_MERCHANT_ID']).trim(),
     merchant_key: String(process.env['PAYFAST_MERCHANT_KEY']).trim(),
     return_url: `${appUrl}/dashboard?card=saved`,
@@ -43,35 +71,39 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     amount: '5.00',                          // R5 auth/reversal (zero-value not enabled)
     item_name: 'Billdog - Save Card',
     subscription_type: '2',
-    email_confirmation: '0',
   };
 
-  // Alphabetize keys as per PayFast strict MD5 spec to prevent browser/JSON object reordering
-  const sortedData: Record<string, string> = {};
-  Object.keys(data).sort().forEach(key => {
-    if (data[key] !== '' && data[key] !== 'undefined' && data[key] !== undefined) {
-      sortedData[key] = data[key];
+  // Build ordered data, skipping empty/undefined values
+  const orderedData: [string, string][] = [];
+  for (const key of PAYFAST_FIELD_ORDER) {
+    const val = fieldValues[key];
+    if (val && val !== 'undefined') {
+      orderedData.push([key, val]);
     }
-  });
+  }
 
   // Handle undefined passphrase cleanly
   const rawPassphrase = process.env['PAYFAST_PASSPHRASE'];
   const safePassphrase = (rawPassphrase && rawPassphrase !== 'undefined') ? rawPassphrase.trim() : '';
 
-  // Generate signature
-  sortedData.signature = generateSignature(sortedData, safePassphrase);
+  // Generate signature using exact field order
+  const signature = generateSignature(orderedData, safePassphrase);
 
-  return { action, fields: sortedData };
+  // Build fields object for form submission (order preserved for form)
+  const fields: Record<string, string> = {};
+  for (const [key, val] of orderedData) {
+    fields[key] = val;
+  }
+  fields.signature = signature;
+
+  return { action, fields };
 }
 
 
-export function generateSignature(data: Record<string, string>, passphrase: string): string {
-  const sortedKeys = Object.keys(data)
-    .filter((key) => key !== 'signature')
-    .sort();
-
-  const paramString = sortedKeys
-    .map((key) => `${key}=${(data[key] ?? '').trim()}`)
+export function generateSignature(orderedPairs: [string, string][], passphrase: string): string {
+  // URL-encode each value (PHP urlencode parity), but NOT the passphrase
+  const paramString = orderedPairs
+    .map(([key, val]) => `${key}=${payfastUrlEncode(val)}`)
     .join('&');
 
   const withPassphrase = passphrase 

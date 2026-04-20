@@ -12,24 +12,28 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
   // 2. Duplicate Charges Check
   // Same service charged twice in one billing period.
   const seenLabels = new Set<string>();
-  
-  if (bill.hucCharges) {
-    for (const huc of bill.hucCharges) {
-      const key = `${huc.label}_${huc.month}`;
-      if (seenLabels.has(key)) {
+  const checkDuplicates = (charges: { description: string }[] | undefined, arrName: string) => {
+    if (!charges) return;
+    for (const c of charges) {
+      if (seenLabels.has(c.description)) {
         findings.push({
-          type: 'RATES_CALC_ERROR', // repurpose or create a new type if 'DUPLICATE_CHARGE' isn't available
-          description: `Duplicate charge detected for ${huc.label} in period ${huc.month}`,
-          billedAmount: huc.amount,
-          lineReference: huc.label,
+          type: 'RATES_CALC_ERROR', 
+          description: `Duplicate charge detected for ${c.description}`,
+          billedAmount: ('amount' in c) ? (c as any).amount : 0,
+          lineReference: c.description,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
         });
       } else {
-        seenLabels.add(key);
+        seenLabels.add(c.description);
       }
     }
-  }
+  };
+
+  checkDuplicates(bill.sundryCharges, 'sundry');
+  checkDuplicates(bill.waterCharges, 'water');
+  checkDuplicates(bill.sewerageCharges, 'sewerage');
+  checkDuplicates(bill.refuseCharges, 'refuse');
 
   // 3. Property rates internal consistency check
   // (value × rate-in-rand / 365 × days)

@@ -2,202 +2,195 @@
  * City of Cape Town Bill Parser — Deterministic Regex Extraction
  *
  * Extracts every line item from a CoCT municipal bill using regex patterns
- * confirmed against 37 real bills. NO AI. NO GUESSING.
- *
- * Returns null if the text is not a recognised CoCT bill format.
+ * confirmed against 36 real bills. NO AI. NO GUESSING.
  */
 
-import type { ParsedBill, RatesSegment, HucCharge, ReturnedDebit, DishonourFee } from '@/types/analysis';
+import type { ParsedBill, RatesSegment, GeneralCharge, MeterReading } from '@/types/analysis';
 
-// ── Regex patterns confirmed from 37 real CoCT bills ─────
-
-/** Billing date: "Account details as at DD/MM/YYYY" */
+// ── Regex patterns ─────
 const RE_BILLING_DATE = /Account\s+details\s+as\s+at\s+(\d{2}\/\d{2}\/\d{4})/i;
-
-/** Total due: "Current account: Total due 3060.14" */
 const RE_TOTAL_DUE = /Current\s+account:\s*Total\s+due\s+([\d,]+\.?\d*)/i;
-
-/** Rates period: "PROPERTY RATES ( Period 07/02/2025 to 06/03/2025 ) 28 Days" */
-const RE_RATES_PERIOD = /PROPERTY\s+RATES\s*\(\s*Period\s+(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})\s*\)\s*(\d+)\s*Days/i;
-
-/** Rates/Rebate line: "# From 07/02/2025 : R 4685000.00 @ 0.0066310 ÷ 365 x 28 2383.16" (rebate ends with -) */
-const RE_RATES_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*?)(-?)\s*$/gm;
-
-/** Valuation: "Rateable portion of valuation From : 07/02/2025 R 4700000 - R 15000 = R 4685000" */
+const RE_RATES_PERIOD = /\(\s*Period\s+(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})\s*\)\s*(\d+)\s*Days/i;
 const RE_VALUATION = /Rateable\s+portion\s+of\s+valuation\s+From\s*:\s*(\d{2}\/\d{2}\/\d{4})\s+R\s+([\d,]+)\s*-\s*R\s+([\d,]+)\s*=\s*R\s+([\d,]+)/i;
-
-/** HUC (pre-Jul 2025): "Electricity Home User Charge - 02.2025 (PREPAID ...) 245.03" */
-const RE_HUC_OLD = /Electricity\s+Home\s+User\s+Charge\s*-\s*(\d{2}\.\d{4})\s*\(PREPAID\s+\d+\)\s+([\d,]+\.?\d*)/gi;
-
-/** HUC (Jul 2025+): "Elec HU service & wires charge - 08.2025 (PREPAID ...) 339.89" */
-const RE_HUC_NEW = /Elec\s+HU\s+service\s*&\s*wires\s+charge\s*-\s*(\d{2}\.\d{4})\s*\(PREPAID\s+\d+\)\s+([\d,]+\.?\d*)/gi;
-
-/** Returned debit: "Returned cheque /Direct debit 390.87" */
-const RE_RETURNED_DEBIT = /Returned\s+cheque\s*\/Direct\s+debit\s+([\d,]+\.?\d*)/gi;
-
-/** Dishonour fee: "Dishonoured Payments Fee 206.09" */
-const RE_DISHONOUR_FEE = /Dishonoured\s+Payments\s+Fee\s+([\d,]+\.?\d*)/gi;
+const RE_RATES_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*?)(-?)\s*$/gm;
+const RE_VAT_LINE = /Add 15% VAT on amounts marked with &\s*above\s+([\d,]+\.?\d*)/i;
 
 // ── Helpers ──────────────────────────────────────────────
 
 function parseAmount(raw: string): number {
+  if (!raw) return 0;
   return parseFloat(raw.replace(/,/g, ''));
 }
 
 function isCoctBill(text: string): boolean {
-  // A CoCT bill will contain "Account details as at" and "PROPERTY RATES"
   return RE_BILLING_DATE.test(text) && /PROPERTY\s+RATES/i.test(text);
+}
+
+function extractChunk(text: string, start: string, stops: string[]): string {
+  const startIdx = text.indexOf(start);
+  if (startIdx === -1) return '';
+  let endIdx = text.length;
+  for (const stop of stops) {
+    const idx = text.indexOf(stop, startIdx + start.length);
+    if (idx !== -1 && idx < endIdx) endIdx = idx;
+  }
+  return text.substring(startIdx, endIdx);
+}
+
+function getSectionSubtotal(chunk: string): number {
+  if (!chunk) return 0;
+  // Match the subtotal at the end of the chunk, ignoring '3 of 3' page bleed
+  const matches = [...chunk.matchAll(/^([\d,]+\.\d+)(?:\s+\d+ of \d+)?\s*$/gm)];
+  if (matches.length > 0) {
+    return parseAmount(matches[matches.length - 1][1]);
+  }
+  return 0;
+}
+
+function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']): GeneralCharge[] {
+  const charges: GeneralCharge[] = [];
+  const lines = chunk.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    
+    // Multi-tier parsing (Pass 1 & Pass 2)
+    if (line.startsWith('&') && line.includes('(1)')) {
+      let isTriple = false;
+      let tripleTotal = 0;
+      if (i + 1 < lines.length && lines[i + 1].startsWith('(3)')) {
+         isTriple = true;
+         const match = lines[i+1].match(/([\d,]+\.\d+)\s*$/);
+         if (match) tripleTotal = parseAmount(match[1]);
+      }
+      
+      if (isTriple) {
+        charges.push({ serviceType, description: line, amount: tripleTotal, hasVat: true });
+      } else {
+        const match = line.match(/^(&\s+\(1\).*?)([\d,]+\.\d+)\s*$/);
+        if (match) {
+           charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: true });
+        }
+      }
+    } 
+    // Water Fixed Basic Charge
+    else if (line.startsWith('&') && line.toLowerCase().includes('fixed basic charge')) {
+        const match = line.match(/^&\s+(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: true });
+    }
+    // Refuse Charge
+    else if (serviceType === 'refuse' && line.toLowerCase().includes('refuse charge')) {
+        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
+    }
+    // Sundries (HUC, City-wide cleaning, etc.)
+    else if (serviceType === 'sundry') {
+       if (line.match(/(Home User Charge|Elec HU service|cleaning|Dishonoured|Returned cheque)/i)) {
+          const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
+          if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
+       }
+    }
+  }
+  
+  return charges;
 }
 
 // ── Main parser ─────────────────────────────────────────
 
-/**
- * Attempts to parse raw bill text as a City of Cape Town municipal bill.
- * Returns a fully structured ParsedBill or null if the text isn't a CoCT bill.
- */
 export function parseCoctBill(text: string): ParsedBill | null {
-  if (!isCoctBill(text)) {
-    return null;
-  }
+  if (!isCoctBill(text)) return null;
 
-  // 1. Billing date
   const billingDateMatch = text.match(RE_BILLING_DATE);
   const billingDate = billingDateMatch ? billingDateMatch[1] : '';
+  const invoiceNumber = billingDate || 'UNKNOWN';
 
-  // 2. Total due
   const totalDueMatch = text.match(RE_TOTAL_DUE);
   const totalDue = totalDueMatch ? parseAmount(totalDueMatch[1]) : 0;
 
-  // 3. Rates period
-  const periodMatch = text.match(RE_RATES_PERIOD);
-  const ratesPeriod = periodMatch
-    ? {
-        from: periodMatch[1],
-        to: periodMatch[2],
-        days: parseInt(periodMatch[3], 10),
-      }
-    : null;
+  // 1. Chunking
+  const chunkRates = extractChunk(text, 'PROPERTY RATES', ['WATER', 'REFUSE', 'SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
+  const chunkWater = extractChunk(text, 'WATER', ['REFUSE', 'SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
+  const chunkRefuse = extractChunk(text, 'REFUSE', ['SEWERAGE', 'SUNDRIES', 'Add 15% VAT']);
+  const chunkSewerage = extractChunk(text, 'SEWERAGE', ['SUNDRIES', 'Add 15% VAT']);
+  const chunkSundries = extractChunk(text, 'SUNDRIES', ['Add 15% VAT']);
 
-  // 4. Valuation
-  const valMatch = text.match(RE_VALUATION);
-  const valuation = valMatch
-    ? {
-        total: parseAmount(valMatch[2]),
-        exemption: parseAmount(valMatch[3]),
-        rateable: parseAmount(valMatch[4]),
-        fromDate: valMatch[1],
-      }
-    : null;
+  // 2. Subtotals
+  const subtotals = {
+    ratesNet: getSectionSubtotal(chunkRates),
+    water: getSectionSubtotal(chunkWater),
+    refuse: getSectionSubtotal(chunkRefuse),
+    sewerage: getSectionSubtotal(chunkSewerage),
+    sundries: getSectionSubtotal(chunkSundries)
+  };
 
-  // 5. Rates and rebate segments
+  // 3. VAT
+  const vatMatch = text.match(RE_VAT_LINE);
+  const vatAmount = vatMatch ? parseAmount(vatMatch[1]) : 0;
+
+  // 4. Rates Segment Legacy extraction
+  const periodMatch = chunkRates.match(RE_RATES_PERIOD);
+  const ratesPeriod = periodMatch ? { from: periodMatch[1], to: periodMatch[2], days: parseInt(periodMatch[3], 10) } : null;
+
+  const valMatch = chunkRates.match(RE_VALUATION);
+  const valuation = valMatch ? { total: parseAmount(valMatch[2]), exemption: parseAmount(valMatch[3]), rateable: parseAmount(valMatch[4]), fromDate: valMatch[1] } : null;
+
   const rates: RatesSegment[] = [];
-  // Reset lastIndex since RE_RATES_LINE has the global flag
   RE_RATES_LINE.lastIndex = 0;
-  let ratesMatch;
-  while ((ratesMatch = RE_RATES_LINE.exec(text)) !== null) {
-    const isRebate = ratesMatch[7] === '-';
-    const fromDate = ratesMatch[1];
-    const value = parseAmount(ratesMatch[2]);
-    const annualRate = parseFloat(ratesMatch[3]);
-    const daysInYear = parseInt(ratesMatch[4], 10);
-    const billingDays = parseInt(ratesMatch[5], 10);
-    const amount = parseAmount(ratesMatch[6]);
+  let rm;
+  while ((rm = RE_RATES_LINE.exec(chunkRates)) !== null) {
+    const isRebate = rm[7] === '-';
+    const fromDate = rm[1], value = parseAmount(rm[2]), annualRate = parseFloat(rm[3]);
+    const daysInYear = parseInt(rm[4], 10), billingDays = parseInt(rm[5], 10), amount = parseAmount(rm[6]);
 
     if (isRebate) {
-      // Find the matching rates segment and attach rebate info
-      const parent = rates.find(
-        (r) => r.fromDate === fromDate && r.annualRate === annualRate && r.billingDays === billingDays
-      );
+      const parent = rates.find(r => r.fromDate === fromDate && r.annualRate === annualRate && r.billingDays === billingDays);
       if (parent) {
-        parent.rebateBase = value;
-        parent.rebateBilledAmount = amount;
+        parent.rebateBase = value; parent.rebateBilledAmount = amount;
       } else {
-        // Standalone rebate — create a segment with rebate fields only
-        rates.push({
-          fromDate,
-          rateableValue: 0,
-          annualRate,
-          daysInYear,
-          billingDays,
-          billedAmount: 0,
-          rebateBase: value,
-          rebateBilledAmount: amount,
-        });
+        rates.push({ fromDate, rateableValue: 0, annualRate, daysInYear, billingDays, billedAmount: 0, rebateBase: value, rebateBilledAmount: amount });
       }
     } else {
-      rates.push({
-        fromDate,
-        rateableValue: value,
-        annualRate,
-        daysInYear,
-        billingDays,
-        billedAmount: amount,
-      });
+      rates.push({ fromDate, rateableValue: value, annualRate, daysInYear, billingDays, billedAmount: amount });
     }
   }
 
-  // 6. HUC charges and Water Fixed Charges
-  const hucCharges: HucCharge[] = [];
+  // 5. Service Charges Extraction
+  const waterCharges = parseTierLines(chunkWater, 'water');
+  const refuseCharges = parseTierLines(chunkRefuse, 'refuse');
+  const sewerageCharges = parseTierLines(chunkSewerage, 'sewerage');
+  const sundryCharges = parseTierLines(chunkSundries, 'sundry');
 
-  RE_HUC_OLD.lastIndex = 0;
-  let hucOld;
-  while ((hucOld = RE_HUC_OLD.exec(text)) !== null) {
-    hucCharges.push({
-      month: hucOld[1],
-      amount: parseAmount(hucOld[2]),
-      label: hucOld[0].split('-')[0].trim(),
+  // 6. Canonical Water kl
+  const klMatch = chunkWater.match(/Consumption\s+([\d.]+)\s*kl/i);
+  const canonicalWaterConsumptionKl = klMatch ? parseFloat(klMatch[1]) : 0;
+
+  // 7. Meter Readings
+  const meterReadings: MeterReading[] = [];
+  const RE_WATER_METER = /WATER\s+(\w+)\s+\d+\s+([\d.]+kl)\s+\((Actual|Estimated)\)\s+([\d.]+kl)\s+\((Actual|Estimated)\)\s+([\d.]+kl)/gi;
+  let wm;
+  while ((wm = RE_WATER_METER.exec(text)) !== null) {
+    meterReadings.push({
+      service: 'water',
+      meterNumber: wm[1],
+      readingFrom: wm[2],
+      readingTo: wm[4],
+      isEstimated: wm[3] === 'Estimated' || wm[5] === 'Estimated',
+      consumption: parseFloat(wm[6])
     });
   }
 
-  RE_HUC_NEW.lastIndex = 0;
-  let hucNew;
-  while ((hucNew = RE_HUC_NEW.exec(text)) !== null) {
-    hucCharges.push({
-      month: hucNew[1],
-      amount: parseAmount(hucNew[2]),
-      label: hucNew[0].split('-')[0].trim(),
+  const RE_ELEC_METER = /PREPAID\s+(\d+)\s+(\d{2}\.\w+\.\d{4})\s+(\d{2}\.\w+\.\d{4})\s+([\d.]+)units/gi;
+  let em;
+  while ((em = RE_ELEC_METER.exec(text)) !== null) {
+    meterReadings.push({
+      service: 'electricity',
+      meterNumber: em[1],
+      readingFrom: em[2],
+      readingTo: em[3],
+      isEstimated: false, 
+      consumption: parseFloat(em[4])
     });
   }
-
-  // Water Fixed Charge
-  // It looks like: "Fixed basic charge (R4 500 001 - R5 000 000) 214.89" or "Fixed Basic Charge (20mm - KSU391) 116.86" or "... x 2 233.72"
-  const RE_WATER_FIXED = /Fixed\s+basic\s+charge\s*\((.*?)\)(?:\s*x\s*\d+)?\s+([\d,]+\.?\d*)/gi;
-  let waterFixed;
-  while ((waterFixed = RE_WATER_FIXED.exec(text)) !== null) {
-    // Determine a fallback month based on billingDate
-    const fallbackMonth = billingDate ? billingDate.substring(3).replace('/', '.') : 'unknown';
-    
-    // We store the full matched string so the verifier can extract the multiplier "x 2" if present
-    hucCharges.push({
-      month: fallbackMonth,
-      amount: parseAmount(waterFixed[2]),
-      label: waterFixed[0].trim(),
-    });
-  }
-
-  // 7. Returned debits (context only — not errors)
-  const returnedDebits: ReturnedDebit[] = [];
-  RE_RETURNED_DEBIT.lastIndex = 0;
-  let rdMatch;
-  while ((rdMatch = RE_RETURNED_DEBIT.exec(text)) !== null) {
-    returnedDebits.push({
-      description: 'Returned cheque / Direct debit',
-      amount: parseAmount(rdMatch[1]),
-    });
-  }
-
-  // 8. Dishonour fees
-  const dishonourFees: DishonourFee[] = [];
-  RE_DISHONOUR_FEE.lastIndex = 0;
-  let dfMatch;
-  while ((dfMatch = RE_DISHONOUR_FEE.exec(text)) !== null) {
-    dishonourFees.push({
-      amount: parseAmount(dfMatch[1]),
-    });
-  }
-
-  // Use billing date as invoice identifier (CoCT bills don't have a separate invoice number)
-  const invoiceNumber = billingDate || 'UNKNOWN';
 
   return {
     invoiceNumber,
@@ -206,8 +199,13 @@ export function parseCoctBill(text: string): ParsedBill | null {
     ratesPeriod,
     valuation,
     rates,
-    hucCharges,
-    returnedDebits,
-    dishonourFees,
+    canonicalWaterConsumptionKl,
+    meterReadings,
+    waterCharges,
+    refuseCharges,
+    sewerageCharges,
+    sundryCharges,
+    subtotals,
+    vatAmount
   };
 }

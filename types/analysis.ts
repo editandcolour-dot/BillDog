@@ -54,6 +54,22 @@ export interface DishonourFee {
   amount: number;
 }
 
+export interface MeterReading {
+  service: 'water' | 'electricity';
+  meterNumber: string;
+  readingFrom: string;
+  readingTo: string;
+  isEstimated: boolean;
+  consumption: number;
+}
+
+export interface GeneralCharge {
+  serviceType: 'water' | 'sewerage' | 'refuse' | 'sundry';
+  description: string;
+  amount: number;
+  hasVat: boolean;
+}
+
 export interface ParsedBill {
   invoiceNumber: string;
   billingDate: string;
@@ -70,9 +86,23 @@ export interface ParsedBill {
     fromDate: string;
   } | null;
   rates: RatesSegment[];
-  hucCharges: HucCharge[];
-  returnedDebits: ReturnedDebit[];
-  dishonourFees: DishonourFee[];
+
+  canonicalWaterConsumptionKl: number;
+
+  meterReadings: MeterReading[];
+  waterCharges: GeneralCharge[];
+  sewerageCharges: GeneralCharge[];
+  refuseCharges: GeneralCharge[];
+  sundryCharges: GeneralCharge[];
+
+  subtotals: {
+    ratesNet: number; 
+    water: number;
+    refuse: number;
+    sewerage: number;
+    sundries: number;
+  };
+  vatAmount: number;
 }
 
 export type FindingType =
@@ -81,7 +111,10 @@ export type FindingType =
   | 'HUC_AMOUNT_WRONG'
   | 'UNKNOWN_RATE_APPLIED'
   | 'WATER_FIXED_CHARGE_WRONG'
-  | 'OVER_APPROVED_INCREASE';
+  | 'OVER_APPROVED_INCREASE'
+  | 'PARSER_MISMATCH'
+  | 'VAT_MISMATCH'
+  | 'SEWERAGE_RATIO_ERROR';
 
 export interface ValidationFinding {
   type: FindingType;
