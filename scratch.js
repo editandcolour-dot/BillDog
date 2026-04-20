@@ -14,14 +14,11 @@ async function run() {
     const formBody = Object.entries(sortedData).map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
 
     const res = await fetch('https://www.payfast.co.za/eng/process', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formBody });
+    console.log('Status HTTP:', res.status, res.statusText);
     const text = await res.text();
-    const isOk = !text.includes('400 Bad Request');
-    if(!isOk) {
-        const match = text.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-        if(match) return match[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().substring(0, 80);
-        return 'FAILED';
-    }
-    return 'OK';
+    const fs = require('fs');
+    fs.writeFileSync('payfast_response.html', text);
+    return 'OK (wrote to payfast_response.html)';
   }
 
   console.log('amount=0.00:', await testPay({ ...base, subscription_type: '2', amount: '0.00' }));

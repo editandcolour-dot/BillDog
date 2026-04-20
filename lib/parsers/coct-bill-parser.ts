@@ -13,7 +13,7 @@ const RE_TOTAL_DUE = /Current\s+account:\s*Total\s+due\s+([\d,]+\.?\d*)/i;
 const RE_RATES_PERIOD = /\(\s*Period\s+(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})\s*\)\s*(\d+)\s*Days/i;
 const RE_VALUATION = /Rateable\s+portion\s+of\s+valuation\s+From\s*:\s*(\d{2}\/\d{2}\/\d{4})\s+R\s+([\d,]+)\s*-\s*R\s+([\d,]+)\s*=\s*R\s+([\d,]+)/i;
 const RE_RATES_LINE = /#\s+From\s+(\d{2}\/\d{2}\/\d{4})\s*:\s*R\s+([\d,]+\.?\d*)\s*@\s*([\d.]+)\s*÷\s*(\d+)\s*x\s*(\d+)\s+([\d,]+\.?\d*?)(-?)\s*$/gm;
-const RE_VAT_LINE = /Add 15% VAT on amounts marked with &\s*above\s+([\d,]+\.?\d*)/i;
+const RE_VAT_LINE = /Add 15% VAT on amounts marked with\s*(?:&|&\s*above)\s+([\d,]+\.?\d*)/i;
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -27,12 +27,19 @@ function isCoctBill(text: string): boolean {
 }
 
 function extractChunk(text: string, start: string, stops: string[]): string {
-  const startIdx = text.indexOf(start);
-  if (startIdx === -1) return '';
+  const startRegex = new RegExp('^' + start + '\\b', 'm');
+  const startMatch = text.match(startRegex);
+  if (!startMatch || startMatch.index === undefined) return '';
+  const startIdx = startMatch.index;
+  
   let endIdx = text.length;
   for (const stop of stops) {
-    const idx = text.indexOf(stop, startIdx + start.length);
-    if (idx !== -1 && idx < endIdx) endIdx = idx;
+    const stopRegex = new RegExp('^' + stop + '\\b', 'm');
+    const stopMatch = text.substring(startIdx + start.length).match(stopRegex);
+    if (stopMatch && stopMatch.index !== undefined) {
+      const idx = startIdx + start.length + stopMatch.index;
+      if (idx < endIdx) endIdx = idx;
+    }
   }
   return text.substring(startIdx, endIdx);
 }
@@ -74,9 +81,9 @@ function parseTierLines(chunk: string, serviceType: GeneralCharge['serviceType']
       }
     } 
     // Water Fixed Basic Charge
-    else if (line.startsWith('&') && line.toLowerCase().includes('fixed basic charge')) {
-        const match = line.match(/^&\s+(.*?)([\d,]+\.\d+)\s*$/);
-        if (match) charges.push({ serviceType, description: match[1], amount: parseAmount(match[2]), hasVat: true });
+    else if (serviceType === 'water' && line.toLowerCase().includes('fixed basic charge')) {
+        const match = line.match(/^(?:&\s+)?(.*?)([\d,]+\.\d+)\s*$/);
+        if (match) charges.push({ serviceType, description: match[1].trim(), amount: parseAmount(match[2]), hasVat: line.startsWith('&') });
     }
     // Refuse Charge
     else if (serviceType === 'refuse' && line.toLowerCase().includes('refuse charge')) {

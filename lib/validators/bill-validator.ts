@@ -2,6 +2,7 @@ import { ParsedBill, ValidationFinding } from '@/types/analysis';
 import { getExpectedRate } from './rates.rules';
 import { verifyElectricityHUCharge } from '../tariff/verifiers/electricityHUCharge';
 import { verifyWaterFixedCharge } from '../tariff/verifiers/waterFixedCharge';
+import { verifyRefuseCharge } from '../tariff/verifiers/refuseCharge';
 import { classifyMunicipality } from '../tiers/tierClassifier';
 import { runUniversalChecks } from '../checks/universalChecks';
 
@@ -63,8 +64,10 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
   if (bill.sewerageCharges && bill.canonicalWaterConsumptionKl > 0) {
     let sewerageKl = 0;
     for (const c of bill.sewerageCharges) {
-      const match = c.description.match(/([\d.]+)\s*kl/i);
-      if (match) sewerageKl += parseFloat(match[1]);
+      const matches = [...c.description.matchAll(/([\d.]+)\s*kl/gi)];
+      for (const m of matches) {
+        sewerageKl += parseFloat(m[1]);
+      }
     }
     const expectedSewerageKl = bill.canonicalWaterConsumptionKl * 0.70;
     if (Math.abs(sewerageKl - expectedSewerageKl) > 0.001) {
@@ -126,7 +129,8 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
     // Check HUC in Sundries
     if (bill.sundryCharges) {
       for (const huc of bill.sundryCharges) {
-        if (huc.description.toLowerCase().includes('elec') || huc.description.toLowerCase().includes('electricity')) {
+        const desc = huc.description.toLowerCase();
+        if (desc.includes('elec') || desc.includes('electricity') || desc.includes('home user charge')) {
           // Extract month if available. Usually format: "Electricity Home User Charge - 02.2025"
           const monthMatch = huc.description.match(/-?\s*(\d{2}\.\d{4})/);
           const fallbackMonth = monthMatch ? monthMatch[1] : bill.billingDate;
@@ -164,6 +168,30 @@ export function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'
                 expectedAmount: verification.approved_amount,
                 discrepancy: Math.abs(verification.delta),
                 lineReference: wc.description,
+                invoiceNumber: bill.invoiceNumber,
+                billingDate: bill.billingDate,
+                legalBasis: undefined,
+                sourceUrl: verification.source_url,
+                verificationConfidence: verification.confidence
+             });
+           }
+        }
+       }
+    }
+
+    // Check Refuse Charge
+    if (bill.refuseCharges) {
+       for (const rc of bill.refuseCharges) {
+         if (rc.description.toLowerCase().includes('refuse charge')) {
+           const verification = verifyRefuseCharge(rc.amount, bill.billingDate, municipalityCode);
+           if (verification.result === 'FAIL') {
+             findings.push({
+                type: 'UNKNOWN_RATE_APPLIED',  // We can repurpose or add a new REFUSE_CHARGE_WRONG type
+                description: `Discrepancy in Refuse Charge. Expected approx R${verification.approved_amount}, billed R${rc.amount}`,
+                billedAmount: rc.amount,
+                expectedAmount: verification.approved_amount,
+                discrepancy: Math.abs(verification.delta || 0),
+                lineReference: rc.description,
                 invoiceNumber: bill.invoiceNumber,
                 billingDate: bill.billingDate,
                 legalBasis: undefined,

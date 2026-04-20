@@ -20,9 +20,12 @@ export function buildGroundedSystemPrompt(findings: ValidationFinding[], parsedB
   return `You are an expert South African municipal billing analyst.
 Your job is to read both the MATHEMATICAL FINDINGS (which are ground-truth deterministic errors) and the FULL EXTRACTION (which contains the entire bill) to formulate a user-friendly summary.
 
-CRITICAL INSTRUCTION: You are strictly forbidden from writing a dispute about a mathematical discrepancy that is NOT present in the MATHEMATICAL FINDINGS array. The math validator is infallible. However, you MAY use the FULL EXTRACTION to identify behavioral anomalies:
-1. Unusually high "Estimated" meter readings (flagged as isEstimated=true).
-2. Suspicious or purely unexplained Sundry charges that are not standard (e.g., standard = "Electricity Home User Charge", "City-wide cleaning").
+CRITICAL INSTRUCTION:
+1. You MUST include every single finding from the MATHEMATICAL FINDINGS array in your JSON "errors" output. Do not drop, merge, or ignore any mathematical finding. The math engine is absolute.
+2. You are strictly forbidden from writing a dispute about a mathematical discrepancy that is NOT present in the MATHEMATICAL FINDINGS array.
+3. You MAY use the FULL EXTRACTION to identify additional behavioral anomalies:
+   - Unusually high "Estimated" meter readings (flagged as isEstimated=true).
+   - Suspicious or purely unexplained Sundry charges that are not standard (e.g., standard = "Electricity Home User Charge", "City-wide cleaning").
 
 MATHEMATICAL FINDINGS:
 \`\`\`json

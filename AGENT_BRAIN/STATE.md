@@ -1,23 +1,25 @@
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-04-16 19:47
+> **Last Updated:** 2026-04-18 15:46
 > **🚨 If this file's date does not match today's date, discard all values and treat every field as empty.**
 
 ## Currently In Progress
-- Paused via /pause.
+- (clear — task complete, awaiting user MD5 verification)
 
 ## Blocked
-- None for now.
+- PayFast tokenisation: awaiting user verification of MD5 hash against external tool. If hash matches, escalate to Byron (PayFast support).
 
 ## Just Completed
-- Built the Escalation Engine (4-step lifecycle).
-- Corrected VAT validation discrepancy in tariff lookups.
-- Implemented CoJ Smart Routing to dispatch Step 1 disputes uniquely to Water/Electricity silos based on error types.
-- Integrated Public Protector Portal online linker into EscalationTimeline.tsx.
+- Fixed PayFast signature generation: 3 critical bugs resolved (URL-encoding values, canonical field order, passphrase raw).
+- Removed `email_confirmation` field that was not in PayFast's canonical example.
+- Updated `generateSignature()` interface from `Record<string, string>` to `[string, string][]` ordered pairs.
+- Updated `charge.ts` to match new `generateSignature` interface.
+- Created dry-run verification script (`test_payfast_dryrun.js`) — produces hash string and MD5 for external validation.
 
 ## Next Up
-- Geocoding API integration or Address coordinates for complete IEC Ward Councillor coverage.
-- CoJ Internal online portal refinement.
+- Verify MD5 externally → if match, deploy and test live → if still 400, escalate to Byron.
+- If MD5 doesn't match externally, investigate encoding edge cases.
 
 ## Agent Notes
-- Handoff note: Pipeline and Timeline are 100% structurally complete and deployed to `main`. Next sequence will be expanding the CRM list and addressing the IEC Map Geocoding gap.
+- The `PAYFAST_FIELD_ORDER` array in `tokenise.ts` is now the single source of truth for field ordering. Any future PayFast fields MUST be added to this array in the correct position.
+- `charge.ts` uses the same `generateSignature` but with API header pairs (merchant-id, version, timestamp) — different context from tokenisation.
