@@ -12,8 +12,8 @@
 - **Public Pages:** How It Works, Pricing, FAQ, About, Real Cases, Contact (with working form → Resend).
 - **Settings Page:** Profile editing (name, phone, address), card management placeholder, notification preferences. Profile API (`api/user/profile`).
 - **Infrastructure:** Railway deployment via `nixpacks.toml` → Next.js dynamic node server on injected `$PORT`.
-- **Phase 8 (Built):** Multi-Bill Upload functionality with dynamic cross-analysis for pattern tracking and sequential `case_bills` tracking. Extended `BillTimeline` generation and letter outputs for grouped overcharging and pattern-based discovery.
-
+- **Phase 8 (Built):** Multi-Bill Upload functionality with dynamic cross-analysis for pattern tracking and sequential `case_bills` tracking. 
+- **Phase 13 (Built):** Dynamic Tariff Resolver architecture deployed using Supabase `tariff_cache` and Service Role gap-queue. Hardcoded parsing maps migrated to an authoritative verified network-resolver.
 ## Key Architectural Decisions
 - Removed standalone PayFast integration from onboarding to avoid blocking core upload loop. Tokenization moved to pre-send step on letter preview.
 - Supabase data mutations go through Server Actions (`app/actions/auth.ts`) for cookie/session reliability.
@@ -21,8 +21,7 @@
 
 ## Current Project State
 - E2E dispute pipeline (Upload → Analyse → Letter → Send → Track → Resolve → Charge) is live on `billdog.co.za`.
-- Production smoke test completed — all user flows verified working.
 - PayFast integration built and pushed — **awaiting PayFast sandbox acceptance** (blocked on their side).
-- Municipality seed data not yet loaded into Supabase.
+- **Tariff Engine Seeded:** 20mm/240L base ground-truth natively pushed to `tariff_cache`.
 - **Phase 12 (Built):** Complete SEO Infrastructure. 8 static municipality landing pages + 9-page Blog Pillar Content Cluster. Dynamic `sitemap.ts`. Dedicated `api/cron/social-monitor` (triggered by Railway cron) scanning Reddit/News to generate AI-drafted responses for lead generation. Weekly SEO pulse report cron. Admin routes secured in middleware.
 - **Security & Compliance:** Implemented comprehensive platform-wide security hardening (Next.js 15 update, Upstash Ratelimiting on critical paths, strict HTTP headers, DB ownership constraints).

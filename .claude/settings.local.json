@@ -2,7 +2,21 @@
   "permissions": {
     "allow": [
       "Bash(find C:/Users/Jason/Desktop -name *.html)",
-      "Bash(grep -n \"window.location\" /e/BillDog/app/\\\\\\(app\\\\\\)/letter/[id]/page.tsx -A 5 -B 5)"
+      "Bash(grep -n \"window.location\" /e/BillDog/app/\\\\\\(app\\\\\\)/letter/[id]/page.tsx -A 5 -B 5)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(echo \"---EXIT: $?---\")",
+      "Bash(echo \"---EXIT:$?---2)",
+      "Bash(echo \"---EXIT:$?---\")",
+      "Bash(npx tsx *)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co' SUPABASE_SERVICE_ROLE_KEY='test-service-key' ANTHROPIC_API_KEY='test' npx tsx scripts/scorecard.ts)",
+      "Bash(grep -v 'TARIFF_DATA\\\\|Tariff Resolver\\\\|Gazette Fetcher\\\\|HUC\\\\]\\\\|Refuse\\\\]\\\\|VAT_DEBUG\\\\|FIXED_BASIC\\\\|ISU108012156854_RAW\\\\|SEW\\\\]\\\\|RATES_TARIFF\\\\|fetch failed\\\\|getaddrinfo\\\\|ENOTFOUND\\\\|GetAddrInfoReqWrap\\\\|details:\\\\|hint:\\\\|code:\\\\|message:\\\\|}\\\\s*$\\\\|{\\\\s*$\\\\|^\\\\s*$')",
+      "Bash(npx next *)",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co' SUPABASE_SERVICE_ROLE_KEY='test-service-key' ANTHROPIC_API_KEY='test' npx tsx scripts/investigate-parser-mismatch.ts)",
+      "Bash(grep -v 'TARIFF_DATA\\\\|Tariff Resolver\\\\|Gazette Fetcher\\\\|HUC\\\\]\\\\|Refuse\\\\]\\\\|VAT_DEBUG\\\\|FIXED_BASIC\\\\|ISU108012156854_RAW\\\\|SEW\\\\]\\\\|RATES_TARIFF\\\\|FULL_TEXT_DEBUG\\\\|fetch failed\\\\|getaddrinfo\\\\|ENOTFOUND\\\\|GetAddrInfoReqWrap\\\\|details:\\\\|hint:\\\\|code:\\\\|message:\\\\|^}\\\\s*$\\\\|^{\\\\s*$')",
+      "Bash(NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co' SUPABASE_SERVICE_ROLE_KEY='test-service-key' ANTHROPIC_API_KEY='test' npx tsx scripts/check-period-start.ts)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }

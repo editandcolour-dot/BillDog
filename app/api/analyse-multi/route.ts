@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { parseBillFile } from '@/lib/pdf/parse';
 import { analyseBill } from '@/lib/claude/analyse-bill';
 import { checkPrescription } from '@/lib/validators/prescription';
-import { analyseCrossBill } from '@/lib/claude/analyse-cross-bill';
+
 import type { AnalysisResult, CaseBill } from '@/types/analysis';
 import type { ServiceType } from '@/types';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
@@ -123,6 +123,7 @@ export async function POST(request: NextRequest) {
 
         // 6e. Claude analysis (passing municipality)
         const analysis = await analyseBill(billText, caseRecord.municipality);
+        console.log(`[analyse-multi] BILL ${bill.original_filename}: errors=${analysis.errors.length}, recoverable=${analysis.total_recoverable}, groundTruth=${analysis._meta?.groundTruth}`);
         const tier = classifyMunicipality(caseRecord.municipality);
         
         let transparencyReport = null;
@@ -154,6 +155,8 @@ export async function POST(request: NextRequest) {
           updated_at: new Date().toISOString(),
         }).eq('id', bill.id);
 
+        console.log(`[analyse-multi] BILL ${bill.original_filename} saved to case_bills: errors_found.length=${analysis.errors.length}`);
+
         analysed.push({
           bill_id: bill.id,
           bill_period: analysis.bill_period,
@@ -181,16 +184,10 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // 8. Cross-bill analysis (only if >1 bill succeeded)
-    let crossAnalysis = null;
-    if (analysed.length > 1) {
-      try {
-        crossAnalysis = await analyseCrossBill(analysed);
-      } catch (err) {
-        console.error('[analyse-multi] Cross-analysis failed:', err);
-        // Non-fatal — we still have per-bill results
-      }
-    }
+    // 8. Cross-bill analysis (SKIPPED)
+    // We intentionally bypass Claude cross-analysis to ensure one single
+    // source of truth: our aggregated deterministic validator findings.
+    const crossAnalysis = null;
 
     // 9. Aggregate & update case
     const totalRecoverable = analysed.reduce(
@@ -204,11 +201,31 @@ export async function POST(request: NextRequest) {
       .filter(Boolean)
       .sort();
 
-    const finalStatus = totalRecoverable > 0 ? 'letter_ready' : 'closed';
+    // ── CRITICAL: Build errors_found from per-bill deterministic errors ──
+    // The cross-analysis Claude call generates `recurring_errors` which may
+    // differ from (or drop) the actual per-bill findings. The DB must store
+    // the real per-bill errors. The UI reads errors_found for display.
+    const allPerBillErrors = analysed.flatMap(b => 
+      (b.analysis.errors || []).map(e => ({
+        ...e,
+        bill_period: b.bill_period,
+      }))
+    );
+
+    // NOTE: We do NOT overwrite crossAnalysis.recurring_errors — it uses the RecurringError type
+    // from Claude which has different fields (months_affected, total_overcharged).
+    // The UI falls back to errors_found (which contains the real per-bill errors) when
+    // cross_analysis.recurring_errors is empty or missing. The important thing is that
+    // errors_found on the cases table contains the deterministic per-bill errors.
+
+    console.log(`[analyse-multi] PIPELINE TRACE: totalRecoverable=${totalRecoverable}, allPerBillErrors=${allPerBillErrors.length}`);
+
+    const finalStatus = allPerBillErrors.length > 0 ? 'letter_ready' : 'closed';
+    console.log(`[analyse-multi] FINAL STATUS: ${finalStatus} (${allPerBillErrors.length} errors, R${totalRecoverable.toFixed(2)} recoverable)`);
 
     await supabase.from('cases').update({
       status: finalStatus,
-      errors_found: crossAnalysis?.recurring_errors ?? analysed[0].analysis.errors,
+      errors_found: allPerBillErrors,
       recoverable: totalRecoverable,
       total_billed: totalBilled,
       total_recoverable_all: totalRecoverable,
@@ -220,6 +237,8 @@ export async function POST(request: NextRequest) {
         : periods[0] || null,
       updated_at: new Date().toISOString(),
     }).eq('id', caseId);
+
+    console.log(`[analyse-multi] DB WRITE: status=${finalStatus}, errors_found.length=${allPerBillErrors.length}, recoverable=${totalRecoverable}`);
 
     const groundTruthCount = analysed.filter(b => b.analysis._meta?.groundTruth).length;
 

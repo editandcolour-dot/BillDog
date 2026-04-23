@@ -606,9 +606,13 @@ NODE_ENV=
 
 ---
 
+---
+
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-20T18:03:07.386641+00:00
+> Last scanned: 2026-04-22T05:32:09.444023+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -650,7 +654,7 @@ NODE_ENV=
   📄 test_pf.js  (1.8 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (235.9 KB)
+  📄 tsconfig.tsbuildinfo  (249.3 KB)
   📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
@@ -722,11 +726,11 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (0.2 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (55.4 KB)
+  📄 ARCHITECTURE.md  (56.3 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
-  📄 STATE.md  (1.4 KB)
+  📄 STATE.md  (1.0 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📄 payfast-diagnostic-memory.md  (4.1 KB)
   📁 AGENT_BRAIN\sessions/
@@ -746,6 +750,8 @@ NODE_ENV=
     📄 2026-04-15.md  (1.4 KB)
     📄 2026-04-16.md  (1.8 KB)
     📄 2026-04-18.md  (1.7 KB)
+    📄 2026-04-20.md  (1.7 KB)
+    📄 2026-04-21.md  (0.6 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -840,7 +846,7 @@ NODE_ENV=
     📁 app\api\analyse/
       📄 route.ts  (7.3 KB)
     📁 app\api\analyse-multi/
-      📄 route.ts  (9.5 KB)
+      📄 route.ts  (10.9 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
         📄 route.ts  (9.0 KB)
@@ -1007,17 +1013,18 @@ NODE_ENV=
   📄 rate-limit.ts  (1.2 KB)
   📄 social-monitor.ts  (4.8 KB)
   📁 lib\checks/
-    📄 universalChecks.ts  (2.7 KB)
+    📄 universalChecks.ts  (2.9 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
-    📄 analyse-bill.ts  (8.3 KB)
+    📄 analyse-bill.ts  (12.4 KB)
     📄 analyse-cross-bill.ts  (4.6 KB)
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
     📄 generate-letter.ts  (6.0 KB)
-    📄 grounded-prompt.ts  (2.8 KB)
+    📄 grounded-prompt.ts  (3.1 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
+    📄 production-pipeline-e2e.test.ts  (4.8 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\data/
     📄 seo-municipalities.ts  (11.9 KB)
@@ -1031,7 +1038,11 @@ NODE_ENV=
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\parsers/
-    📄 coct-bill-parser.ts  (9.4 KB)
+    📄 coct-bill-parser-balance.test.ts  (3.8 KB)
+    📄 coct-bill-parser-line-balance.test.ts  (5.9 KB)
+    📄 coct-bill-parser.test.ts  (4.8 KB)
+    📄 coct-bill-parser.ts  (17.8 KB)
+    📄 unknown-tariff-proof.test.ts  (3.0 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
     📄 charge.ts  (3.8 KB)
@@ -1057,6 +1068,8 @@ NODE_ENV=
     📄 client.ts  (0.2 KB)
     📄 server.ts  (0.7 KB)
   📁 lib\tariff/
+    📄 coct-tariff-lookup.test.ts  (9.0 KB)
+    📄 coct-tariff-lookup.ts  (6.3 KB)
     📄 gazette-fetcher.ts  (0.8 KB)
     📄 gazette-parser.ts  (0.3 KB)
     📄 tariff-resolver.ts  (3.4 KB)
@@ -1262,9 +1275,10 @@ NODE_ENV=
           📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
       📁 lib\tariff\data\{metros/
     📁 lib\tariff\verifiers/
-      📄 electricityHUCharge.ts  (1.5 KB)
-      📄 refuseCharge.ts  (1.4 KB)
-      📄 waterFixedCharge.ts  (1.9 KB)
+      📄 electricityHUCharge.ts  (2.1 KB)
+      📄 ratesCharge.ts  (2.5 KB)
+      📄 refuseCharge.ts  (1.8 KB)
+      📄 waterFixedCharge.ts  (3.1 KB)
   📁 lib\tiers/
     📄 disclosureRequest.ts  (1.5 KB)
     📄 tier2Analysis.ts  (2.2 KB)
@@ -1272,12 +1286,11 @@ NODE_ENV=
     📄 tierClassifier.ts  (1.9 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
-    📄 bill-validator.test.ts  (5.1 KB)
-    📄 bill-validator.ts  (11.6 KB)
-    📄 huc.rules.ts  (2.4 KB)
+    📄 bill-validator.test.ts  (7.8 KB)
+    📄 bill-validator.ts  (15.0 KB)
+    📄 fallback-chain.test.ts  (2.7 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
-    📄 rates.rules.ts  (1.9 KB)
     📄 sa-id.ts  (1.5 KB)
 📁 public/
   📄 .gitkeep  (0.0 KB)
@@ -1285,7 +1298,10 @@ NODE_ENV=
   📄 logo.svg  (2.9 KB)
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
+  📄 answer-key.json  (1.3 KB)
+  📄 extract-sample-bill.ts  (0.6 KB)
   📄 generate_test_bill.py  (10.9 KB)
+  📄 regression.ts  (7.5 KB)
   📄 seed-tariff-cache.ts  (3.1 KB)
   📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
@@ -1313,9 +1329,46 @@ NODE_ENV=
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 setup.ts  (0.9 KB)
+  📁 tests\bills/
+    📄 ISU100004459317.pdf  (22.9 KB)
+    📄 ISU100004766152.pdf  (23.1 KB)
+    📄 ISU104006696081.pdf  (23.0 KB)
+    📄 ISU106005973089.pdf  (23.0 KB)
+    📄 ISU106006147353.pdf  (23.0 KB)
+    📄 ISU106006204459.pdf  (23.0 KB)
+    📄 ISU108012156854.pdf  (23.0 KB)
+    📄 ISU108012770557.pdf  (23.0 KB)
+    📄 ISU109010758573.pdf  (23.0 KB)
+    📄 ISU109011686920.pdf  (23.0 KB)
+    📄 ISU109012042310.pdf  (23.1 KB)
+    📄 ISU110010536497.pdf  (23.0 KB)
+    📄 ISU130010166607.pdf  (23.0 KB)
+    📄 ISU130010292671.pdf  (23.0 KB)
+    📄 ISU140009995549.pdf  (23.1 KB)
+    📄 ISU140010454972.pdf  (23.1 KB)
+    📄 ISU170009799604.pdf  (23.1 KB)
+    📄 ISU170010670237.pdf  (23.1 KB)
+    📄 ISU180010358491.pdf  (23.1 KB)
+    📄 ISU190010157842.pdf  (23.2 KB)
+    📄 ISU190010280998.pdf  (23.1 KB)
+    📄 ISU190010404920.pdf  (23.1 KB)
+    📄 ISU201010668145.pdf  (22.9 KB)
+    📄 ISU201010924705.pdf  (23.0 KB)
+    📄 ISU201011483082.pdf  (22.9 KB)
+    📄 ISU202011208647.pdf  (23.0 KB)
+    📄 ISU220009097762.pdf  (23.0 KB)
+    📄 ISU220009857915.pdf  (23.4 KB)
+    📄 ISU220010140883.pdf  (23.1 KB)
+    📄 ISU240009029749.pdf  (23.1 KB)
+    📄 ISU240009699552.pdf  (23.1 KB)
+    📄 ISU260008268823.pdf  (23.1 KB)
+    📄 ISU260008499432.pdf  (23.0 KB)
+    📄 ISU260009230832.pdf  (23.0 KB)
+    📄 ISU280008356737.pdf  (23.0 KB)
+    📄 ISU290007488789.pdf  (22.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (4.6 KB)
+  📄 analysis.ts  (5.6 KB)
   📄 index.ts  (7.8 KB)
 ```
 

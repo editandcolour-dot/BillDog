@@ -1,25 +1,23 @@
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-04-18 15:46
+> **Last Updated:** 2026-04-22 07:34
 > **🚨 If this file's date does not match today's date, discard all values and treat every field as empty.**
 
 ## Currently In Progress
-- (clear — task complete, awaiting user MD5 verification)
+- None.
 
 ## Blocked
-- PayFast tokenisation: awaiting user verification of MD5 hash against external tool. If hash matches, escalate to Byron (PayFast support).
+- None.
 
 ## Just Completed
-- Fixed PayFast signature generation: 3 critical bugs resolved (URL-encoding values, canonical field order, passphrase raw).
-- Removed `email_confirmation` field that was not in PayFast's canonical example.
-- Updated `generateSignature()` interface from `Record<string, string>` to `[string, string][]` ordered pairs.
-- Updated `charge.ts` to match new `generateSignature` interface.
-- Created dry-run verification script (`test_payfast_dryrun.js`) — produces hash string and MD5 for external validation.
+- Hardened the multi-bill analysis pipeline to rely exclusively on a Single Source of Truth (`errors_found`).
+- Overrode Claude AI's `recurring_errors` array to prevent it from dropping deterministic findings identified by `validateBill()`.
+- Updated Next.js UI path to render directly from `errors_found` and natively calculate the total recoverable discrepancy using basic math without external AI estimations.
+- Fixed TS compilation errors and verified E2E path passing on 12 error bills.
+- Architecture state scanned and updated.
 
 ## Next Up
-- Verify MD5 externally → if match, deploy and test live → if still 400, escalate to Byron.
-- If MD5 doesn't match externally, investigate encoding edge cases.
+- Manually upload the 12 error bills via the live UI and verify the findings displayed.
 
 ## Agent Notes
-- The `PAYFAST_FIELD_ORDER` array in `tokenise.ts` is now the single source of truth for field ordering. Any future PayFast fields MUST be added to this array in the correct position.
-- `charge.ts` uses the same `generateSignature` but with API header pairs (merchant-id, version, timestamp) — different context from tokenisation.
+- All LLM dependency in the error detection phase has been neutered; Claude is only answering for text summaries, and mathematical findings dictate the array of billing errors. Next session begins with user validation in the frontend via browser upload.

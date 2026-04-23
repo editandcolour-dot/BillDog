@@ -1,4 +1,5 @@
 import { resolveTariff } from '../tariff-resolver';
+import { getCoctHucForPeriod } from '../coct-tariff-lookup';
 
 export interface VerificationResult {
   result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
@@ -25,7 +26,24 @@ export async function verifyElectricityHUCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    console.warn(`[HUC] No tariff entry found via resolver. Skipping.`);
+    console.warn(`[HUC] No tariff entry found via resolver. Falling back to coct-tariff-lookup.`);
+    const fallback = getCoctHucForPeriod(billingDate);
+    if (fallback !== undefined) {
+      const delta = billedAmount - fallback;
+      if (Math.abs(delta) <= 0.10) {
+        return { result: 'PASS', approved_amount: fallback };
+      } else {
+        return {
+          result: 'FAIL',
+          approved_amount: fallback,
+          billed_amount: billedAmount,
+          delta: parseFloat(delta.toFixed(2)),
+          source_document: 'coct-tariff-lookup.ts',
+          source_url: 'N/A',
+          confidence: 'CONFIRMED'
+        };
+      }
+    }
     return { result: 'SKIP' };
   }
 
@@ -47,4 +65,3 @@ export async function verifyElectricityHUCharge(
     };
   }
 }
-

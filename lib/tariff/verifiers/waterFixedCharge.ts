@@ -1,4 +1,5 @@
 import { resolveTariff } from '../tariff-resolver';
+import { getCoctFixedBasicForDate } from '../coct-tariff-lookup';
 
 export interface VerificationResult {
   result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
@@ -20,22 +21,52 @@ export async function verifyWaterFixedCharge(
 ): Promise<VerificationResult> {
   const normMunicipality = municipality === 'City of Cape Town' ? 'CoCT' : municipality;
 
-  // Determine size
-  const meterMatch = billedLabel.match(/\((\d+)mm\s*-/i);
-  const size = meterMatch ? `${meterMatch[1]}mm` : '20mm';
+  // Determine size or band key from the label
+  const meterMatch = billedLabel.match(/(\d+)mm/i);
+  const bandMatch = billedLabel.match(/R\s*([\d\s]+)\s*-\s*R\s*([\d\s]+)/i);
+  
+  let sizeOrBand: string;
+  if (meterMatch) {
+    sizeOrBand = `${meterMatch[1]}mm`;
+  } else if (bandMatch) {
+    // Normalise to "R4500001-R5000000" format for lookup
+    const lower = bandMatch[1].replace(/\s/g, '');
+    const upper = bandMatch[2].replace(/\s/g, '');
+    sizeOrBand = `R${lower}-R${upper}`;
+  } else {
+    sizeOrBand = '20mm'; // Default fallback
+  }
 
   const multiplierMatch = billedLabel.match(/x\s*(\d+)/i);
   const multiplier = multiplierMatch ? parseInt(multiplierMatch[1], 10) : 1;
-  const effectiveBilledAmount = billedAmount / multiplier;
 
   const resolution = await resolveTariff({
     municipality: normMunicipality,
     tariffType: 'WATER_FIXED_BASIC',
     billingDate,
-    subKey: size
+    subKey: sizeOrBand
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
+    console.warn(`[Water Fixed Basic] No tariff found via resolver. Falling back to coct-tariff-lookup.`);
+    const fallback = getCoctFixedBasicForDate(billingDate, sizeOrBand);
+
+    if (fallback !== undefined) {
+      const expectedTotal = fallback * multiplier;
+      if (Math.abs(billedAmount - expectedTotal) <= 0.10) {
+        return { result: 'PASS', approved_amount: parseFloat(expectedTotal.toFixed(2)) };
+      } else {
+        return {
+          result: 'FAIL',
+          approved_amount: parseFloat(expectedTotal.toFixed(2)),
+          billed_amount: billedAmount,
+          delta: parseFloat((billedAmount - expectedTotal).toFixed(2)),
+          source_document: 'coct-tariff-lookup.ts',
+          source_url: 'N/A',
+          confidence: 'CONFIRMED'
+        };
+      }
+    }
     return { result: 'SKIP' };
   }
 

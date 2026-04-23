@@ -1,4 +1,5 @@
 import { resolveTariff } from '../tariff-resolver';
+import { getCoctRefuseForDate } from '../coct-tariff-lookup';
 
 export interface RefuseVerificationResult {
   result: 'PASS' | 'FAIL' | 'SKIP';
@@ -19,17 +20,30 @@ export async function verifyRefuseCharge(
     municipality: normMunicipality,
     tariffType: 'REFUSE',
     billingDate: billingDateStr,
-    // Typically a standard 240L bin, can dynamically supply if multiple bins exist
     subKey: '240L'
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
+    console.warn(`[Refuse] No tariff found via resolver. Falling back to coct-tariff-lookup.`);
+    const fallback = getCoctRefuseForDate(billingDateStr);
+
+    if (fallback !== undefined) {
+      const delta = billedAmount - fallback;
+      if (Math.abs(delta) > 0.02) {
+        return {
+          result: 'FAIL',
+          approved_amount: fallback,
+          delta: parseFloat(delta.toFixed(2)),
+          confidence: 'CONFIRMED',
+          source_url: 'coct-tariff-lookup.ts'
+        };
+      }
+      return { result: 'PASS' };
+    }
     return { result: 'SKIP' };
   }
 
   const approvedAmount = resolution.amount;
-
-  // Exact match because it is a flat fee, but we allow 2 cent precision differences
   const delta = billedAmount - approvedAmount;
   if (Math.abs(delta) > 0.02) {
     return {
@@ -43,4 +57,3 @@ export async function verifyRefuseCharge(
 
   return { result: 'PASS' };
 }
-
