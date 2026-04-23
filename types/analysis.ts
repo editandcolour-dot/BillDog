@@ -2,6 +2,7 @@ export interface BillingError {
   line_item: string;
   amount_charged: number;
   expected_amount: number;
+  overchargeZar?: number;
   issue: string;
   legal_basis: string;
   recoverable: boolean;
@@ -28,21 +29,43 @@ export interface AnalysisResult {
 
 // ── Ground Truth types ────────────────────────────────────
 
-export interface RatesSegment {
+export interface BaseCharge {
+  parse_status: 'OK' | 'PARSE_FAILED';
+  raw_line?: string;
+  periodStart?: string;
+  periodEnd?: string;
+}
+
+export interface RatesSegment extends BaseCharge {
+  chargeType: 'RATES';
   fromDate: string;
   rateableValue: number;
   annualRate: number;
   daysInYear: number;
   billingDays: number;
   billedAmount: number;
-  rebateBase?: number;
-  rebateBilledAmount?: number;
+  rebate: boolean;
 }
 
-export interface HucCharge {
-  month: string;       // e.g. "02.2025"
+export interface HucCharge extends BaseCharge {
+  chargeType: 'HUC';
+  period: string;       // e.g. "08.2025"
+  meterRef: string;     // e.g. "4907315610"
   amount: number;
-  label: string;
+}
+
+export interface RefuseCharge extends BaseCharge {
+  chargeType: 'REFUSE';
+  amount: number;
+  binSize: string;      // e.g. "240L"
+}
+
+export interface WaterFixedBasicCharge extends BaseCharge {
+  chargeType: 'WATER_FIXED_BASIC';
+  meterSize: string;    // e.g. "20mm"
+  unitRate: number;
+  multiplier: number;
+  totalCharged: number;
 }
 
 export interface ReturnedDebit {
@@ -63,11 +86,23 @@ export interface MeterReading {
   consumption: number;
 }
 
-export interface GeneralCharge {
-  serviceType: 'water' | 'sewerage' | 'refuse' | 'sundry';
+export interface GeneralCharge extends BaseCharge {
+  serviceType: 'water' | 'sewerage' | 'sundry'; // Refuse moved to RefuseCharge
   description: string;
   amount: number;
   hasVat: boolean;
+}
+
+export interface OtherCharge {
+  section: string;
+  rawLine: string;
+  amount: number;
+  hasVat: boolean;
+}
+
+export interface SectionSubtotal {
+  section: string;
+  subtotal: number;
 }
 
 export interface ParsedBill {
@@ -90,10 +125,16 @@ export interface ParsedBill {
   canonicalWaterConsumptionKl: number;
 
   meterReadings: MeterReading[];
-  waterCharges: GeneralCharge[];
+  waterFixedCharges: WaterFixedBasicCharge[];
+  waterTierCharges: GeneralCharge[]; // Legacy tier lines until formally structured
   sewerageCharges: GeneralCharge[];
-  refuseCharges: GeneralCharge[];
+  refuseCharges: RefuseCharge[];
+  hucCharges: HucCharge[];
   sundryCharges: GeneralCharge[];
+
+  // Exhaustive extraction — catches everything the parser doesn't classify
+  otherCharges: OtherCharge[];
+  sectionSubtotals: SectionSubtotal[];
 
   subtotals: {
     ratesNet: number; 
@@ -115,14 +156,15 @@ export type FindingType =
   | 'PARSER_MISMATCH'
   | 'VAT_MISMATCH'
   | 'SEWERAGE_RATIO_ERROR'
-  | 'METER_READING_MISMATCH';
+  | 'METER_READING_MISMATCH'
+  | 'UNKNOWN_TARIFF';
 
 export interface ValidationFinding {
   type: FindingType;
   description: string;
   billedAmount: number;
   expectedAmount?: number;
-  discrepancy?: number;
+  overchargeZar?: number;
   lineReference: string;
   invoiceNumber: string;
   billingDate: string;
@@ -130,6 +172,7 @@ export interface ValidationFinding {
   legalBasis?: string | null;
   sourceUrl?: string | null;
   verificationConfidence?: 'CONFIRMED' | 'BILL-VERIFIED' | 'SECONDARY' | 'UNVERIFIED';
+  recoverable?: boolean;
 }
 
 // ── Multi-bill types ──────────────────────────────────────

@@ -21,7 +21,7 @@ export function runTier2Analysis(
       description: `Bill electricity increased by ${actualIncreasePct.toFixed(1)}%, exceeding NERSA maximum of ${approvedIncrease}%`,
       billedAmount: currentAmount,
       expectedAmount: parseFloat((priorAmount * (1 + approvedIncrease / 100)).toFixed(2)),
-      discrepancy: parseFloat((currentAmount - (priorAmount * (1 + approvedIncrease / 100))).toFixed(2)),
+      overchargeZar: parseFloat((currentAmount - (priorAmount * (1 + approvedIncrease / 100))).toFixed(2)),
       lineReference: `Year-on-Year Electricity Charge Comparison for ${tariffYear}`,
       invoiceNumber: 'N/A', // Cross-bill logic usually handles this
       billingDate: 'N/A',

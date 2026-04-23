@@ -1,5 +1,5 @@
 import { getClaudeClient } from './client';
-import { AnalysisResult } from '@/types/analysis';
+import { AnalysisResult, ValidationFinding, FindingType, BillingError } from '@/types/analysis';
 import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
 import { validateBill } from '@/lib/validators/bill-validator';
 import { buildGroundedSystemPrompt } from './grounded-prompt';
@@ -149,12 +149,13 @@ export async function analyseBill(billText: string, municipalityCode: string = '
   let systemPrompt = ANALYSIS_SYSTEM_PROMPT;
   let isGroundTruth = false;
   let findingsCount = 0;
+  let validatorFindings: ValidationFinding[] = [];
 
   if (parsedBill) {
-    const findings = await validateBill(parsedBill, municipalityCode);
-    systemPrompt = buildGroundedSystemPrompt(findings, parsedBill);
+    validatorFindings = await validateBill(parsedBill, municipalityCode);
+    systemPrompt = buildGroundedSystemPrompt(validatorFindings, parsedBill);
     isGroundTruth = true;
-    findingsCount = findings.length;
+    findingsCount = validatorFindings.length;
     console.log(`[claude/analyse] Using Ground Truth architecture. Found ${findingsCount} validated errors.`);
   } else {
     console.log('[claude/analyse] Bill not recognized as CoCT. Falling back to AI-only analysis.');
@@ -193,6 +194,50 @@ export async function analyseBill(billText: string, municipalityCode: string = '
   const parsed = parseClaudeJson<AnalysisResult>(response.content[0].text);
   const validated = validateAnalysisResult(parsed);
 
+  // ── CRITICAL: Ground Truth Override ─────────────────────────────────────
+  // When the deterministic validator produced findings, those findings ARE the
+  // errors array. Claude's re-interpretation is unreliable — it frequently
+  // drops or rewords findings, producing zero errors when there are many.
+  //
+  // The fix: convert ValidationFinding[] → BillingError[] deterministically.
+  // Claude's response is only used for: summary, municipality_detected, bill_period.
+  // ────────────────────────────────────────────────────────────────────────
+  if (isGroundTruth && parsedBill) {
+    const groundTruthErrors: BillingError[] = validatorFindings.map(f => ({
+      line_item: f.lineReference,
+      service_type: mapFindingTypeToServiceType(f.type),
+      amount_charged: f.billedAmount,
+      expected_amount: f.expectedAmount ?? 0,
+      overchargeZar: f.overchargeZar ?? 0,
+      issue: f.description,
+      legal_basis: f.legalBasis || getLegalBasis(f.type),
+      recoverable: f.recoverable !== false,
+    }));
+
+    const totalRecoverable = validatorFindings.reduce(
+      (sum, f) => sum + (f.recoverable !== false ? (f.overchargeZar ?? 0) : 0), 0
+    );
+
+    console.log(`[claude/analyse] Ground Truth override: ${groundTruthErrors.length} errors injected directly. Claude summary used for display only.`);
+
+    return {
+      ...validated,
+      errors: groundTruthErrors,
+      total_billed: parsedBill.totalDue,
+      total_recoverable: totalRecoverable,
+      confidence: 'high' as const,
+      bill_period: validated.bill_period || parsedBill.billingDate,
+      _meta: {
+        model: MODEL,
+        tokensUsed: response.usage.input_tokens + response.usage.output_tokens,
+        durationMs: duration,
+        groundTruth: true,
+        findingsCount,
+        parserUsed: 'coct-regex',
+      },
+    };
+  }
+
   return {
     ...validated,
     _meta: {
@@ -204,4 +249,49 @@ export async function analyseBill(billText: string, municipalityCode: string = '
       parserUsed: isGroundTruth ? 'coct-regex' : undefined,
     },
   };
+}
+
+/** Maps internal FindingType to the UI-facing service_type enum */
+function mapFindingTypeToServiceType(type: FindingType): BillingError['service_type'] {
+  switch (type) {
+    case 'RATES_CALC_ERROR':
+    case 'REBATE_CALC_ERROR':
+    case 'UNKNOWN_RATE_APPLIED':
+      return 'rates';
+    case 'HUC_AMOUNT_WRONG':
+      return 'electricity';
+    case 'WATER_FIXED_CHARGE_WRONG':
+    case 'METER_READING_MISMATCH':
+      return 'water';
+    case 'SEWERAGE_RATIO_ERROR':
+      return 'sewerage';
+    case 'VAT_MISMATCH':
+    case 'PARSER_MISMATCH':
+    case 'OVER_APPROVED_INCREASE':
+    case 'UNKNOWN_TARIFF':
+    default:
+      return 'other';
+  }
+}
+
+/** Fallback legal basis when the finding doesn't carry one */
+function getLegalBasis(type: FindingType): string {
+  switch (type) {
+    case 'RATES_CALC_ERROR':
+    case 'REBATE_CALC_ERROR':
+    case 'UNKNOWN_RATE_APPLIED':
+      return 'Municipal Property Rates Act 6 of 2004, s 11 — tariffs must conform to the municipality\'s rates policy as gazetted.';
+    case 'HUC_AMOUNT_WRONG':
+      return 'Municipal Systems Act 32 of 2000 — tariffs must match the published tariff schedule.';
+    case 'WATER_FIXED_CHARGE_WRONG':
+      return 'Water Services Act 108 of 1997, s 10 — water charges must align with the approved tariff structure.';
+    case 'VAT_MISMATCH':
+      return 'Value-Added Tax Act 89 of 1991, s 7(1)(a) — VAT must be calculated at the prescribed 15% rate on VAT-able supplies.';
+    case 'PARSER_MISMATCH':
+      return 'Municipal Finance Management Act 56 of 2003 — line items must arithmetically reconcile to the total due.';
+    case 'SEWERAGE_RATIO_ERROR':
+      return 'Municipal Systems Act 32 of 2000 — sewerage charges linked to water consumption must use the correct consumption figure.';
+    default:
+      return 'Municipal Systems Act 32 of 2000 — billing must be accurate and transparent.';
+  }
 }

@@ -11,9 +11,11 @@ export function buildGroundedSystemPrompt(findings: ValidationFinding[], parsedB
   // We feed the fully extracted bill to Claude so it can catch behavioral anomalies.
   const billJson = JSON.stringify({
     meterReadings: parsedBill.meterReadings,
-    waterCharges: parsedBill.waterCharges,
+    waterFixedCharges: parsedBill.waterFixedCharges,
+    waterTierCharges: parsedBill.waterTierCharges,
     sewerageCharges: parsedBill.sewerageCharges,
     refuseCharges: parsedBill.refuseCharges,
+    hucCharges: parsedBill.hucCharges,
     sundryCharges: parsedBill.sundryCharges
   }, null, 2);
 
@@ -49,10 +51,10 @@ Required JSON schema:
     "expected_amount": 1000.00,
     "issue": "plain English explanation of what is wrong based strictly on the finding description or anomalous reading",
     "legal_basis": "Rates act or tariff policy violation",
-    "recoverable": true
+    "recoverable": "boolean: true if it is a definite billing error, false if it is merely an UNKNOWN_TARIFF flagged for review"
   }],
   "total_billed": ${parsedBill.totalDue},
-  "total_recoverable": ${findings.reduce((sum, f) => sum + (f.discrepancy || 0), 0)},
+  "total_recoverable": ${findings.reduce((sum, f) => sum + (f.recoverable !== false ? (f.overchargeZar ?? 0) : 0), 0)},
   "confidence": "high",
   "bill_period": "${parsedBill.ratesPeriod ? `${parsedBill.ratesPeriod.from} to ${parsedBill.ratesPeriod.to}` : parsedBill.billingDate}",
   "municipality_detected": "City of Cape Town",

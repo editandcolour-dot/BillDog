@@ -25,10 +25,12 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
         continue;
       }
       if (seenLabels.has(c.description)) {
+        const dupAmount = ('amount' in c) ? (c as any).amount : 0;
         findings.push({
-          type: 'RATES_CALC_ERROR', 
+          type: 'RATES_CALC_ERROR',
           description: `Duplicate charge detected for ${c.description}`,
-          billedAmount: ('amount' in c) ? (c as any).amount : 0,
+          billedAmount: dupAmount,
+          overchargeZar: Math.abs(dupAmount),
           lineReference: c.description,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
@@ -40,14 +42,19 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
   };
 
   checkDuplicates(bill.sundryCharges, 'sundry');
-  checkDuplicates(bill.waterCharges, 'water');
+  checkDuplicates(bill.waterTierCharges, 'water');
+  checkDuplicates(bill.waterFixedCharges.map(c => ({ ...c, description: `Fixed Basic Charge ${c.meterSize}` })), 'water_fixed');
   checkDuplicates(bill.sewerageCharges, 'sewerage');
-  checkDuplicates(bill.refuseCharges, 'refuse');
+  checkDuplicates(bill.refuseCharges.map(c => ({ ...c, description: `Refuse Charge ${c.binSize}` })), 'refuse');
 
   // 3. Property rates internal consistency check
   // (value × rate-in-rand / 365 × days)
+  // Rebate segments are checked by the rebate-specific branch in bill-validator;
+  // skipping here prevents duplicate findings and avoids the sign-convention clash
+  // (rebates carry negative billedAmount, this formula produces a positive expected).
   if (bill.rates) {
     for (const seg of bill.rates) {
+      if (seg.rebate) continue;
       if (seg.rateableValue && seg.annualRate && seg.daysInYear && seg.billingDays) {
         const expectedMath = parseFloat(
           ((seg.rateableValue * seg.annualRate) / seg.daysInYear * seg.billingDays).toFixed(2)
@@ -58,7 +65,7 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
             description: `Rates mathematical consistency error. Subtotal expected R${expectedMath}, billed R${seg.billedAmount}`,
             billedAmount: seg.billedAmount,
             expectedAmount: expectedMath,
-            discrepancy: parseFloat((seg.billedAmount - expectedMath).toFixed(2)),
+            overchargeZar: parseFloat(Math.abs(seg.billedAmount - expectedMath).toFixed(2)),
             lineReference: `Rates segment from ${seg.fromDate}`,
             invoiceNumber: bill.invoiceNumber,
             billingDate: bill.billingDate,

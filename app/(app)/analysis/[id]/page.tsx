@@ -191,19 +191,16 @@ export default function AnalysisResultsPage() {
   const totalBilled = isMultiBill
     ? bills.reduce((sum, b) => sum + (Number(b.total_billed) || 0), 0)
     : caseData?.total_billed || 0;
-    
-  const totalRecoverable = isMultiBill
-    ? caseData?.cross_analysis?.total_recoverable_all || caseData?.total_recoverable_all || 0
-    : caseData?.recoverable || 0;
-    
+
   const validBills = bills.filter(b => b && b.bill_period);
   const billPeriod = isMultiBill && validBills.length > 0
     ? `${validBills[0].bill_period} to ${validBills[validBills.length - 1].bill_period}`
     : caseData?.bill_period || 'Unknown Period';
     
-  const errors = isMultiBill 
-    ? caseData?.cross_analysis?.recurring_errors || [] 
-    : caseData?.errors_found || [];
+  const errors = caseData?.errors_found || [];
+    
+  const totalRecoverable = Number(caseData?.recoverable ?? 0);
+  console.log('[UI_RENDER] isMultiBill=', isMultiBill, 'errors.length=', errors.length, 'totalRecoverable=', totalRecoverable);
     
   const warnings = caseData?.prescription_warnings || [];
 
@@ -274,9 +271,10 @@ export default function AnalysisResultsPage() {
         {/* Error Cards */}
         <div className="space-y-6">
           <h3 className="text-xl font-bold text-navy mb-4">
-            {isMultiBill ? `Identified Recurring Patterns (${errors.length})` : `Identified Billing Errors (${errors.length})`}
+            {isMultiBill ? `Findings across ${bills.length} bills (${errors.length} total)` : `Identified Billing Errors (${errors.length})`}
           </h3>
           
+          {console.log('[RAW VALIDATOR OUTPUT] errors array:', errors)}
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {errors.map((errorObj: any, idx: number) => {
             const warning = warnings[idx];
@@ -288,21 +286,21 @@ export default function AnalysisResultsPage() {
                 <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                   <div>
                     <h4 className="text-lg font-bold text-navy truncate">
-                      {isMultiBill ? `Recurring ${errorObj.service_type || 'Error'}` : errorObj.line_item}
+                      {errorObj.line_item}
                     </h4>
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 capitalize mt-2">
                        {errorObj.service_type}
                     </span>
-                    {isMultiBill && errorObj.months_affected && (
-                       <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue/10 text-blue capitalize mt-2">
-                         {errorObj.months_affected.length} month(s) affected
+                    {isMultiBill && errorObj.bill_period && (
+                       <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue/10 text-blue mt-2">
+                         {errorObj.bill_period}
                        </span>
                     )}
                   </div>
                   <div className="text-left md:text-right shrink-0">
                     <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Overcharge</p>
                     <p className={`text-2xl font-bebas tracking-wide ${(errorObj.recoverable !== false) && !isPrescribed ? 'text-green-500' : 'text-slate-400'}`}>
-                      {formatCurrency(isMultiBill ? errorObj.total_overcharged : errorObj.amount_charged - errorObj.expected_amount)}
+                      {formatCurrency(errorObj.overchargeZar)}
                     </p>
                   </div>
                 </div>

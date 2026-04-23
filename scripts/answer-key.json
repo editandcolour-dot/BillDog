@@ -1,0 +1,14 @@
+[
+  { "invoiceNumber": "108012156854", "errorType": "RATES_CALC_ERROR", "overchargeZar": 200.00, "tolerance": 0.50 },
+  { "invoiceNumber": "140009995549", "errorType": "REBATE_CALC_ERROR", "overchargeZar": 75.00, "tolerance": 0.50 },
+  { "invoiceNumber": "280008356737", "errorType": "RATES_CALC_ERROR", "overchargeZar": -7.91, "tolerance": 0.50 },
+  { "invoiceNumber": "190010157842", "errorType": "VAT_CALC_ERROR", "overchargeZar": 40.00, "tolerance": 0.50 },
+  { "invoiceNumber": "201010924705", "errorType": "HUC_AMOUNT_WRONG", "overchargeZar": 40.00, "tolerance": 0.50 },
+  { "invoiceNumber": "240009029749", "errorType": "FIXED_BASIC_WRONG", "overchargeZar": 20.00, "tolerance": 0.50 },
+  { "invoiceNumber": "201011483082", "errorType": "REFUSE_CHARGE_WRONG", "overchargeZar": 30.00, "tolerance": 0.50 },
+  { "invoiceNumber": "109011686920", "errorType": "UNKNOWN_RATE_APPLIED", "overchargeZar": 76.50, "tolerance": 0.50 },
+  { "invoiceNumber": "106006147353", "errorType": "UNKNOWN_RATE_APPLIED", "overchargeZar": 71.40, "tolerance": 0.50 },
+  { "invoiceNumber": "202011208647", "errorType": "UNKNOWN_RATE_APPLIED", "overchargeZar": 73.95, "tolerance": 0.50 },
+  { "invoiceNumber": "260009230832", "errorType": "HUC_AMOUNT_WRONG", "overchargeZar": 25.11, "tolerance": 0.50 },
+  { "invoiceNumber": "109012042310", "errorType": "HUC_AMOUNT_WRONG", "overchargeZar": 25.11, "tolerance": 0.50 }
+]
