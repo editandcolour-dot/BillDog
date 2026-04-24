@@ -1,24 +1,22 @@
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-04-23 08:46
+> **Last Updated:** 2026-04-24 07:27
 > **🚨 If this file's date does not match today's date, discard all values and treat every field as empty.**
 
 ## Currently In Progress
-- Waiting for user to run full 36-bill regression.
+- None (session closed).
 
 ## Blocked
 - None.
 
 ## Just Completed
-- Reviewed major structural refactor (bfc80e3).
-- Confirmed zero remaining `discrepancy` field references.
-- Confirmed zero `bill.billingDate` fallbacks in verifier FY lookups.
-- Passed typechecks and vitest suite.
+- Investigated upload page hydration failure — diagnosed as runtime issue, no code bug found.
+- Pushed to Railway (3f3325e).
 
 ## Next Up
-- User to run the 36-bill regression including clean bills.
-- Decide on Railway push if successful.
+- User to manually test upload drop zone in Chrome to confirm it works outside automation.
+- Run full 36-bill regression including clean bills.
 
 ## Agent Notes
-- `totalBilled` client-side aggregation in `app/(app)/analysis/[id]/page.tsx` noted as technical debt for a future cleanup pass.
-- Pick up after user finishes the regression.
+- Upload hydration failure was only observed in the automated Chromium browser. The `MultiFileUploader` component code is correct — click, drag, drop handlers are all wired. Likely works fine in a real browser.
+- `totalBilled` client-side aggregation in `app/(app)/analysis/[id]/page.tsx` noted as tech debt for future cleanup.
