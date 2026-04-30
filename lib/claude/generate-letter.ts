@@ -9,6 +9,7 @@
  */
 
 import { getClaudeClient } from './client';
+import { buildVerificationBlock, VerificationBlockInput } from '@/lib/letters/verification-block';
 
 const MODEL = 'claude-sonnet-4-20250514';
 const LETTER_TIMEOUT_MS = 60_000;
@@ -70,6 +71,7 @@ export interface LetterInput {
   accountNumber: string;
   municipality: string;
   billPeriod: string;
+  verification: VerificationBlockInput;
   errors: Array<{
     line_item: string;
     service_type: string;
@@ -147,7 +149,8 @@ ${excludedText}`;
       throw new Error('Empty or non-text Claude response for letter generation');
     }
 
-    const letterContent = response.content[0].text.trim();
+    const claudeOutput = response.content[0].text.trim();
+    const letterContent = buildVerificationBlock(input.verification) + '\n\n' + claudeOutput;
 
     return {
       letterContent,

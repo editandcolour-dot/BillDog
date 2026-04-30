@@ -8,6 +8,7 @@ import { ConfirmResolution } from '@/components/cases/ConfirmResolution';
 import { PublicProtectorModal } from '@/components/cases/PublicProtectorModal';
 import { DeleteCaseButton } from '@/components/cases/DeleteCaseButton';
 import { EscalationTimeline } from '@/components/cases/EscalationTimeline';
+import { DisputeGateBanner } from '@/components/cases/DisputeGateBanner';
 import { lookupWardCouncillor } from '@/lib/escalation/wardCouncillorLookup';
 
 export default async function CaseDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -53,6 +54,17 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
 
   const wardCouncillor = c.escalation_step >= 1 ? await lookupWardCouncillor(c.municipality, c.property_address || '') : null;
 
+  // Gate state — show banner if user can't yet submit a dispute on this case.
+  const { data: profileGate } = await supabase
+    .from('profiles')
+    .select('mandate_revoked_at')
+    .eq('id', user.id)
+    .single();
+  const mandateRevoked = !!profileGate?.mandate_revoked_at;
+  const idCaptured = !!c.id_collected_at;
+  const showGateBanner = (mandateRevoked || !idCaptured)
+    && ['analysing', 'letter_ready', 'sent'].includes(c.status);
+
   return (
     <main className="min-h-screen bg-off-white py-12 md:py-16">
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 md:px-[6%] animate-fade-up">
@@ -97,7 +109,14 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
           
           {/* Main Timeline Column */}
           <div className="lg:col-span-2">
-            {c.escalation_stage === 5 && !c.id_secret_id && (
+            {showGateBanner && (
+              <DisputeGateBanner
+                caseId={c.id}
+                mandateRevoked={mandateRevoked}
+                idCaptured={idCaptured}
+              />
+            )}
+            {c.escalation_stage === 5 && !c.id_collected_at && (
               <div className="mb-8">
                 <PublicProtectorModal caseId={c.id} />
               </div>

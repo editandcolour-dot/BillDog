@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Privacy Policy | Billdog',
-  description: 'How Billdog collects, uses, and protects your personal information under POPIA.',
+  description: 'How Billdog collects, uses, and protects your personal information under POPIA, including processors used and how to revoke your mandate.',
   alternates: { canonical: 'https://www.billdog.co.za/privacy' },
   openGraph: {
     title: 'Privacy Policy | Billdog',
@@ -268,6 +268,49 @@ export default function PrivacyPolicyPage() {
               We may update this privacy policy from time to time. For material changes, we
               will notify you via email before the changes take effect. The updated version
               will always be available at this page with a new version number and date.
+            </p>
+          </section>
+
+          {/* 11a — Consents */}
+          <section>
+            <h2 className="font-display text-2xl text-navy tracking-wide uppercase mb-4">
+              11a. Consents We Require From You
+            </h2>
+            <p className="mb-4">
+              When you create a Billdog account we ask for two distinct, separately-recorded consents:
+            </p>
+            <ul className="list-disc list-inside space-y-3">
+              <li>
+                <strong>POPIA consent (data processing).</strong> Authorises us to process your
+                personal information &mdash; ID, municipal account details, bill documents
+                &mdash; to identify and dispute billing errors. Data may be shared only with the
+                processors listed in section 4 above (Anthropic, Supabase, Resend, PayFast,
+                Voyage AI, Railway, Cloudflare).
+              </li>
+              <li>
+                <strong>Mandate consent (authority to act).</strong> Authorises Billdog (Pty) Ltd
+                to act as your representative in correspondence with your municipality regarding
+                billing disputes on your account. Required by SA municipalities before they will
+                review a third-party-lodged dispute.
+              </li>
+            </ul>
+            <p className="mt-4">
+              Both consents are recorded with a timestamp and version number on your profile and are
+              never edited in place &mdash; if we change the wording, you will be re-prompted to
+              accept the new version.
+            </p>
+            <p className="mt-3">
+              <strong>Revoking your mandate.</strong> You can revoke at any time via your{' '}
+              <a href="/settings" className="text-blue underline">account settings</a> or by emailing{' '}
+              <a href="mailto:support@billdog.co.za" className="text-blue underline">
+                support@billdog.co.za
+              </a>. Revocation halts all active disputes and you will receive an email
+              confirmation. You may re-grant the mandate at any time from settings.
+            </p>
+            <p className="mt-3">
+              <strong>ID number storage.</strong> Your SA ID is captured only when needed to lodge
+              a dispute (per the POPIA minimality principle) and is encrypted at rest in Supabase
+              Vault. It is automatically deleted 30 days after your case resolves.
             </p>
           </section>
 

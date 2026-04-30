@@ -137,7 +137,6 @@ export interface Case {
   last_escalation_at: string | null;
   escalation_history: EscalationHistoryEntry[];
   dispute_type: DisputeType | null;
-  id_secret_id: string | null;
   id_collected_at: string | null;
   id_deletion_scheduled_at: string | null;
   created_at: string;

@@ -3,6 +3,7 @@ import { getMunicipalityContacts, getPublicProtectorContacts } from './contactLo
 import { lookupWardCouncillor } from './wardCouncillorLookup';
 import { generateLetter, EscalationLetter } from './letterGenerator';
 import { getResendClient } from '@/lib/resend/client';
+import type { VerificationBlockInput } from '@/lib/letters/verification-block';
 
 const STEP_LABELS: Record<number, string> = {
   1: 'Initial Dispute',
@@ -22,7 +23,7 @@ export async function runEscalationEngine(): Promise<void> {
   const { data: overdueCases, error } = await supabase
     .from('cases')
     .select(`
-      id, account_number, property_address, municipality, escalation_step, last_escalation_at,
+      id, user_id, account_number, property_address, municipality, escalation_step, last_escalation_at,
       case_bills!inner ( coverage_tier, errors_found )
     `)
     .eq('escalation_blocked', false)
@@ -61,11 +62,54 @@ export async function runEscalationEngine(): Promise<void> {
 
 async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, step: 1 | 2 | 3 | 4) {
   const contacts = getMunicipalityContacts(caseObj.municipality);
-  
+
   if (!contacts) {
     console.error(`[escalationEngine] No contacts mapping for ${caseObj.municipality}`);
     return; // Cannot generate mapping safely
   }
+
+  // Hard gate — POPIA + mandate + ID must be present before any send
+  const { data: canSubmit } = await supabase.rpc('can_submit_dispute', { target_case_id: caseObj.id });
+  if (!canSubmit) {
+    console.warn(`[escalationEngine] Gate failed for ${caseObj.id} — consent or ID missing.`);
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, email, address, mandate_consent_at')
+    .eq('id', caseObj.user_id)
+    .single();
+  if (!profile?.mandate_consent_at) {
+    console.warn(`[escalationEngine] No mandate_consent_at for ${caseObj.id}`);
+    return;
+  }
+
+  const { data: idNumber } = await supabase.rpc('get_poppi_id', { target_case_id: caseObj.id });
+  if (!idNumber) {
+    console.warn(`[escalationEngine] ID could not be decrypted for ${caseObj.id}`);
+    return;
+  }
+
+  const propertyAddress: string =
+    (caseObj.property_address && String(caseObj.property_address).trim()) ||
+    (profile.address && String(profile.address).trim()) ||
+    '';
+  if (!propertyAddress) {
+    console.warn(`[escalationEngine] No property address for ${caseObj.id}`);
+    return;
+  }
+
+  const verification: VerificationBlockInput = {
+    fullName: profile.full_name,
+    idNumber,
+    accountNumber: caseObj.account_number || '',
+    propertyAddress,
+    email: profile.email,
+    municipalityName: contacts.name,
+    caseId: caseObj.id,
+    mandateConsentAt: profile.mandate_consent_at,
+  };
 
   // Determine recipient logic based on step and prompt
   let recipientEmail = '';
@@ -130,12 +174,13 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
     step,
     caseId: caseObj.id,
     accountNumber: caseObj.account_number || 'Unknown',
-    propertyAddress: caseObj.property_address || 'Address provided on record',
+    propertyAddress,
     municipalityName: contacts.name,
     municipalityCode: contacts.code,
     findings: caseObj.findings,
     priorLetters,
-    wardCouncillor
+    wardCouncillor,
+    verification
   });
 
   letter.recipientEmail = recipientEmail;

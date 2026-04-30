@@ -290,6 +290,14 @@ export default function LetterPreviewPage() {
           
           {/* Left: Interactive Letter Preview */}
           <div className="lg:col-span-2 select-none">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-navy">
+                <strong>Verification block included.</strong> Your municipality requires
+                proof of identity and authorisation. Your ID number and mandate reference
+                appear at the top of this letter — they&apos;re required by law and won&apos;t be
+                shared beyond your municipality.
+              </p>
+            </div>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden relative">
               <div className="bg-navy px-6 py-3 flex items-center justify-between z-30 relative">
                 <span className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2">

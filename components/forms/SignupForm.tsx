@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
+import { CURRENT_POPIA_CONSENT, CURRENT_MANDATE_CONSENT } from '@/lib/popia/consent';
 
 export function SignupForm() {
   const [fullName, setFullName] = useState('');
@@ -12,6 +13,7 @@ export function SignupForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [dataConsent, setDataConsent] = useState(false);
   const [feeConsent, setFeeConsent] = useState(false);
+  const [mandateConsent, setMandateConsent] = useState(false);
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +50,12 @@ export function SignupForm() {
       return;
     }
 
+    if (!mandateConsent) {
+      setError('You must authorise Billdog to act on your behalf to use the service.');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -62,18 +70,39 @@ export function SignupForm() {
       if (signUpError) throw new Error(signUpError.message);
 
       if (data.user) {
+        const nowIso = new Date().toISOString();
         const { error: profileError } = await supabase.from('profiles').insert({
           id: data.user.id,
           full_name: fullName,
           email,
           consent_given: true,
-          consent_timestamp: new Date().toISOString(),
-          consent_version: 'v1.0-2026-03-30',
+          consent_timestamp: nowIso,
+          consent_version: CURRENT_POPIA_CONSENT.version,
+          mandate_consent_at: nowIso,
+          mandate_consent_version: CURRENT_MANDATE_CONSENT.version,
           marketing_consent: marketingConsent,
         });
 
         if (profileError) {
           console.error('[Auth]', profileError);
+        }
+
+        // Append-only consent audit log (POPIA evidence). Server captures IP + UA.
+        try {
+          await fetch('/api/consent/log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              events: [
+                { event_type: 'popia_granted', consent_version: CURRENT_POPIA_CONSENT.version },
+                { event_type: 'mandate_granted', consent_version: CURRENT_MANDATE_CONSENT.version },
+                { event_type: 'fee_consent_granted', consent_version: 'v1' },
+              ],
+            }),
+          });
+        } catch (logErr) {
+          // Non-fatal — profile already has consent_* fields. Audit log is best-effort here.
+          console.error('[Auth] consent_events log failed', logErr);
         }
       }
 
@@ -184,7 +213,20 @@ export function SignupForm() {
         </span>
       </label>
 
-      {/* CONSENT 3: Marketing (OPTIONAL) */}
+      {/* CONSENT 3: Mandate to act (REQUIRED) */}
+      <label className="flex items-start gap-3 min-h-[44px]">
+        <input
+          type="checkbox"
+          checked={mandateConsent}
+          onChange={(e) => setMandateConsent(e.target.checked)}
+          className="mt-1 min-w-4 min-h-4"
+        />
+        <span className="text-sm text-white/70">
+          {CURRENT_MANDATE_CONSENT.text}
+        </span>
+      </label>
+
+      {/* CONSENT 4: Marketing (OPTIONAL) */}
       <label className="flex items-start gap-3 min-h-[44px]">
         <input
           type="checkbox"

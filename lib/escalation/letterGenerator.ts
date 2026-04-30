@@ -1,5 +1,6 @@
 import { ValidationFinding } from '@/types/analysis';
 import { WardCouncillor } from './wardCouncillorLookup';
+import { buildVerificationBlock, VerificationBlockInput } from '@/lib/letters/verification-block';
 
 export interface EscalationLetter {
   step: number;
@@ -17,6 +18,7 @@ export interface EscalationLetterInput {
   findings: ValidationFinding[];
   priorLetters: EscalationLetter[];
   wardCouncillor?: WardCouncillor | null;
+  verification: VerificationBlockInput;
 }
 
 export function generateLetter(input: EscalationLetterInput): {
@@ -146,9 +148,11 @@ disputes@billdog.co.za`;
       break;
   }
 
+  const verifiedBody = buildVerificationBlock(input.verification) + '\n\n' + body;
+
   return {
     subject,
-    body,
+    body: verifiedBody,
     recipientEmail: '', // Populated by Engine
     recipientName: '',  // Populated by Engine
     ccEmails

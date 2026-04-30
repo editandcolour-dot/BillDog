@@ -19,6 +19,7 @@ import {
   type EscalationContext,
 } from './stage-config';
 import type { EscalationHistoryEntry } from '@/types';
+import { buildVerificationBlock } from '@/lib/letters/verification-block';
 
 // ---------------------------------------------------------------------------
 // Supabase service client (bypasses RLS for cron operations)
@@ -49,7 +50,8 @@ interface EscalationCase {
   last_escalation_at: string | null;
   escalation_history: EscalationHistoryEntry[];
   dispute_type: string | null;
-  id_secret_id: string | null;
+  id_collected_at: string | null;
+  property_address: string | null;
 }
 
 interface EscalationResult {
@@ -72,7 +74,8 @@ export async function getCasesReadyForEscalation(): Promise<EscalationCase[]> {
       id, user_id, status, municipality, account_number,
       bill_period, letter_content, letter_sent_at,
       municipality_email, escalation_stage, next_action_at,
-      last_escalation_at, escalation_history, dispute_type, id_secret_id
+      last_escalation_at, escalation_history, dispute_type, id_collected_at,
+      property_address
     `)
     .in('status', ['sent', 'escalated'])
     .not('next_action_at', 'is', null)
@@ -103,16 +106,36 @@ async function escalateCase(
   }
 
   // ------------------------------------------------------------------
+  // 0. Hard gate — POPIA + mandate + ID required before any send
+  // ------------------------------------------------------------------
+  const { data: canSubmit } = await supabase.rpc('can_submit_dispute', { target_case_id: caseRow.id });
+  if (!canSubmit) {
+    return { success: false, error: 'Consent or account-holder ID missing — escalation skipped.' };
+  }
+
+  // ------------------------------------------------------------------
   // 1. Fetch profile + municipality data
   // ------------------------------------------------------------------
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, email')
+    .select('full_name, email, address, mandate_consent_at')
     .eq('id', caseRow.user_id)
     .single();
 
   if (!profile) {
     return { success: false, error: 'User profile not found' };
+  }
+
+  if (!profile.mandate_consent_at) {
+    return { success: false, error: 'Mandate consent missing on profile' };
+  }
+
+  const propertyAddress: string =
+    (caseRow.property_address && caseRow.property_address.trim()) ||
+    (profile.address && String(profile.address).trim()) ||
+    '';
+  if (!propertyAddress) {
+    return { success: false, error: 'No property address on case or profile — letter would be rejected by municipality.' };
   }
 
   const { data: muni } = await supabase
@@ -130,7 +153,7 @@ async function escalateCase(
   // 1.5 Fetch decrypted ID if stage requires it
   // ------------------------------------------------------------------
   let decryptedId: string | null = null;
-  if (caseRow.id_secret_id) {
+  if (caseRow.id_collected_at) {
     const { data: idData, error: idError } = await supabase.rpc('get_poppi_id', {
       target_case_id: caseRow.id
     });
@@ -138,6 +161,21 @@ async function escalateCase(
       decryptedId = idData;
     }
   }
+  if (!decryptedId) {
+    return { success: false, error: 'Account-holder ID could not be decrypted' };
+  }
+
+  // Build the verification block once per escalation; prepend to every outbound body.
+  const verificationBlock = buildVerificationBlock({
+    fullName: profile.full_name,
+    idNumber: decryptedId,
+    accountNumber: caseRow.account_number,
+    propertyAddress,
+    email: profile.email,
+    municipalityName: caseRow.municipality,
+    caseId: caseRow.id,
+    mandateConsentAt: profile.mandate_consent_at,
+  });
 
   // ------------------------------------------------------------------
   // 2. Build escalation context
@@ -204,7 +242,7 @@ async function escalateCase(
   // ------------------------------------------------------------------
   // 3.5 Stage 5 — ID Collection Pause
   // ------------------------------------------------------------------
-  if (nextStage === 5 && !caseRow.id_secret_id && ctx.disputeType !== 'electricity') {
+  if (nextStage === 5 && !caseRow.id_collected_at && ctx.disputeType !== 'electricity') {
     // If it's electricity, it goes to NERSA which does not strictly require ID via this form right now.
     // If it's Public Protector, we MUST pause and ask the user for their ID.
     const { error: updateError } = await supabase
@@ -257,7 +295,7 @@ async function escalateCase(
         cc: msg.cc ? [...msg.cc, ctx.userEmail] : [ctx.userEmail],
         replyTo: `case-${caseRow.id}@disputes.billdog.co.za`,
         subject: msg.subject,
-        text: msg.body,
+        text: verificationBlock + '\n\n' + msg.body,
       });
 
       if (sendError) {

@@ -23,6 +23,10 @@ export default function SettingsPage() {
   // Danger zone state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Mandate state
+  const [showMandateConfirm, setShowMandateConfirm] = useState(false);
+  const [mandateBusy, setMandateBusy] = useState(false);
+
   useEffect(() => {
     fetch('/api/user/profile')
       .then((res) => res.json())
@@ -128,6 +132,35 @@ export default function SettingsPage() {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleMandateToggle = async () => {
+    setMandateBusy(true);
+    setMessage(null);
+    try {
+      const isRevoked = !!profile?.mandate_revoked_at;
+      const method = isRevoked ? 'POST' : 'DELETE';
+      const res = await fetch('/api/user/mandate', { method });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setMessage({ text: data.error || 'Failed to update mandate.', type: 'error' });
+        setMandateBusy(false);
+        return;
+      }
+      // Refetch profile so the UI reflects the new state
+      const refreshed = await fetch('/api/user/profile').then((r) => r.json());
+      setProfile(refreshed);
+      setMessage({
+        text: isRevoked ? 'Mandate re-granted.' : 'Mandate revoked. Confirmation sent by email.',
+        type: 'success',
+      });
+      setShowMandateConfirm(false);
+    } catch {
+      setMessage({ text: 'Network error updating mandate.', type: 'error' });
+    } finally {
+      setMandateBusy(false);
+      setTimeout(() => setMessage(null), 4000);
     }
   };
 
@@ -267,6 +300,54 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
+        </section>
+
+        {/* MANDATE SECTION */}
+        <section className="bg-white rounded-2xl border border-light-grey shadow-sm p-6 md:p-8 mb-8">
+          <h2 className="text-xl font-bold text-navy mb-6">Mandate to Act</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <div>
+              <p className="font-bold text-navy">
+                {profile?.mandate_revoked_at ? 'Mandate revoked' : 'Active'}
+              </p>
+              <p className="text-sm text-slate-500 mt-1">
+                Authorises Billdog to lodge disputes on your behalf. Revoking stops all active disputes.
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowMandateConfirm(true)}
+              variant="outline-dark"
+              className={profile?.mandate_revoked_at ? '' : 'text-error border-error/30 hover:bg-error hover:text-white hover:border-error'}
+            >
+              {profile?.mandate_revoked_at ? 'Re-grant mandate' : 'Revoke mandate'}
+            </Button>
+          </div>
+
+          {showMandateConfirm && (
+            <div className="mt-4 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <h3 className="font-bold text-navy mb-2">
+                {profile?.mandate_revoked_at ? 'Re-grant your mandate?' : 'Revoke your mandate?'}
+              </h3>
+              <p className="text-sm text-slate-600 mb-6">
+                {profile?.mandate_revoked_at
+                  ? 'This re-authorises Billdog to act on your behalf in municipal billing disputes.'
+                  : 'This stops all active disputes from advancing further. You will receive an email confirming the revocation. You can re-grant at any time.'}
+              </p>
+              <div className="flex gap-4">
+                <Button
+                  onClick={handleMandateToggle}
+                  disabled={mandateBusy}
+                  variant="primary"
+                  className={profile?.mandate_revoked_at ? '' : 'bg-error hover:bg-red-600'}
+                >
+                  {mandateBusy ? 'Saving…' : (profile?.mandate_revoked_at ? 'Yes, Re-grant' : 'Yes, Revoke')}
+                </Button>
+                <Button onClick={() => setShowMandateConfirm(false)} variant="outline-dark" disabled={mandateBusy}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
         </section>
 
         {/* DANGER ZONE */}

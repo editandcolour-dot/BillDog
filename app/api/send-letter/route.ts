@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendDisputeLetter } from '@/lib/resend/send-dispute';
+import { buildVerificationBlock } from '@/lib/letters/verification-block';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -30,12 +31,24 @@ export async function POST(request: NextRequest) {
     // 3. Fetch case + ownership check
     const { data: caseRecord, error: dbError } = await supabase
       .from('cases')
-      .select('id, user_id, status, letter_content, municipality, account_number, bill_period')
+      .select('id, user_id, status, letter_content, municipality, account_number, bill_period, property_address')
       .eq('id', caseId)
       .single();
 
     if (dbError || !caseRecord || caseRecord.user_id !== user.id) {
       return NextResponse.json({ error: 'Case not found or access denied' }, { status: 404 });
+    }
+
+    // 3a. Defensive consent re-check — generation should already have gated, but
+    // mandate may have been revoked between generate and send.
+    const { data: canSubmit } = await supabase.rpc('can_submit_dispute', { target_case_id: caseId });
+    if (!canSubmit) {
+      await supabase.from('case_events').insert({
+        case_id: caseId,
+        event_type: 'send_blocked_no_consent',
+        note: 'Send blocked — consent revoked or ID missing at send time.',
+      });
+      return NextResponse.json({ error: 'CONSENT_OR_ID_MISSING' }, { status: 412 });
     }
 
     if (caseRecord.status !== 'letter_ready') {
@@ -44,6 +57,66 @@ export async function POST(request: NextRequest) {
 
     if (!caseRecord.letter_content) {
       return NextResponse.json({ error: 'No letter content found.' }, { status: 400 });
+    }
+
+    // 3b. Strict verification-block check.
+    // The preview textarea is editable — a user could have stripped the
+    // block before clicking send. Verify both required markers are present.
+    // If either is missing, rebuild the block, prepend, persist, and audit.
+    let letterContent: string = caseRecord.letter_content;
+    const hasHeader = letterContent.includes('ACCOUNT HOLDER VERIFICATION');
+    const hasMandate = letterContent.includes('MANDATE');
+    if (!hasHeader || !hasMandate) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, address, email, mandate_consent_at')
+        .eq('id', user.id)
+        .single();
+
+      const { data: idNumber } = await supabase.rpc('get_poppi_id', { target_case_id: caseId });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const caseRec = caseRecord as any;
+      const propertyAddress: string =
+        (caseRec.property_address && String(caseRec.property_address).trim()) ||
+        (profile?.address && String(profile.address).trim()) ||
+        '';
+
+      if (!profile?.full_name || !idNumber || !profile.mandate_consent_at || !propertyAddress) {
+        return NextResponse.json({ error: 'Cannot reconstruct verification block — required fields missing.' }, { status: 412 });
+      }
+
+      const block = buildVerificationBlock({
+        fullName: profile.full_name,
+        idNumber,
+        accountNumber: caseRecord.account_number || '',
+        propertyAddress,
+        email: profile.email || user.email || '',
+        municipalityName: caseRecord.municipality || '',
+        caseId: caseRecord.id,
+        mandateConsentAt: profile.mandate_consent_at,
+      });
+
+      letterContent = block + '\n\n' + letterContent;
+
+      const { error: restoreUpdateError } = await supabase
+        .from('cases')
+        .update({ letter_content: letterContent })
+        .eq('id', caseId);
+      if (restoreUpdateError) {
+        console.error('[API/SendLetter] Failed to persist restored letter_content:', restoreUpdateError);
+      }
+
+      await supabase.from('case_events').insert({
+        case_id: caseId,
+        event_type: 'verification_block_restored',
+        note: 'Verification block was missing from saved letter at send time and has been auto-restored.',
+        metadata: {
+          missing_header: !hasHeader,
+          missing_mandate: !hasMandate,
+          restored_at: new Date().toISOString(),
+        },
+      });
     }
 
     // 4. Fetch municipality email
@@ -74,7 +147,7 @@ export async function POST(request: NextRequest) {
         accountNumber: caseRecord.account_number,
         municipalityName: caseRecord.municipality,
         billPeriod: caseRecord.bill_period || 'Unknown',
-        letterContent: caseRecord.letter_content,
+        letterContent,
         caseId: caseRecord.id,
       });
     } catch (emailError: unknown) {

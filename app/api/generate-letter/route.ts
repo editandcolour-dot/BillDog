@@ -51,14 +51,46 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No billing errors found to dispute' }, { status: 400 });
     }
 
-    // 4. Fetch user profile (optional — fall back to case data if missing)
+    // 3a. Hard gate — block generation if consent or ID missing
+    const { data: canSubmit } = await supabase.rpc('can_submit_dispute', { target_case_id: caseId });
+    if (!canSubmit) {
+      await supabase.from('case_events').insert({
+        case_id: caseId,
+        event_type: 'send_blocked_no_consent',
+        note: 'Letter generation blocked — POPIA consent, mandate, or account-holder ID missing.',
+      });
+      return NextResponse.json({ error: 'CONSENT_OR_ID_MISSING' }, { status: 412 });
+    }
+
+    // 4. Fetch user profile + mandate timestamp
     const { data: profile } = await supabase
       .from('profiles')
-      .select('full_name, address, account_number, municipality')
+      .select('full_name, address, account_number, municipality, email, mandate_consent_at')
       .eq('id', user.id)
       .single();
 
-    // No hard block — use case record data as fallback
+    // 4a. Resolve property address — hard gate, since empty → CoCT rejects
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const caseRec = caseRecord as any;
+    const propertyAddress: string =
+      (caseRec.property_address && String(caseRec.property_address).trim()) ||
+      (profile?.address && String(profile.address).trim()) ||
+      '';
+    if (!propertyAddress) {
+      await supabase.from('case_events').insert({
+        case_id: caseId,
+        event_type: 'send_blocked_no_address',
+        note: 'Letter generation blocked — no property address on case or profile.',
+      });
+      return NextResponse.json({ error: 'PROPERTY_ADDRESS_MISSING' }, { status: 412 });
+    }
+
+    // 4b. Decrypt account-holder ID via Vault RPC
+    const { data: idNumber } = await supabase.rpc('get_poppi_id', { target_case_id: caseId });
+    if (!idNumber || !profile?.mandate_consent_at) {
+      // Defensive — can_submit_dispute should have caught this, but guard anyway.
+      return NextResponse.json({ error: 'CONSENT_OR_ID_MISSING' }, { status: 412 });
+    }
 
     // 5. Filter out prescribed errors
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -87,13 +119,27 @@ export async function POST(request: NextRequest) {
     const serviceTypes = disputeErrors.map((e: { service_type: string }) => e.service_type);
     const legislation = await getLegislationContext(serviceTypes);
 
+    const accountHolder = profile?.full_name?.trim()
+      ? profile.full_name.trim()
+      : (user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Account Holder'));
+
     // 7. Generate letter via Claude
     const letterResult = await generateDisputeLetter({
-      accountHolder: profile?.full_name?.trim() ? profile.full_name.trim() : (user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Account Holder')),
-      address: profile?.address || 'Address on file',
+      accountHolder,
+      address: propertyAddress,
       accountNumber: profile?.account_number || caseRecord.account_number || '',
       municipality: profile?.municipality || caseRecord.municipality || '',
       billPeriod: caseRecord.bill_period || 'Unknown period',
+      verification: {
+        fullName: accountHolder,
+        idNumber,
+        accountNumber: profile?.account_number || caseRecord.account_number || '',
+        propertyAddress,
+        email: user.email || profile?.email || '',
+        municipalityName: profile?.municipality || caseRecord.municipality || '',
+        caseId: caseRecord.id,
+        mandateConsentAt: profile.mandate_consent_at,
+      },
       errors: disputeErrors,
       prescribedExclusions,
       legislationContext: legislation.text,
