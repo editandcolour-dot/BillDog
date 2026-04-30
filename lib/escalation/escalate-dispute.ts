@@ -132,7 +132,7 @@ async function escalateCase(
   let decryptedId: string | null = null;
   if (caseRow.id_secret_id) {
     const { data: idData, error: idError } = await supabase.rpc('get_poppi_id', {
-      case_id: caseRow.id
+      target_case_id: caseRow.id
     });
     if (!idError && idData) {
       decryptedId = idData;
