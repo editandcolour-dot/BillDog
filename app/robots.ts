@@ -6,15 +6,16 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
       disallow: [
-        '/api/', 
-        '/dashboard/', 
-        '/upload/', 
-        '/analysis/', 
-        '/letter/', 
-        '/case/', 
-        '/settings/'
+        '/api/',
+        '/dashboard/',
+        '/upload/',
+        '/analysis/',
+        '/letter/',
+        '/case/',
+        '/settings/',
+        '/payfast-test-dom'
       ],
     },
-    sitemap: 'https://billdog.co.za/sitemap.xml',
+    sitemap: 'https://www.billdog.co.za/sitemap.xml',
   };
 }

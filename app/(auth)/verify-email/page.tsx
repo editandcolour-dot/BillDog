@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Check Your Email | Billdog',
+  alternates: { canonical: 'https://www.billdog.co.za/verify-email' },
 };
 
 export default function VerifyEmailPage({

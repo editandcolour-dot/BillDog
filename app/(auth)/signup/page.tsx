@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Sign Up | Billdog',
   description: 'Create your Billdog account to dispute municipal billing errors.',
+  alternates: { canonical: 'https://www.billdog.co.za/signup' },
 };
 
 export default function SignupPage() {

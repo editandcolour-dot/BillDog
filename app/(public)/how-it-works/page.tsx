@@ -5,11 +5,12 @@ export const metadata: Metadata = {
   title: 'How It Works | Billdog',
   description:
     'Upload your municipal bill, our AI finds the errors, we send the dispute letter. Five simple steps to recover your money.',
+  alternates: { canonical: 'https://www.billdog.co.za/how-it-works' },
   openGraph: {
     title: 'How It Works | Billdog',
     description:
       'Upload your bill. AI finds errors. We send the dispute letter. You get paid.',
-    url: 'https://billdog.co.za/how-it-works',
+    url: 'https://www.billdog.co.za/how-it-works',
   },
 };
 

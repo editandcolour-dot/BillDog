@@ -38,7 +38,7 @@ export async function GET() {
       : 'https://www.payfast.co.za/eng/process';
 
     let appUrl = String(process.env['NEXT_PUBLIC_APP_URL'] ?? '').trim();
-    if (!appUrl || appUrl === 'undefined') appUrl = 'https://billdog.co.za';
+    if (!appUrl || appUrl === 'undefined') appUrl = 'https://www.billdog.co.za';
     if (appUrl.endsWith('/')) appUrl = appUrl.slice(0, -1);
 
     const firstName = String(profile?.full_name ?? 'User').split(' ')[0].trim();

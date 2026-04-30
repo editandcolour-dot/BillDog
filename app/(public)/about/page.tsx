@@ -5,10 +5,11 @@ export const metadata: Metadata = {
   title: 'About | Billdog',
   description:
     'Billdog is an AI-powered municipal billing dispute service built for South African property owners.',
+  alternates: { canonical: 'https://www.billdog.co.za/about' },
   openGraph: {
     title: 'About | Billdog',
     description: 'AI-powered billing disputes for South African property owners.',
-    url: 'https://billdog.co.za/about',
+    url: 'https://www.billdog.co.za/about',
   },
 };
 

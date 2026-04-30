@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { municipalitiesSeoData } from '@/lib/data/seo-municipalities';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://billdog.co.za';
+  const baseUrl = 'https://www.billdog.co.za';
 
   const coreRoutes = [
     '',

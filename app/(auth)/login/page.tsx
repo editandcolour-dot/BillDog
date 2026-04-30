@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'Log In | Billdog',
   description: 'Log into your Billdog account.',
+  alternates: { canonical: 'https://www.billdog.co.za/login' },
 };
 
 export default function LoginPage() {

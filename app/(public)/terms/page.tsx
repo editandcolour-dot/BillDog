@@ -3,10 +3,11 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Terms of Service | Billdog',
   description: 'Terms and conditions for using the Billdog municipal billing dispute platform.',
+  alternates: { canonical: 'https://www.billdog.co.za/terms' },
   openGraph: {
     title: 'Terms of Service | Billdog',
     description: 'Terms and conditions for using the Billdog municipal billing dispute platform.',
-    url: 'https://billdog.co.za/terms',
+    url: 'https://www.billdog.co.za/terms',
   },
 };
 

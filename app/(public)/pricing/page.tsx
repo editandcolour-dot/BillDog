@@ -5,11 +5,12 @@ export const metadata: Metadata = {
   title: 'Pricing | Billdog',
   description:
     'Billdog operates on a 15% success fee. No upfront costs. You only pay when we recover money for you.',
+  alternates: { canonical: 'https://www.billdog.co.za/pricing' },
   openGraph: {
     title: 'Pricing | Billdog',
     description:
       'No upfront costs. 15% success fee — only if we win. See how it works with a real example.',
-    url: 'https://billdog.co.za/pricing',
+    url: 'https://www.billdog.co.za/pricing',
   },
 };
 

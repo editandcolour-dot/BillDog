@@ -346,7 +346,7 @@ async function sendUserNotification(
     const resend = getResendClient();
     const fromEmail = process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za';
     const config = STAGE_CONFIG[stage];
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://billdog.co.za';
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://www.billdog.co.za';
 
     const subject = isClosed
       ? `Case Update: Your dispute has been closed — ${ctx.municipality}`

@@ -3,10 +3,11 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Privacy Policy | Billdog',
   description: 'How Billdog collects, uses, and protects your personal information under POPIA.',
+  alternates: { canonical: 'https://www.billdog.co.za/privacy' },
   openGraph: {
     title: 'Privacy Policy | Billdog',
     description: 'How Billdog collects, uses, and protects your personal information under POPIA.',
-    url: 'https://billdog.co.za/privacy',
+    url: 'https://www.billdog.co.za/privacy',
   },
 };
 

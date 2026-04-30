@@ -6,11 +6,12 @@ export const metadata: Metadata = {
   title: 'FAQ | Billdog',
   description:
     'Everything you need to know about disputing your municipal bill with Billdog. Common questions about pricing, process, legality, and more.',
+  alternates: { canonical: 'https://www.billdog.co.za/faq' },
   openGraph: {
     title: 'FAQ | Billdog',
     description:
       'Answers to common questions about Billdog\'s municipal bill dispute service.',
-    url: 'https://billdog.co.za/faq',
+    url: 'https://www.billdog.co.za/faq',
   },
 };
 

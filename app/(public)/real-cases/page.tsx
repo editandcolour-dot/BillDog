@@ -5,10 +5,11 @@ export const metadata: Metadata = {
   title: 'Real Cases | Billdog',
   description:
     'Real municipal billing horror stories from South African news sources. See what happens when municipalities get it wrong.',
+  alternates: { canonical: 'https://www.billdog.co.za/real-cases' },
   openGraph: {
     title: 'Real Cases | Billdog',
     description: 'Real billing errors from SA municipalities — sourced from IOL, Daily Maverick, and more.',
-    url: 'https://billdog.co.za/real-cases',
+    url: 'https://www.billdog.co.za/real-cases',
   },
 };
 
