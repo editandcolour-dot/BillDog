@@ -1,30 +1,12 @@
 # Nixpacks config for Railway deployment
 # Required for Playwright/Chromium browser automation (autofetch scrapers)
-
-[phases.setup]
-# System packages required by Chromium headless
-aptPkgs = [
-  "libnss3",
-  "libnspr4",
-  "libatk1.0-0",
-  "libatk-bridge2.0-0",
-  "libcups2",
-  "libdrm2",
-  "libxkbcommon0",
-  "libxcomposite1",
-  "libxdamage1",
-  "libxrandr2",
-  "libgbm1",
-  "libpango-1.0-0",
-  "libcairo2",
-  "libasound2",
-  "libatspi2.0-0",
-  "libxshmfence1",
-]
+#
+# Strategy: Use `playwright install --with-deps chromium` which auto-detects
+# the OS and installs the correct system packages (handles Ubuntu 24.04+
+# package renames like libasound2 → libasound2t64 automatically).
 
 [phases.build]
-# Install Chromium binary after npm install, before next build
 cmds = [
-  "npx playwright install chromium",
+  "npx playwright install --with-deps chromium",
   "npm run build",
 ]
