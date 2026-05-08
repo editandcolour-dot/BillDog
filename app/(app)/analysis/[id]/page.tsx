@@ -193,9 +193,29 @@ export default function AnalysisResultsPage() {
     : caseData?.total_billed || 0;
 
   const validBills = bills.filter(b => b && b.bill_period);
-  const billPeriod = isMultiBill && validBills.length > 0
-    ? `${validBills[0].bill_period} to ${validBills[validBills.length - 1].bill_period}`
-    : caseData?.bill_period || 'Unknown Period';
+  // Each bill_period is "DD/MM/YYYY to DD/MM/YYYY". Header range = min(start) to max(end)
+  // chronologically. Concatenating first+last bill strings (or alphabetic sort of
+  // DD/MM/YYYY) both produce wrong output.
+  const parseDDMM = (s: string): Date | null => {
+    const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return null;
+    const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    return isNaN(d.getTime()) ? null : d;
+  };
+  const fmtDDMM = (d: Date) =>
+    `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  const billRanges = validBills.flatMap(b => {
+    const m = String(b.bill_period).match(/^(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})$/);
+    const start = m ? parseDDMM(m[1]) : null;
+    const end = m ? parseDDMM(m[2]) : null;
+    return start && end ? [{ start, end }] : [];
+  });
+  const billPeriod =
+    isMultiBill && billRanges.length > 0
+      ? `${fmtDDMM(new Date(Math.min(...billRanges.map(r => r.start.getTime()))))} to ${fmtDDMM(new Date(Math.max(...billRanges.map(r => r.end.getTime()))))}`
+      : isMultiBill && validBills.length > 0
+        ? `${validBills[0].bill_period} to ${validBills[validBills.length - 1].bill_period}`
+        : caseData?.bill_period || 'Unknown Period';
     
   const errors = caseData?.errors_found || [];
     

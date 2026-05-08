@@ -277,3 +277,74 @@ export interface AuditJob {
   created_at: string;
   updated_at: string;
 }
+
+// ---------------------------------------------------------------------------
+// Municipal Auto-Fetch types (migration 022)
+// ---------------------------------------------------------------------------
+
+/** Revocation reason for auto-revoked credentials. */
+export type CredentialRevocationReason =
+  | 'user_request'
+  | 'mfa_required'
+  | 'account_locked'
+  | 'password_change_required'
+  | 'permanent_failure';
+
+/** Encrypted municipal portal credentials — maps to `municipal_credentials` table. */
+export interface MunicipalCredential {
+  id: string;
+  user_id: string;
+  municipality_id: string;
+  encrypted_credentials: string | null;  // NULL after hard-delete on revocation
+  encryption_iv: string | null;          // NULL after hard-delete on revocation
+  verified_at: string | null;
+  last_login_at: string | null;
+  last_login_error: string | null;
+  revoked_at: string | null;
+  revocation_reason: CredentialRevocationReason | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Scrape job type — backfill (initial 36-month) or monthly (recurring). */
+export type ScrapeJobType = 'backfill' | 'monthly';
+
+/** Scrape job status progression. */
+export type ScrapeJobStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+/** Background scrape job — maps to `scrape_jobs` table. */
+export interface ScrapeJob {
+  id: string;
+  user_id: string;
+  credential_id: string;
+  job_type: ScrapeJobType;
+  status: ScrapeJobStatus;
+  total_bills: number;
+  processed_bills: number;
+  failed_bills: number;
+  error_message: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Scraped bill status progression. */
+export type ScrapedBillStatus = 'downloaded' | 'parsed' | 'analysed' | 'skipped' | 'failed';
+
+/** Individual scraped bill record — maps to `scraped_bills` table. */
+export interface ScrapedBill {
+  id: string;
+  job_id: string;
+  user_id: string;
+  credential_id: string;
+  bill_period: string | null;
+  bill_url: string | null;
+  case_bill_id: string | null;  // linked after analysis
+  status: ScrapedBillStatus;
+  error_message: string | null;
+  created_at: string;
+}
+
+/** Autofetch consent event types — extends consent_events CHECK constraint. */
+export type AutofetchConsentEventType = 'autofetch_granted' | 'autofetch_revoked';

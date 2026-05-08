@@ -36,6 +36,7 @@ next-env.d.ts
 
 # Billdog — project-specific
 .tmp/
+supabase/.temp/
 credentials.json
 token.json
 __pycache__/

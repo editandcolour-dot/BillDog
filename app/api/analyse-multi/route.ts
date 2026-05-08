@@ -17,6 +17,30 @@ const analyseLimiter = getRateLimiter(100, '1 h');
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5min — up to 36 bills
 
+// Round to cents at the persistence boundary. IEEE-754 residue (e.g. 612.590000000001)
+// must not reach the data layer or downstream consumers (letters, exports, audit).
+const round2 = (n: number) => Math.round(n * 100) / 100;
+const roundErrors = <T extends { overchargeZar?: number }>(errors: T[]): T[] =>
+  errors.map(e => ({
+    ...e,
+    overchargeZar: e.overchargeZar != null ? round2(e.overchargeZar) : e.overchargeZar,
+  }));
+
+// DD/MM/YYYY ↔ Date helpers. Alphabetic sort on DD/MM/YYYY is broken
+// (e.g. "03/08" < "30/03" lexicographically), so we must parse to compare.
+const parseDDMM = (s: string): Date | null => {
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (!m) return null;
+  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+  return isNaN(d.getTime()) ? null : d;
+};
+const fmtDDMM = (d: Date) =>
+  `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+// Local-component ISO format avoids the toISOString() TZ shift that would
+// turn 30 March SAST into 29 March UTC.
+const fmtISO = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
 
@@ -145,9 +169,9 @@ export async function POST(request: NextRequest) {
         // 6g. Save per-bill results
         await supabase.from('case_bills').update({
           bill_period: analysis.bill_period,
-          total_billed: analysis.total_billed,
-          errors_found: analysis.errors,
-          recoverable: analysis.total_recoverable,
+          total_billed: round2(analysis.total_billed),
+          errors_found: roundErrors(analysis.errors),
+          recoverable: round2(analysis.total_recoverable),
           analysis_status: 'complete',
           coverage_tier: tier,
           pending_reanalysis: pendingReanalysis,
@@ -196,10 +220,26 @@ export async function POST(request: NextRequest) {
     const totalBilled = analysed.reduce(
       (sum, b) => sum + (b.analysis.total_billed || 0), 0,
     );
+    // Compute chronological min(start) → max(end) across every bill's period.
+    // Each bill_period is "DD/MM/YYYY to DD/MM/YYYY" from analyse-bill output.
     const periods = analysed
       .map(b => b.bill_period)
-      .filter(Boolean)
-      .sort();
+      .filter(Boolean) as string[];
+    const ranges = periods.flatMap(p => {
+      const m = p.match(/^(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})$/);
+      const start = m ? parseDDMM(m[1]) : null;
+      const end = m ? parseDDMM(m[2]) : null;
+      return start && end ? [{ start, end }] : [];
+    });
+    const minStart = ranges.length > 0
+      ? new Date(Math.min(...ranges.map(r => r.start.getTime())))
+      : null;
+    const maxEnd = ranges.length > 0
+      ? new Date(Math.max(...ranges.map(r => r.end.getTime())))
+      : null;
+    const billPeriodSpan = minStart && maxEnd
+      ? `${fmtDDMM(minStart)} to ${fmtDDMM(maxEnd)}`
+      : (periods[0] || null);
 
     // ── CRITICAL: Build errors_found from per-bill deterministic errors ──
     // The cross-analysis Claude call generates `recurring_errors` which may
@@ -225,16 +265,14 @@ export async function POST(request: NextRequest) {
 
     await supabase.from('cases').update({
       status: finalStatus,
-      errors_found: allPerBillErrors,
-      recoverable: totalRecoverable,
-      total_billed: totalBilled,
-      total_recoverable_all: totalRecoverable,
+      errors_found: roundErrors(allPerBillErrors),
+      recoverable: round2(totalRecoverable),
+      total_billed: round2(totalBilled),
+      total_recoverable_all: round2(totalRecoverable),
       cross_analysis: crossAnalysis,
-      date_range_start: periods[0] || null,
-      date_range_end: periods[periods.length - 1] || null,
-      bill_period: periods.length > 1
-        ? `${periods[0]} to ${periods[periods.length - 1]}`
-        : periods[0] || null,
+      date_range_start: minStart ? fmtISO(minStart) : null,
+      date_range_end: maxEnd ? fmtISO(maxEnd) : null,
+      bill_period: billPeriodSpan,
       updated_at: new Date().toISOString(),
     }).eq('id', caseId);
 

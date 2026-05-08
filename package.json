@@ -22,6 +22,7 @@
     "next": "^16.2.2",
     "papaparse": "^5.5.3",
     "pdf-parse": "^2.4.5",
+    "playwright-core": "^1.59.1",
     "react": "^18",
     "react-dom": "^18",
     "resend": "^6.9.4",
