@@ -27,9 +27,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Admin-only guard
-    const adminEmail = process.env.ADMIN_EMAIL || 'editandcolour@gmail.com';
-    if (user.email !== adminEmail) {
+    // Admin-only guard — restrict to known admin emails
+    const adminEmails = [
+      process.env.ADMIN_EMAIL,
+      'editandcolour@gmail.com',
+      'jason.ripplemedia@gmail.com',
+    ].filter(Boolean);
+    if (!adminEmails.includes(user.email || '')) {
       return NextResponse.json({ error: 'Admin only' }, { status: 403 });
     }
 
