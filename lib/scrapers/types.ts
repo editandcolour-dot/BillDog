@@ -35,9 +35,6 @@ export interface BillDownload {
 
 /**
  * Interface that all municipality-specific scrapers must implement.
- *
- * Phase 1: only `verifyCredentials()` is implemented.
- * Phase 2: `fetchBillHistory()` and `fetchLatestBill()` are added.
  */
 export interface MunicipalScraper {
   /** UUID matching the municipalities table row. */
@@ -57,7 +54,7 @@ export interface MunicipalScraper {
 
   /**
    * Download bill history going back N months.
-   * Phase 2 — not implemented in Phase 1.
+   * Returns whatever bills are available (may be < monthsBack).
    */
   fetchBillHistory(
     username: string,
@@ -67,7 +64,6 @@ export interface MunicipalScraper {
 
   /**
    * Download the most recent bill only.
-   * Phase 2 — not implemented in Phase 1.
    */
   fetchLatestBill(
     username: string,
