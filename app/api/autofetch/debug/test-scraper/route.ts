@@ -27,19 +27,25 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Only available in test mode
-    const testUsername = process.env.TEST_COCT_USERNAME;
-    const testPassword = process.env.TEST_COCT_PASSWORD;
-
-    if (!testUsername || !testPassword) {
-      return NextResponse.json(
-        { error: 'TEST_COCT_USERNAME and TEST_COCT_PASSWORD not set' },
-        { status: 400 }
-      );
+    // Admin-only guard
+    const adminEmail = process.env.ADMIN_EMAIL || 'editandcolour@gmail.com';
+    if (user.email !== adminEmail) {
+      return NextResponse.json({ error: 'Admin only' }, { status: 403 });
     }
 
     const body = await request.json();
     const { method, monthsBack = 36 } = body;
+
+    // Credentials: env vars first, body fallback (for Railway where env vars may not be set)
+    const testUsername = process.env.TEST_COCT_USERNAME || body.portal_username;
+    const testPassword = process.env.TEST_COCT_PASSWORD || body.portal_password;
+
+    if (!testUsername || !testPassword) {
+      return NextResponse.json(
+        { error: 'Credentials required: set TEST_COCT_* env vars or pass portal_username/portal_password in body' },
+        { status: 400 }
+      );
+    }
 
     const scraper = new CoctScraper();
     const startTime = Date.now();
