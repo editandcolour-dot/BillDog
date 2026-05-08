@@ -22,8 +22,8 @@ import type { MunicipalScraper, ScraperResult, BillDownload, ScraperErrorCode } 
 const COCT_MUNICIPALITY_ID = 'city-of-cape-town';
 
 const PORTAL_URL = 'https://eservices.capetown.gov.za/irj/portal';
-const LOGIN_TIMEOUT_MS = 30_000;
-const NAVIGATION_TIMEOUT_MS = 15_000;
+const LOGIN_TIMEOUT_MS = 60_000;      // 60s — SAP portal + cross-continental latency
+const NAVIGATION_TIMEOUT_MS = 45_000;  // 45s — initial page load can be slow
 
 export class CoctScraper implements MunicipalScraper {
   readonly municipalityId = COCT_MUNICIPALITY_ID;
@@ -76,8 +76,11 @@ export class CoctScraper implements MunicipalScraper {
       await page.click('[name="uidPasswordLogon"]');
 
       // Wait for either: dashboard (success) or error message (failure)
+      // Post-login indicators verified against live portal 2026-05-08:
+      //   #buttonlogoff — "Log off" span, only present after auth
+      //   #tabIndex1    — "Municipal accounts" tab, dashboard nav
       const outcome = await Promise.race([
-        page.waitForSelector('.urPWTxt', { timeout: LOGIN_TIMEOUT_MS })
+        page.waitForSelector('#buttonlogoff, #tabIndex1', { timeout: LOGIN_TIMEOUT_MS })
           .then(() => 'dashboard' as const)
           .catch(() => null),
         page.waitForSelector('.urMsgBarErr, .logonError, #logonErrorField', { timeout: LOGIN_TIMEOUT_MS })
