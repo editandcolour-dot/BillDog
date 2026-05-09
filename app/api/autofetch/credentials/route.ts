@@ -185,8 +185,24 @@ export async function POST(request: NextRequest) {
 
     console.log(`[autofetch/credentials] Stored credential ${newCred.id} for user ${user.id}`);
 
-    // Phase 1: No backfill enqueue — that's Phase 3.
-    return NextResponse.json({ verified: true, credential_id: newCred.id });
+    // 10. Enqueue backfill job via QStash
+    const { qstashClient } = await import('@/lib/qstash/client');
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    let targetCredId = existingCred ? existingCred.id : (newCred as any).id;
+
+    try {
+      await qstashClient.publish({
+        url: `${appUrl}/api/autofetch/worker/backfill`,
+        body: JSON.stringify({ credential_id: targetCredId }),
+        retries: 3,
+      });
+      console.log(`[autofetch/credentials] Enqueued backfill job for credential ${targetCredId}`);
+    } catch (qstashErr) {
+      console.error('[autofetch/credentials] Failed to enqueue backfill job:', qstashErr);
+      // We don't fail the verification if QStash publish fails, but we log it
+    }
+
+    return NextResponse.json({ verified: true, credential_id: targetCredId });
 
   } catch (error) {
     console.error('[autofetch/credentials] Unexpected error:', error);

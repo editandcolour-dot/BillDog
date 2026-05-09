@@ -16,7 +16,8 @@
       "Bash(grep -v 'TARIFF_DATA\\\\|Tariff Resolver\\\\|Gazette Fetcher\\\\|HUC\\\\]\\\\|Refuse\\\\]\\\\|VAT_DEBUG\\\\|FIXED_BASIC\\\\|ISU108012156854_RAW\\\\|SEW\\\\]\\\\|RATES_TARIFF\\\\|FULL_TEXT_DEBUG\\\\|fetch failed\\\\|getaddrinfo\\\\|ENOTFOUND\\\\|GetAddrInfoReqWrap\\\\|details:\\\\|hint:\\\\|code:\\\\|message:\\\\|^}\\\\s*$\\\\|^{\\\\s*$')",
       "Bash(NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co' SUPABASE_SERVICE_ROLE_KEY='test-service-key' ANTHROPIC_API_KEY='test' npx tsx scripts/check-period-start.ts)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(npm run *)"
     ]
   }
 }

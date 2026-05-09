@@ -1,6 +1,6 @@
 import { getClaudeClient } from './client';
 import { AnalysisResult, ValidationFinding, FindingType, BillingError } from '@/types/analysis';
-import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
+import { getParser } from '@/lib/parsers/registry';
 import { validateBill } from '@/lib/validators/bill-validator';
 import { buildGroundedSystemPrompt } from './grounded-prompt';
 
@@ -141,11 +141,12 @@ async function callWithRetry<T>(operation: () => Promise<T>, maxRetries: number 
   }
 }
 
-export async function analyseBill(billText: string, municipalityCode: string = 'CoCT'): Promise<AnalysisResult> {
+export async function analyseBill(billText: string, municipalityCode: string = 'city-of-cape-town'): Promise<AnalysisResult> {
   const client = getClaudeClient();
 
   // Try deterministic parser first
-  const parsedBill = parseCoctBill(billText);
+  const parser = getParser(municipalityCode);
+  const parsedBill = parser ? parser.parse(billText) : null;
   let systemPrompt = ANALYSIS_SYSTEM_PROMPT;
   let isGroundTruth = false;
   let findingsCount = 0;

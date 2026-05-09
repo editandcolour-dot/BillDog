@@ -9,7 +9,7 @@ import { describe, it, expect, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { parseBillFile } from '../pdf/parse';
-import { parseCoctBill } from '../parsers/coct-bill-parser';
+import { getParser } from '../parsers/registry';
 import { validateBill } from '../validators/bill-validator';
 
 // Mock Claude client so we don't need a real API key
@@ -47,7 +47,8 @@ describe('Production pipeline E2E — ISU108012156854 (R200 rates error)', () =>
     console.log(`\n[E2E] Step 1 — PDF parsed. Text length: ${extractedText.length}`);
 
     // Step 2: Deterministic parser (same as analyseBill step 1)
-    const parsedBill = parseCoctBill(extractedText);
+    const parser = getParser('city-of-cape-town');
+    const parsedBill = parser?.parse(extractedText);
     expect(parsedBill).not.toBeNull();
     console.log(`[E2E] Step 2 — Parser output: totalDue=${parsedBill!.totalDue}, rates=${parsedBill!.rates.length}, subtotals=${parsedBill!.sectionSubtotals.length}`);
 
@@ -95,7 +96,8 @@ describe('Production pipeline E2E — ISU108012156854 (R200 rates error)', () =>
     for (const file of errorBills) {
       const buffer = fs.readFileSync(path.join(BILLS_DIR, file));
       const text = await parseBillFile(buffer, 'application/pdf');
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       if (!parsed) { results.push({ file, findings: -1, errors: -1 }); continue; }
       
       const findings = await validateBill(parsed, 'CoCT');

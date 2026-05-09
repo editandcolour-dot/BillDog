@@ -1,3 +1,7 @@
+/**
+ * @deprecated Superseded by v5 Model A/B Parser Architecture (lib/parsers/generic.ts)
+ * Do not modify this file. Retained for rollback emergencies only.
+ */
 import type { 
   ParsedBill, 
   RatesSegment, 

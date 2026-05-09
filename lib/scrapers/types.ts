@@ -34,6 +34,39 @@ export interface BillDownload {
 }
 
 /**
+ * JSON Config Schema for v4 Generic Executor
+ */
+export interface ScraperAction {
+  action: 'fill' | 'click' | 'waitForSelector' | 'waitForTimeout' | 'switchFrame' | 'select';
+  selector?: string;
+  value?: string;
+  ms?: number;
+  timeout_ms?: number;
+  optional?: boolean;
+}
+
+export interface ScraperExtractionConfig {
+  row_selector: string;
+  period_selector: string;
+  pdf_link_selector: string;
+  pagination_next_selector?: string;
+  pagination_disabled_condition?: string;
+}
+
+export interface ScraperConfig {
+  municipality_id: string;
+  municipality_name: string;
+  version: string;
+  steps: {
+    login: ScraperAction[];
+    navigate: ScraperAction[];
+    filter_history: ScraperAction[];
+    filter_latest: ScraperAction[];
+  };
+  extraction: ScraperExtractionConfig;
+}
+
+/**
  * Interface that all municipality-specific scrapers must implement.
  */
 export interface MunicipalScraper {

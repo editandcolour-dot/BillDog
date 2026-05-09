@@ -16,6 +16,11 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
   // Always run universal checks (VAT, math, duplicates) regardless of Tier
   findings.push(...runUniversalChecks(bill));
 
+  // Push anomalies discovered by the generic parser (e.g. tier-line math errors)
+  if (bill.parser_anomalies && bill.parser_anomalies.length > 0) {
+    findings.push(...bill.parser_anomalies);
+  }
+
   const tier = classifyMunicipality(municipalityCode);
 
   if (tier === 3) {

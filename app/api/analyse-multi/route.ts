@@ -10,7 +10,7 @@ import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
 import { classifyMunicipality } from '@/lib/tiers/tierClassifier';
 import { generateTransparencyReport } from '@/lib/tiers/tier3Report';
 import { getCurrentTariffYear } from '@/lib/tariff/tariffLookup';
-import { parseCoctBill } from '@/lib/parsers/coct-bill-parser';
+import { getParser } from '@/lib/parsers/registry';
 
 const analyseLimiter = getRateLimiter(100, '1 h');
 
@@ -155,7 +155,8 @@ export async function POST(request: NextRequest) {
         
         if (tier === 3) {
           // If the deterministic parser failed, provide a mock object for Universal Checks to run
-          const pb = parseCoctBill(billText) || { rates: [], hucCharges: [], invoiceNumber: 'N/A', billingDate: analysis.bill_period || 'N/A' } as any;
+          const parser = getParser(caseRecord.municipality);
+          const pb = parser?.parse(billText) || { rates: [], hucCharges: [], invoiceNumber: 'N/A', billingDate: analysis.bill_period || 'N/A' } as any;
           transparencyReport = generateTransparencyReport(caseRecord.municipality, getCurrentTariffYear(), pb);
           pendingReanalysis = true;
         }

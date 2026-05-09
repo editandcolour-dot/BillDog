@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { parseBillFile } from '../pdf/parse';
-import { parseCoctBill } from './coct-bill-parser';
+import { getParser } from './registry';
 import { getCoctRatesForDate } from '../tariff/coct-tariff-lookup';
 import { verifyRatesCharge } from '../tariff/verifiers/ratesCharge';
 
@@ -38,7 +38,8 @@ describe('UNKNOWN_TARIFF proof — 36 bills', () => {
     it(`${file} — no false UNKNOWN_TARIFF`, async () => {
       const buffer = fs.readFileSync(path.join(BILLS_DIR, file));
       const text = await parseBillFile(buffer, 'application/pdf');
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       if (!parsed) return;
 
       const falseUnknowns: string[] = [];

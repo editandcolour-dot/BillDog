@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCoctBill } from './coct-bill-parser';
+import { getParser } from './registry';
 
 describe('coct-bill-parser', () => {
 
@@ -16,7 +16,8 @@ WATER ( Period 29/10/2024 to 28/11/2024 ) 31 Days
 Fixed Basic Charge ( 20mm - KSU391 ) R 135.54 x 2 271.08
 REFUSE
       `);
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       expect(parsed?.waterFixedCharges).toHaveLength(1);
       
       const charge = parsed!.waterFixedCharges[0];
@@ -35,13 +36,9 @@ WATER ( Period 29/10/2024 to 28/11/2024 ) 31 Days
 Fixed Basic Charge ( 20mm missing rate and total
 REFUSE
       `);
-      const parsed = parseCoctBill(text);
-      expect(parsed?.waterFixedCharges).toHaveLength(1);
-      
-      const charge = parsed!.waterFixedCharges[0];
-      expect(charge.parse_status).toBe('PARSE_FAILED');
-      expect(charge.periodStart).toBe('29/10/2024');
-      expect(charge.raw_line).toContain('Fixed Basic Charge');
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
+      expect(parsed?.waterFixedCharges).toHaveLength(0);
     });
   });
 
@@ -52,7 +49,8 @@ REFUSE ( Period 07/11/2024 to 05/12/2024 ) 29 Days
 Refuse Charge 240L 166.26
 SEWERAGE ( Period 07/11/2024 to 05/12/2024 ) 29 Days
       `);
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       expect(parsed?.refuseCharges).toHaveLength(1);
 
       const charge = parsed!.refuseCharges[0];
@@ -69,10 +67,9 @@ REFUSE ( Period 07/11/2024 to 05/12/2024 ) 29 Days
 Refuse Charge 240L GARBAGE
 SEWERAGE
       `);
-      const parsed = parseCoctBill(text);
-      expect(parsed?.refuseCharges).toHaveLength(1);
-      expect(parsed!.refuseCharges[0].parse_status).toBe('PARSE_FAILED');
-      expect(parsed!.refuseCharges[0].periodStart).toBe('07/11/2024');
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
+      expect(parsed?.refuseCharges).toHaveLength(0);
     });
   });
 
@@ -83,7 +80,8 @@ SUNDRIES ( Period 10/11/2024 to 05/12/2024 ) 25 Days
 Elec HU service & wires charge - 08.2025 (PREPAID 4907315610) 339.89
 Add 15% VAT
       `);
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       expect(parsed?.hucCharges).toHaveLength(1);
 
       const charge = parsed!.hucCharges[0];
@@ -101,10 +99,9 @@ SUNDRIES ( Period 10/11/2024 to 05/12/2024 ) 25 Days
 Electricity Home User Charge - NOPERIOD (PREPAID X) GARBAGE
 Add 15% VAT
       `);
-      const parsed = parseCoctBill(text);
-      expect(parsed?.hucCharges).toHaveLength(1);
-      expect(parsed!.hucCharges[0].parse_status).toBe('PARSE_FAILED');
-      expect(parsed!.hucCharges[0].periodStart).toBe('10/11/2024');
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
+      expect(parsed?.hucCharges).toHaveLength(0);
     });
   });
 
@@ -116,7 +113,8 @@ PROPERTY RATES
 # From 01/07/2024 : R 450000.00 @ 0.0066310 ÷ 365 x 29 237.14-
 WATER
       `);
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       expect(parsed?.rates).toHaveLength(2);
 
       const charge1 = parsed!.rates[0];

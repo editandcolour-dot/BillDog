@@ -20,25 +20,25 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { decryptCredentials } from '@/lib/crypto/credentials';
 import { getScraper } from '@/lib/scrapers/registry';
+import { verifyQStashSignature } from '@/lib/qstash/verify';
+import { revokeCredential } from '@/lib/autofetch/revocation';
+
+export const maxDuration = 120; // 2 minutes for single scrape
 
 export async function POST(request: NextRequest) {
   let jobId: string | undefined;
 
   try {
-    const supabase = await createClient();
-
-    // 1. Authenticate user (Phase 2: Supabase cookie)
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const isValid = await verifyQStashSignature(request);
+    if (!isValid) {
+      return NextResponse.json({ error: 'Invalid QStash signature' }, { status: 401 });
     }
 
-    // 2. Parse request body
-    const body = await request.json();
+    const clonedReq = request.clone();
+    const body = await clonedReq.json();
     const { credential_id } = body;
 
     if (!credential_id) {
@@ -61,11 +61,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Credential not found' }, { status: 404 });
     }
 
-    if (credential.user_id !== user.id) {
-      console.error(`[autofetch/worker] Ownership violation: user ${user.id} attempted to use credential ${credential_id}`);
-      return NextResponse.json({ error: 'Unauthorised access' }, { status: 403 });
-    }
-
     if (credential.revoked_at) {
       return NextResponse.json({ error: 'Credentials have been revoked' }, { status: 400 });
     }
@@ -78,7 +73,7 @@ export async function POST(request: NextRequest) {
     const { data: job, error: jobError } = await supabaseAdmin
       .from('scrape_jobs')
       .insert({
-        user_id: user.id,
+        user_id: credential.user_id,
         credential_id: credential.id,
         job_type: 'monthly',
         status: 'running',
@@ -94,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     jobId = job.id as string;
-    console.log(`[autofetch/worker] Job ${jobId} created for user ${user.id}`);
+    console.log(`[autofetch/worker] Job ${jobId} created for user ${credential.user_id}`);
 
     // 5. Look up municipality to resolve scraper
     const { data: municipality } = await supabaseAdmin
@@ -157,15 +152,26 @@ export async function POST(request: NextRequest) {
         .eq('id', credential.id);
 
       await markJobFailed(supabaseAdmin, jobId, result.error || 'Scrape failed');
-      return NextResponse.json(
-        {
-          job_id: jobId,
-          success: false,
-          error: result.error,
-          errorCode: result.errorCode,
-        },
-        { status: 422 }
-      );
+
+      if (result.errorCode === 'INVALID_CREDENTIALS' || result.errorCode === 'MFA_REQUIRED') {
+        const { sendAutofetchRevokedEmail } = await import('@/lib/resend/autofetch-revoked');
+        await revokeCredential(supabaseAdmin, credential.id, credential.user_id, result.errorCode.toLowerCase());
+        
+        const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', credential.user_id).single();
+        if (profile?.email) {
+          const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+          await sendAutofetchRevokedEmail({
+            userEmail: profile.email,
+            userName: profile.full_name || 'User',
+            municipalityName: municipality.name,
+            reason: result.errorCode.toLowerCase(),
+            settingsUrl: `${appUrl}/settings`
+          });
+        }
+        return NextResponse.json({ success: false, error: result.error, errorCode: result.errorCode }, { status: 200 });
+      }
+
+      return NextResponse.json({ success: false, error: result.error, errorCode: result.errorCode }, { status: 500 });
     }
 
     // 8. No bill found (empty result but not an error)
@@ -206,7 +212,7 @@ export async function POST(request: NextRequest) {
     const { data: userCases } = await supabaseAdmin
       .from('cases')
       .select('id')
-      .eq('user_id', user.id);
+      .eq('user_id', credential.user_id);
 
     const userCaseIds = userCases?.map(c => c.id) || [];
 
@@ -224,7 +230,7 @@ export async function POST(request: NextRequest) {
     const { data: existingScraped } = await supabaseAdmin
       .from('scraped_bills')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', credential.user_id)
       .eq('bill_period', bill.period);
 
     const isDuplicate = (existingBills && existingBills.length > 0) ||
@@ -238,7 +244,7 @@ export async function POST(request: NextRequest) {
         .from('scraped_bills')
         .insert({
           job_id: jobId,
-          user_id: user.id,
+          user_id: credential.user_id,
           credential_id: credential.id,
           bill_period: bill.period,
           status: 'skipped',
@@ -264,7 +270,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 10. Upload PDF to Supabase Storage
-    const storagePath = `${user.id}/autofetch/${credential.id}/${bill.period.replace(/\s+/g, '_')}.pdf`;
+    const storagePath = `${credential.user_id}/autofetch/${credential.id}/${bill.period.replace(/\s+/g, '_')}.pdf`;
 
     const { error: uploadError } = await supabaseAdmin
       .storage
@@ -286,7 +292,7 @@ export async function POST(request: NextRequest) {
     const { data: existingCase } = await supabaseAdmin
       .from('cases')
       .select('id')
-      .eq('user_id', user.id)
+      .eq('user_id', credential.user_id)
       .eq('municipality', municipality.name)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -301,7 +307,7 @@ export async function POST(request: NextRequest) {
       const { data: newCase, error: caseError } = await supabaseAdmin
         .from('cases')
         .insert({
-          user_id: user.id,
+          user_id: credential.user_id,
           municipality: municipality.name,
           account_number: 'auto-fetch',  // Placeholder — will be updated after analysis
           status: 'analysing',
@@ -346,7 +352,7 @@ export async function POST(request: NextRequest) {
       .from('scraped_bills')
       .insert({
         job_id: jobId,
-        user_id: user.id,
+        user_id: credential.user_id,
         credential_id: credential.id,
         bill_period: bill.period,
         bill_url: storagePath,

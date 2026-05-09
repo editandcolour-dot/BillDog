@@ -1,0 +1,179 @@
+{
+  "municipality_id": "city-of-cape-town",
+  "format_version": "1.0",
+  "globals": {
+    "billing_date": "Account\\s+details\\s+as\\s+at\\s+(?<billingDate>\\d{2}/\\d{2}/\\d{4})",
+    "total_due": "Current\\s+account:\\s*Total\\s+due\\s+(?<totalDue>[\\d,]+\\.?\\d*)",
+    "vat_amount": "Add 15% VAT on amounts marked with\\s*&\\s*(?:above)?\\s+(?<vatAmount>[\\d,]+\\.?\\d*)",
+    "canonical_water_kl": "Consumption\\s+(?<consumption>[\\d.]+)\\s*kl"
+  },
+  "sections": {
+    "PROPERTY RATES": {
+      "anchors": {
+        "type": "anchor_slice",
+        "start": "PROPERTY RATES",
+        "ends": ["WATER", "REFUSE", "SEWERAGE", "SUNDRIES", "Add 15% VAT"]
+      }
+    },
+    "WATER": {
+      "anchors": {
+        "type": "anchor_slice",
+        "start": "WATER",
+        "ends": ["REFUSE", "SEWERAGE", "SUNDRIES", "Add 15% VAT"]
+      }
+    },
+    "REFUSE": {
+      "anchors": {
+        "type": "anchor_slice",
+        "start": "REFUSE",
+        "ends": ["SEWERAGE", "SUNDRIES", "Add 15% VAT"]
+      }
+    },
+    "SEWERAGE": {
+      "anchors": {
+        "type": "anchor_slice",
+        "start": "SEWERAGE",
+        "ends": ["SUNDRIES", "Add 15% VAT"]
+      }
+    },
+    "SUNDRIES": {
+      "anchors": {
+        "type": "anchor_slice",
+        "start": "SUNDRIES",
+        "ends": ["Add 15% VAT"]
+      }
+    }
+  },
+  "line_item_rules": {
+    "rates": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "#\\s+From\\s+(?<fromDate>\\d{2}/\\d{2}/\\d{4})\\s*:\\s*R\\s+(?<rateableValue>[\\d,]+\\.?\\d*)\\s*@\\s*(?<annualRate>[\\d.]+)\\s*÷\\s*(?<daysInYear>\\d+)\\s*x\\s*(?<billingDays>\\d+)\\s+(?<billedAmount>[\\d,]+\\.?\\d*)(?<rebate>-?)",
+        "output_mapping": {
+          "chargeType": "RATES",
+          "section": "PROPERTY RATES"
+        },
+        "pairing_logic": {
+          "operation": "pair_by_field",
+          "match_field": "fromDate",
+          "primary_flag": "rebate",
+          "primary_value": false,
+          "secondary_value": true,
+          "on_unmatched_secondary": "surface_anomaly",
+          "on_unmatched_primary": "allow"
+        }
+      }
+    ],
+    "waterFixedCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "Fixed Basic Charge\\s*\\([\\s\\w-]*?(?<meterSize>\\d+mm)[\\s\\w-]*?\\)[\\sR]*(?<unitRate>[\\d,]+\\.?\\d*)(?:\\s*x\\s*(?<multiplier>\\d+))?\\s+(?<totalCharged>[\\d,]+\\.?\\d*)",
+        "output_mapping": {
+          "chargeType": "WATER_FIXED_BASIC",
+          "section": "WATER"
+        }
+      },
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "Fixed Basic Charge\\s*\\((?<meterSize>R[\\s\\d]+\\s*-\\s*R[\\s\\d]+)\\)[\\sR]*(?<unitRate>[\\d,]+\\.?\\d*)(?:\\s*x\\s*(?<multiplier>\\d+))?\\s+(?<totalCharged>[\\d,]+\\.?\\d*)",
+        "output_mapping": {
+          "chargeType": "WATER_FIXED_BASIC",
+          "section": "WATER"
+        }
+      }
+    ],
+    "waterTierCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>.*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "output_mapping": {
+          "serviceType": "water",
+          "section": "WATER",
+          "applyVatIndicator": true
+        }
+      }
+    ],
+    "refuseCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "Refuse\\s+[Cc]harge.*?(?<binSize>\\d+)[lL].*?(?<amount>[\\d,]+\\.\\d+)\\s*$",
+        "output_mapping": {
+          "chargeType": "REFUSE",
+          "section": "REFUSE"
+        }
+      }
+    ],
+    "sewerageCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>.*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "output_mapping": {
+          "serviceType": "sewerage",
+          "section": "SEWERAGE",
+          "applyVatIndicator": true
+        }
+      }
+    ],
+    "sundryCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>(?!.*?PREPAID).*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "output_mapping": {
+          "serviceType": "sundry",
+          "section": "SUNDRIES",
+          "applyVatIndicator": true
+        }
+      }
+    ],
+    "hucCharges": [
+      {
+        "type": "regex_extract",
+        "multiple": true,
+        "pattern": "-\\s+(?<period>\\d{2}\\.\\d{4})\\s*\\(PREPAID\\s+(?<meterRef>[\\w\\d]+)\\)\\s+(?<amount>[\\d,]+\\.\\d+)",
+        "output_mapping": {
+          "chargeType": "HUC",
+          "section": "SUNDRIES"
+        }
+      }
+    ]
+  },
+  "vat_rules": {
+    "rate_lookup": [
+      { "effective_from": "2018-04-01", "rate": 0.15 }
+    ],
+    "indicator_map": {
+      "&": true,
+      "#": false,
+      "": false
+    },
+    "indicator_pattern": "^(?<vatIndicator>[&#])?",
+    "cascade_on_error": true
+  },
+  "reconciliation_rules": [
+    {
+      "type": "arithmetic_check",
+      "target_array": "waterTierCharges",
+      "sum_field": "amount",
+      "control_field": "subtotals.water",
+      "tolerance": 0.05,
+      "on_fail_actions": ["surface_anomaly", "suppress_subtotal_check"],
+      "anomaly_type": "TIER_LINE_INFLATION"
+    },
+    {
+      "type": "arithmetic_check",
+      "target_array": "sewerageCharges",
+      "sum_field": "amount",
+      "control_field": "subtotals.sewerage",
+      "tolerance": 0.05,
+      "on_fail_actions": ["surface_anomaly", "suppress_subtotal_check"],
+      "anomaly_type": "TIER_LINE_INFLATION"
+    }
+  ]
+}

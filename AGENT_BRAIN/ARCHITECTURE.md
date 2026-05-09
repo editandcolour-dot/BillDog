@@ -610,9 +610,13 @@ NODE_ENV=
 
 ---
 
+---
+
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-04-22T05:32:09.444023+00:00
+> Last scanned: 2026-05-09T08:53:46.444326+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -620,8 +624,8 @@ NODE_ENV=
 ```
 📁 (root)/
   📄 .env  (0.1 KB)
-  📄 .env.local  (1.4 KB)
-  📄 .env.local.example  (0.6 KB)
+  📄 .env.local  (1.6 KB)
+  📄 .env.local.example  (0.9 KB)
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
   📄 .prettierrc  (0.2 KB)
@@ -631,11 +635,13 @@ NODE_ENV=
   📄 build-error.log  (2.4 KB)
   📄 build-log.txt  (1.6 KB)
   📄 build.log  (1.9 KB)
+  📄 e2e_phase2_test.mjs  (17.2 KB)
   📄 middleware.ts  (2.9 KB)
   📄 next-env.d.ts  (0.2 KB)
   📄 next.config.mjs  (1.6 KB)
-  📄 package-lock.json  (299.0 KB)
-  📄 package.json  (1.2 KB)
+  📄 nixpacks.toml  (0.4 KB)
+  📄 package-lock.json  (300.8 KB)
+  📄 package.json  (1.4 KB)
   📄 payfast_response.html  (12.6 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
@@ -654,7 +660,7 @@ NODE_ENV=
   📄 test_pf.js  (1.8 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (249.3 KB)
+  📄 tsconfig.tsbuildinfo  (259.7 KB)
   📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
@@ -724,13 +730,13 @@ NODE_ENV=
     📄 project-init.md  (3.0 KB)
     📄 start.md  (2.7 KB)
 📁 .claude/
-  📄 settings.local.json  (0.2 KB)
+  📄 settings.local.json  (1.7 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (56.3 KB)
+  📄 ARCHITECTURE.md  (60.4 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
-  📄 STATE.md  (1.0 KB)
+  📄 STATE.md  (0.9 KB)
   📄 TECH_STACK.md  (0.1 KB)
   📄 payfast-diagnostic-memory.md  (4.1 KB)
   📁 AGENT_BRAIN\sessions/
@@ -752,6 +758,9 @@ NODE_ENV=
     📄 2026-04-18.md  (1.7 KB)
     📄 2026-04-20.md  (1.7 KB)
     📄 2026-04-21.md  (0.6 KB)
+    📄 2026-04-22.md  (0.4 KB)
+    📄 2026-04-23.md  (0.3 KB)
+    📄 2026-04-24.md  (1.3 KB)
 📁 app/
   📄 error.tsx  (0.7 KB)
   📄 favicon.ico  (25.3 KB)
@@ -766,21 +775,21 @@ NODE_ENV=
     📄 layout.tsx  (0.9 KB)
     📁 app\(app)\analysis/
       📁 app\(app)\analysis\[id]/
-        📄 page.tsx  (17.1 KB)
+        📄 page.tsx  (18.0 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (10.3 KB)
+        📄 page.tsx  (11.0 KB)
         📁 app\(app)\case\[id]\verify/
           📄 page.tsx  (3.3 KB)
     📁 app\(app)\dashboard/
       📄 page.tsx  (3.7 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (19.8 KB)
+        📄 page.tsx  (20.3 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
     📁 app\(app)\settings/
-      📄 page.tsx  (14.8 KB)
+      📄 page.tsx  (18.4 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
@@ -791,16 +800,16 @@ NODE_ENV=
     📁 app\(auth)\login/
       📄 page.tsx  (0.8 KB)
     📁 app\(auth)\signup/
-      📄 page.tsx  (0.8 KB)
+      📄 page.tsx  (0.9 KB)
     📁 app\(auth)\verify-email/
       📄 page.tsx  (1.3 KB)
   📁 app\(public)/
     📄 .gitkeep  (0.0 KB)
     📄 error.tsx  (0.6 KB)
     📄 layout.tsx  (0.4 KB)
-    📄 page.tsx  (1.5 KB)
+    📄 page.tsx  (1.6 KB)
     📁 app\(public)\about/
-      📄 page.tsx  (8.2 KB)
+      📄 page.tsx  (8.3 KB)
     📁 app\(public)\blog/
       📁 app\(public)\blog\estimated-readings-south-africa/
         📄 page.tsx  (2.2 KB)
@@ -821,22 +830,23 @@ NODE_ENV=
       📁 app\(public)\blog\water-bill-overcharge-south-africa/
         📄 page.tsx  (2.0 KB)
     📁 app\(public)\contact/
+      📄 layout.tsx  (0.4 KB)
       📄 page.tsx  (9.7 KB)
     📁 app\(public)\disputes/
       📁 app\(public)\disputes\[municipality]/
         📄 page.tsx  (8.9 KB)
     📁 app\(public)\faq/
-      📄 page.tsx  (9.8 KB)
+      📄 page.tsx  (9.9 KB)
     📁 app\(public)\how-it-works/
-      📄 page.tsx  (8.7 KB)
+      📄 page.tsx  (8.8 KB)
     📁 app\(public)\popia/
       📄 page.tsx  (12.0 KB)
     📁 app\(public)\pricing/
-      📄 page.tsx  (10.1 KB)
+      📄 page.tsx  (10.2 KB)
     📁 app\(public)\privacy/
-      📄 page.tsx  (15.4 KB)
+      📄 page.tsx  (17.9 KB)
     📁 app\(public)\real-cases/
-      📄 page.tsx  (7.2 KB)
+      📄 page.tsx  (7.3 KB)
     📁 app\(public)\terms/
       📄 page.tsx  (11.0 KB)
   📁 app\actions/
@@ -846,10 +856,27 @@ NODE_ENV=
     📁 app\api\analyse/
       📄 route.ts  (7.3 KB)
     📁 app\api\analyse-multi/
-      📄 route.ts  (10.9 KB)
+      📄 route.ts  (12.9 KB)
+    📁 app\api\autofetch/
+      📁 app\api\autofetch\consent/
+        📄 route.ts  (2.9 KB)
+      📁 app\api\autofetch\credentials/
+        📄 route.ts  (7.5 KB)
+        📁 app\api\autofetch\credentials\[id]/
+          📄 route.ts  (2.9 KB)
+      📁 app\api\autofetch\jobs/
+        📄 route.ts  (1.8 KB)
+        📁 app\api\autofetch\jobs\[id]/
+          📁 app\api\autofetch\jobs\[id]\retry/
+            📄 route.ts  (3.8 KB)
+      📁 app\api\autofetch\worker/
+        📁 app\api\autofetch\worker\fetch-latest/
+          📄 route.ts  (13.1 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
         📄 route.ts  (9.0 KB)
+        📁 app\api\cases\[id]\capture-id/
+          📄 route.ts  (1.1 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (2.0 KB)
         📁 app\api\cases\[id]\verify/
@@ -858,6 +885,9 @@ NODE_ENV=
         📄 route.ts  (3.4 KB)
       📁 app\api\cases\submit-id/
         📄 route.ts  (2.0 KB)
+    📁 app\api\consent/
+      📁 app\api\consent\log/
+        📄 route.ts  (1.7 KB)
     📁 app\api\contact/
       📄 route.ts  (2.6 KB)
     📁 app\api\cron/
@@ -880,14 +910,14 @@ NODE_ENV=
     📁 app\api\extract-vision/
       📄 route.ts  (3.0 KB)
     📁 app\api\generate-letter/
-      📄 route.ts  (5.2 KB)
+      📄 route.ts  (7.2 KB)
     📁 app\api\payfast/
       📁 app\api\payfast\test-form/
         📄 route.ts  (7.3 KB)
       📁 app\api\payfast\tokenise/
         📄 route.ts  (2.7 KB)
     📁 app\api\send-letter/
-      📄 route.ts  (4.6 KB)
+      📄 route.ts  (7.7 KB)
     📁 app\api\upload/
       📄 route.ts  (3.7 KB)
     📁 app\api\upload-multi/
@@ -897,6 +927,8 @@ NODE_ENV=
         📄 route.ts  (2.8 KB)
       📁 app\api\user\export/
         📄 route.ts  (1.9 KB)
+      📁 app\api\user\mandate/
+        📄 route.ts  (2.9 KB)
       📁 app\api\user\profile/
         📄 route.ts  (1.1 KB)
     📁 app\api\webhooks/
@@ -913,7 +945,10 @@ NODE_ENV=
     📄 GeistMonoVF.woff  (66.3 KB)
     📄 GeistVF.woff  (64.7 KB)
   📁 app\payfast-test-dom/
+    📄 layout.tsx  (0.2 KB)
     📄 page.tsx  (1.5 KB)
+📁 bin/
+  📄 discover.ts  (1.6 KB)
 📁 components/
   📁 components\analysis/
     📄 .gitkeep  (0.0 KB)
@@ -921,8 +956,10 @@ NODE_ENV=
     📄 BlogLayout.tsx  (2.3 KB)
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
+    📄 CaptureIdModal.tsx  (3.0 KB)
     📄 ConfirmResolution.tsx  (4.0 KB)
     📄 DeleteCaseButton.tsx  (2.9 KB)
+    📄 DisputeGateBanner.tsx  (2.0 KB)
     📄 EscalationTimeline.tsx  (6.0 KB)
     📄 PublicProtectorModal.tsx  (5.7 KB)
   📁 components\dashboard/
@@ -934,7 +971,7 @@ NODE_ENV=
     📄 LoginForm.tsx  (2.9 KB)
     📄 MultiFileUploader.tsx  (12.4 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
-    📄 SignupForm.tsx  (6.8 KB)
+    📄 SignupForm.tsx  (8.5 KB)
     📄 UploadFlow.tsx  (2.9 KB)
     📄 UploadForm.tsx  (3.1 KB)
   📁 components\landing/
@@ -997,6 +1034,8 @@ NODE_ENV=
   📄 semantic_search.md  (0.5 KB)
   📄 seo_automation.md  (0.5 KB)
   📄 standard_directive_template.md  (0.7 KB)
+📁 docs/
+  📄 credential-key-rotation.md  (3.2 KB)
 📁 execution/
   📄 example_script.py  (0.6 KB)
   📄 index_codebase.py  (2.6 KB)
@@ -1012,8 +1051,10 @@ NODE_ENV=
   📄 env.ts  (0.4 KB)
   📄 rate-limit.ts  (1.2 KB)
   📄 social-monitor.ts  (4.8 KB)
+  📁 lib\autofetch/
+    📄 revocation.ts  (1.2 KB)
   📁 lib\checks/
-    📄 universalChecks.ts  (2.9 KB)
+    📄 universalChecks.ts  (3.3 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (12.4 KB)
@@ -1021,27 +1062,36 @@ NODE_ENV=
     📄 analyse-vision.ts  (3.4 KB)
     📄 client.ts  (0.3 KB)
     📄 compare-bills.ts  (2.6 KB)
-    📄 generate-letter.ts  (6.0 KB)
-    📄 grounded-prompt.ts  (3.1 KB)
+    📄 generate-letter.ts  (6.2 KB)
+    📄 grounded-prompt.ts  (3.0 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
     📄 production-pipeline-e2e.test.ts  (4.8 KB)
     📄 vision.ts  (1.2 KB)
+  📁 lib\crypto/
+    📄 credentials.test.ts  (4.6 KB)
+    📄 credentials.ts  (3.1 KB)
   📁 lib\data/
     📄 seo-municipalities.ts  (11.9 KB)
+  📁 lib\discovery/
+    📄 agent.ts  (32.7 KB)
+    📄 dom-utils.ts  (2.9 KB)
+    📄 prompt.ts  (3.6 KB)
   📁 lib\escalation/
     📄 contactLookup.ts  (2.7 KB)
-    📄 escalate-dispute.ts  (15.7 KB)
-    📄 escalationEngine.ts  (6.9 KB)
-    📄 letterGenerator.ts  (5.7 KB)
+    📄 escalate-dispute.ts  (17.3 KB)
+    📄 escalationEngine.ts  (8.4 KB)
+    📄 letterGenerator.ts  (5.9 KB)
     📄 stage-config.ts  (12.7 KB)
     📄 wardCouncillorLookup.ts  (3.4 KB)
+  📁 lib\letters/
+    📄 verification-block.ts  (1.2 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
   📁 lib\parsers/
     📄 coct-bill-parser-balance.test.ts  (3.8 KB)
     📄 coct-bill-parser-line-balance.test.ts  (5.9 KB)
     📄 coct-bill-parser.test.ts  (4.8 KB)
-    📄 coct-bill-parser.ts  (17.8 KB)
+    📄 coct-bill-parser.ts  (19.2 KB)
     📄 unknown-tariff-proof.test.ts  (3.0 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
@@ -1053,15 +1103,29 @@ NODE_ENV=
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
     📄 parse.ts  (1.9 KB)
+  📁 lib\popia/
+    📄 consent.ts  (1.1 KB)
+    📄 luhn.ts  (0.5 KB)
+  📁 lib\qstash/
+    📄 client.ts  (0.2 KB)
+    📄 verify.ts  (1.2 KB)
   📁 lib\rag/
     📄 legislation.ts  (2.2 KB)
   📁 lib\resend/
     📄 .gitkeep  (0.0 KB)
+    📄 autofetch-report.ts  (2.9 KB)
+    📄 autofetch-revoked.ts  (2.9 KB)
     📄 bill2-reminder.ts  (0.8 KB)
     📄 client.ts  (0.3 KB)
     📄 inbound.ts  (1.6 KB)
     📄 notifications.ts  (1.4 KB)
     📄 send-dispute.ts  (1.3 KB)
+  📁 lib\scrapers/
+    📄 generic.ts  (12.9 KB)
+    📄 registry.ts  (1.2 KB)
+    📄 types.ts  (2.7 KB)
+    📁 lib\scrapers\configs/
+      📄 city-of-cape-town.json  (1.8 KB)
   📁 lib\supabase/
     📄 .gitkeep  (0.0 KB)
     📄 admin.ts  (0.6 KB)
@@ -1284,10 +1348,12 @@ NODE_ENV=
     📄 tier2Analysis.ts  (2.2 KB)
     📄 tier3Report.ts  (1.7 KB)
     📄 tierClassifier.ts  (1.9 KB)
+  📁 lib\utils/
+    📄 get-client-ip.ts  (0.8 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
-    📄 bill-validator.test.ts  (7.8 KB)
-    📄 bill-validator.ts  (15.0 KB)
+    📄 bill-validator.test.ts  (10.9 KB)
+    📄 bill-validator.ts  (17.7 KB)
     📄 fallback-chain.test.ts  (2.7 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
@@ -1298,16 +1364,25 @@ NODE_ENV=
   📄 logo.svg  (2.9 KB)
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
-  📄 answer-key.json  (1.3 KB)
+  📄 answer-key.json  (1.4 KB)
   📄 extract-sample-bill.ts  (0.6 KB)
   📄 generate_test_bill.py  (10.9 KB)
-  📄 regression.ts  (7.5 KB)
+  📄 regression.ts  (7.6 KB)
+  📄 scorecard.ts  (4.4 KB)
   📄 seed-tariff-cache.ts  (3.1 KB)
   📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
 📁 supabase/
   📁 supabase\.temp/
     📄 cli-latest  (0.0 KB)
+    📄 gotrue-version  (0.0 KB)
+    📄 linked-project.json  (0.1 KB)
+    📄 pooler-url  (0.1 KB)
+    📄 postgres-version  (0.0 KB)
+    📄 project-ref  (0.0 KB)
+    📄 rest-version  (0.0 KB)
+    📄 storage-migration  (0.0 KB)
+    📄 storage-version  (0.0 KB)
   📁 supabase\migrations/
     📄 .gitkeep  (0.0 KB)
     📄 001_initial_schema.sql  (3.3 KB)
@@ -1326,8 +1401,13 @@ NODE_ENV=
     📄 015_disclosure_ownership.sql  (0.8 KB)
     📄 016_escalation_system.sql  (1.1 KB)
     📄 018_tariff_resolver.sql  (1.5 KB)
+    📄 019_enable_rls_escalation_letters.sql  (1.7 KB)
+    📄 020_mandate_consent.sql  (6.4 KB)
+    📄 021_consent_events.sql  (1.7 KB)
+    📄 022_municipal_autofetch.sql  (6.6 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
+  📄 consent.test.ts  (8.1 KB)
   📄 setup.ts  (0.9 KB)
   📁 tests\bills/
     📄 ISU100004459317.pdf  (22.9 KB)
@@ -1368,8 +1448,8 @@ NODE_ENV=
     📄 ISU290007488789.pdf  (22.9 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (5.6 KB)
-  📄 index.ts  (7.8 KB)
+  📄 analysis.ts  (5.7 KB)
+  📄 index.ts  (10.1 KB)
 ```
 
 ### Directive Goals

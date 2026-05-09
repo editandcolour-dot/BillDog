@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { parseBillFile } from '../pdf/parse';
-import { parseCoctBill } from './coct-bill-parser';
+import { getParser } from './registry';
 
 const BILLS_DIR = path.join(__dirname, '../../tests/bills');
 
@@ -53,7 +53,8 @@ describe('Line-level exhaustive extraction balance — 36 bills', () => {
     it(`${file} — classifiedSum + otherSum + VAT ≈ totalDue`, async () => {
       const buffer = fs.readFileSync(path.join(BILLS_DIR, file));
       const text = await parseBillFile(buffer, 'application/pdf');
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
 
       expect(parsed).not.toBeNull();
       if (!parsed) return;

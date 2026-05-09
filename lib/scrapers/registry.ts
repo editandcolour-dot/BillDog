@@ -8,7 +8,7 @@
  */
 
 import type { MunicipalScraper } from './types';
-import { CoctScraper } from './coct';
+import { GenericScraper } from './generic';
 
 /**
  * Registry of supported municipality scrapers.
@@ -16,7 +16,7 @@ import { CoctScraper } from './coct';
  * Value: factory function returning a scraper instance.
  */
 const SCRAPER_REGISTRY: Record<string, () => MunicipalScraper> = {
-  'city-of-cape-town': () => new CoctScraper(),
+  'city-of-cape-town': () => new GenericScraper('city-of-cape-town'),
 };
 
 /**

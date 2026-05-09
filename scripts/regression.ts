@@ -4,7 +4,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import Anthropic from '@anthropic-ai/sdk';
 import { parseBillFile } from '../lib/pdf/parse';
-import { parseCoctBill } from '../lib/parsers/coct-bill-parser';
+import { getParser } from '../lib/parsers/registry';
 import { validateBill } from '../lib/validators/bill-validator';
 
 if (!process.env.SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL) {
@@ -31,7 +31,8 @@ async function runValidator(dir: string) {
     const buffer = fs.readFileSync(path.join(dir, file));
     try {
       const text = await parseBillFile(buffer, 'application/pdf');
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       if (parsed) {
         const findings = await validateBill(parsed, 'CoCT');
         results.push({ invoiceNumber: parsed.invoiceNumber, findings });

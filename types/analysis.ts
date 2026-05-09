@@ -144,6 +144,9 @@ export interface ParsedBill {
     sundries: number;
   };
   vatAmount: number;
+
+  // Anomalies discovered by the parser itself (e.g. tier-line mismatches, missing rebates)
+  parser_anomalies?: ValidationFinding[];
 }
 
 export type FindingType =

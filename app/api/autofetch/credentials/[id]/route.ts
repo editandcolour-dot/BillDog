@@ -60,40 +60,22 @@ export async function DELETE(
       return NextResponse.json({ error: 'Credential already revoked' }, { status: 400 });
     }
 
-    // 3. Hard-delete credential data + mark as revoked
-    const { error: updateError } = await supabaseAdmin
-      .from('municipal_credentials')
-      .update({
-        encrypted_credentials: null,
-        encryption_iv: null,
-        revoked_at: new Date().toISOString(),
-        revocation_reason: 'user_request',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', credentialId);
-
-    if (updateError) {
-      console.error('[autofetch/credentials] Revocation update failed:', updateError.message);
-      return NextResponse.json({ error: 'Failed to revoke credentials' }, { status: 500 });
-    }
-
-    // 4. Record revocation in consent_events
+    // 3 & 4. Hard-delete credential data, mark as revoked, and record consent event
     const ip = request.headers.get('cf-connecting-ip')
       || request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
       || request.headers.get('x-real-ip')
       || 'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    await supabaseAdmin
-      .from('consent_events')
-      .insert({
-        user_id: user.id,
-        event_type: 'autofetch_revoked',
-        ip_address: ip,
-        user_agent: userAgent,
-      });
-
-    console.log(`[autofetch/credentials] Credential ${credentialId} revoked for user ${user.id}`);
+    const { revokeCredential } = await import('@/lib/autofetch/revocation');
+    await revokeCredential(
+      supabaseAdmin,
+      credentialId,
+      user.id,
+      'user_request',
+      ip,
+      userAgent
+    );
 
     return NextResponse.json({
       success: true,

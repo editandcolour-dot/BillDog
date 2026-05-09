@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { parseBillFile } from '../lib/pdf/parse';
-import { parseCoctBill } from '../lib/parsers/coct-bill-parser';
+import { getParser } from '../lib/parsers/registry';
 import { validateBill } from '../lib/validators/bill-validator';
 
 const BILLS_DIR = path.join(__dirname, '../tests/bills');
@@ -38,7 +38,8 @@ async function main() {
     const buffer = fs.readFileSync(path.join(BILLS_DIR, file));
     try {
       const text = await parseBillFile(buffer, 'application/pdf');
-      const parsed = parseCoctBill(text);
+      const parser = getParser('city-of-cape-town');
+      const parsed = parser?.parse(text);
       if (!parsed) {
         console.log(`NOT-COCT: ${file}`);
         parseFailures++;
