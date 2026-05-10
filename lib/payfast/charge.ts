@@ -1,8 +1,6 @@
 import { generateSignature } from './tokenise';
 import { createAdminClient } from '../supabase/admin';
-
-const MINIMUM_CHARGE_ZAR = 50;  // Not worth processing below R50
-const FEE_PERCENTAGE = 0.15;
+import { RECOVERY_FEE_PERCENTAGE, MINIMUM_CHARGE_ZAR, RECOVERY_FEE_DISPLAY } from '../constants/fees';
 
 interface ChargeCalculation {
   amountRecovered: number;
@@ -11,7 +9,7 @@ interface ChargeCalculation {
 }
 
 export function calculateFee(amountRecovered: number): ChargeCalculation {
-  const fee = Math.round(amountRecovered * FEE_PERCENTAGE * 100) / 100;
+  const fee = Math.round(amountRecovered * RECOVERY_FEE_PERCENTAGE * 100) / 100;
   return {
     amountRecovered,
     fee,
@@ -121,7 +119,7 @@ export async function processSuccessFee(
     await supabase.from('case_events').insert({
       case_id: caseId,
       event_type: 'fee_charged',
-      note: `Success fee of R${fee.toFixed(2)} charged (15% of R${amountRecovered.toFixed(2)}).`,
+      note: `Success fee of R${fee.toFixed(2)} charged (${RECOVERY_FEE_DISPLAY} of R${amountRecovered.toFixed(2)}).`,
     });
   } else {
     await supabase.from('case_events').insert({

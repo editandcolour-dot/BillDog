@@ -614,9 +614,11 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-05-09T08:53:46.444326+00:00
+> Last scanned: 2026-05-09T20:09:53.914659+00:00
 > Project root: `E:\BillDog`
 
 ### Directory Inventory
@@ -629,27 +631,38 @@ NODE_ENV=
   📄 .eslintrc.json  (0.1 KB)
   📄 .gitignore  (0.4 KB)
   📄 .prettierrc  (0.2 KB)
+  📄 2425.txt  (22.3 KB)
+  📄 2425_water.pdf  (1460.5 KB)
+  📄 2526_water.pdf  (1465.0 KB)
   📄 AGENTS.md  (7.6 KB)
   📄 CLAUDE.md  (7.7 KB)
   📄 TECH_DEBT.md  (0.3 KB)
   📄 build-error.log  (2.4 KB)
   📄 build-log.txt  (1.6 KB)
   📄 build.log  (1.9 KB)
+  📄 corpus-test-summary.md  (173.5 KB)
   📄 e2e_phase2_test.mjs  (17.2 KB)
   📄 middleware.ts  (2.9 KB)
+  📄 mismatch.json  (13.1 KB)
+  📄 mock-server.js  (0.2 KB)
   📄 next-env.d.ts  (0.2 KB)
   📄 next.config.mjs  (1.6 KB)
   📄 nixpacks.toml  (0.4 KB)
-  📄 package-lock.json  (300.8 KB)
+  📄 out.log  (428.8 KB)
+  📄 package-lock.json  (307.2 KB)
   📄 package.json  (1.4 KB)
   📄 payfast_response.html  (12.6 KB)
   📄 postcss.config.mjs  (0.1 KB)
   📄 railway.toml  (0.1 KB)
   📄 railway_test.js  (1.2 KB)
+  📄 scrape.js  (0.4 KB)
+  📄 scrape2.js  (0.4 KB)
   📄 scratch.js  (1.8 KB)
   📄 setup_test_data.js  (2.0 KB)
   📄 tailwind.config.ts  (1.0 KB)
+  📄 test-parser.ts  (0.1 KB)
   📄 test-results.txt  (8.2 KB)
+  📄 testRegex.js  (0.2 KB)
   📄 test_bill.pdf  (0.6 KB)
   📄 test_payfast_dryrun.js  (2.7 KB)
   📄 test_payfast_no_passphrase.js  (2.4 KB)
@@ -660,7 +673,7 @@ NODE_ENV=
   📄 test_pf.js  (1.8 KB)
   📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.7 KB)
-  📄 tsconfig.tsbuildinfo  (259.7 KB)
+  📄 tsconfig.tsbuildinfo  (271.4 KB)
   📄 vercel.json  (0.1 KB)
   📄 vitest.config.ts  (0.6 KB)
 📁 .agents/
@@ -732,7 +745,7 @@ NODE_ENV=
 📁 .claude/
   📄 settings.local.json  (1.7 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (60.4 KB)
+  📄 ARCHITECTURE.md  (60.6 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
   📄 PROJECT_MEMORY.md  (2.9 KB)
@@ -773,6 +786,8 @@ NODE_ENV=
     📄 .gitkeep  (0.0 KB)
     📄 error.tsx  (0.7 KB)
     📄 layout.tsx  (0.9 KB)
+    📁 app\(app)\account/
+      📄 page.tsx  (26.5 KB)
     📁 app\(app)\analysis/
       📁 app\(app)\analysis\[id]/
         📄 page.tsx  (18.0 KB)
@@ -788,8 +803,10 @@ NODE_ENV=
         📄 page.tsx  (20.3 KB)
     📁 app\(app)\onboarding/
       📄 page.tsx  (1.9 KB)
+      📁 app\(app)\onboarding\auto-fetch/
+        📄 page.tsx  (2.0 KB)
     📁 app\(app)\settings/
-      📄 page.tsx  (18.4 KB)
+      📄 page.tsx  (0.2 KB)
     📁 app\(app)\success/
       📄 page.tsx  (5.4 KB)
     📁 app\(app)\upload/
@@ -861,7 +878,7 @@ NODE_ENV=
       📁 app\api\autofetch\consent/
         📄 route.ts  (2.9 KB)
       📁 app\api\autofetch\credentials/
-        📄 route.ts  (7.5 KB)
+        📄 route.ts  (8.4 KB)
         📁 app\api\autofetch\credentials\[id]/
           📄 route.ts  (2.9 KB)
       📁 app\api\autofetch\jobs/
@@ -869,14 +886,24 @@ NODE_ENV=
         📁 app\api\autofetch\jobs\[id]/
           📁 app\api\autofetch\jobs\[id]\retry/
             📄 route.ts  (3.8 KB)
+      📁 app\api\autofetch\status/
+        📄 route.ts  (3.1 KB)
       📁 app\api\autofetch\worker/
+        📁 app\api\autofetch\worker\backfill/
+          📄 route.ts  (14.0 KB)
+        📁 app\api\autofetch\worker\discovery/
+          📄 route.ts  (9.4 KB)
         📁 app\api\autofetch\worker\fetch-latest/
-          📄 route.ts  (13.1 KB)
+          📄 route.ts  (14.5 KB)
+        📁 app\api\autofetch\worker\monthly/
+          📄 route.ts  (3.0 KB)
+        📁 app\api\autofetch\worker\monthly-alert/
+          📄 route.ts  (0.7 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
         📄 route.ts  (9.0 KB)
         📁 app\api\cases\[id]\capture-id/
-          📄 route.ts  (1.1 KB)
+          📄 route.ts  (1.5 KB)
         📁 app\api\cases\[id]\letter/
           📄 route.ts  (2.0 KB)
         📁 app\api\cases\[id]\verify/
@@ -884,7 +911,7 @@ NODE_ENV=
       📁 app\api\cases\create-from-vision/
         📄 route.ts  (3.4 KB)
       📁 app\api\cases\submit-id/
-        📄 route.ts  (2.0 KB)
+        📄 route.ts  (2.2 KB)
     📁 app\api\consent/
       📁 app\api\consent\log/
         📄 route.ts  (1.7 KB)
@@ -967,17 +994,18 @@ NODE_ENV=
     📄 CaseTimeline.tsx  (4.6 KB)
   📁 components\forms/
     📄 .gitkeep  (0.0 KB)
+    📄 AutoFetchForm.tsx  (11.1 KB)
     📄 CameraCapture.tsx  (11.0 KB)
     📄 LoginForm.tsx  (2.9 KB)
     📄 MultiFileUploader.tsx  (12.4 KB)
     📄 OnboardingForm.tsx  (4.1 KB)
-    📄 SignupForm.tsx  (8.5 KB)
+    📄 SignupForm.tsx  (10.0 KB)
     📄 UploadFlow.tsx  (2.9 KB)
     📄 UploadForm.tsx  (3.1 KB)
   📁 components\landing/
     📄 CtaSection.tsx  (1.9 KB)
     📄 FaqSection.tsx  (2.8 KB)
-    📄 HeroSection.tsx  (4.2 KB)
+    📄 HeroSection.tsx  (4.3 KB)
     📄 HowItWorksSection.tsx  (2.9 KB)
     📄 RealCasesSection.tsx  (3.9 KB)
     📄 StatsSection.tsx  (2.2 KB)
@@ -1036,6 +1064,7 @@ NODE_ENV=
   📄 standard_directive_template.md  (0.7 KB)
 📁 docs/
   📄 credential-key-rotation.md  (3.2 KB)
+  📄 v5-reconciliation-rules.md  (6.1 KB)
 📁 execution/
   📄 example_script.py  (0.6 KB)
   📄 index_codebase.py  (2.6 KB)
@@ -1052,9 +1081,10 @@ NODE_ENV=
   📄 rate-limit.ts  (1.2 KB)
   📄 social-monitor.ts  (4.8 KB)
   📁 lib\autofetch/
+    📄 alert.ts  (2.4 KB)
     📄 revocation.ts  (1.2 KB)
   📁 lib\checks/
-    📄 universalChecks.ts  (3.3 KB)
+    📄 universalChecks.ts  (6.1 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
     📄 analyse-bill.ts  (12.4 KB)
@@ -1065,8 +1095,11 @@ NODE_ENV=
     📄 generate-letter.ts  (6.2 KB)
     📄 grounded-prompt.ts  (3.0 KB)
     📄 parse-municipality-response.ts  (2.1 KB)
-    📄 production-pipeline-e2e.test.ts  (4.8 KB)
+    📄 production-pipeline-e2e.test.ts  (4.9 KB)
     📄 vision.ts  (1.2 KB)
+  📁 lib\constants/
+    📄 fees.test.ts  (0.8 KB)
+    📄 fees.ts  (0.6 KB)
   📁 lib\crypto/
     📄 credentials.test.ts  (4.6 KB)
     📄 credentials.ts  (3.1 KB)
@@ -1087,12 +1120,21 @@ NODE_ENV=
     📄 verification-block.ts  (1.2 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
+    📄 sa-metros.json  (2.1 KB)
+    📄 sa-metros.test.ts  (2.2 KB)
+    📄 sa-metros.ts  (1.6 KB)
   📁 lib\parsers/
     📄 coct-bill-parser-balance.test.ts  (3.8 KB)
-    📄 coct-bill-parser-line-balance.test.ts  (5.9 KB)
-    📄 coct-bill-parser.test.ts  (4.8 KB)
-    📄 coct-bill-parser.ts  (19.2 KB)
-    📄 unknown-tariff-proof.test.ts  (3.0 KB)
+    📄 coct-bill-parser-line-balance.test.ts  (6.0 KB)
+    📄 coct-bill-parser.test.ts  (4.6 KB)
+    📄 generic.ts  (16.5 KB)
+    📄 registry.ts  (0.4 KB)
+    📄 types.ts  (2.3 KB)
+    📄 unknown-tariff-proof.test.ts  (3.2 KB)
+    📁 lib\parsers\_archive/
+      📄 coct-bill-parser-v4.ts  (19.4 KB)
+    📁 lib\parsers\configs/
+      📄 city-of-cape-town.json  (5.6 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
     📄 charge.ts  (3.8 KB)
@@ -1111,6 +1153,10 @@ NODE_ENV=
     📄 verify.ts  (1.2 KB)
   📁 lib\rag/
     📄 legislation.ts  (2.2 KB)
+  📁 lib\recovery/
+    📄 charge.ts  (6.5 KB)
+    📄 detect.test.ts  (3.6 KB)
+    📄 detect.ts  (4.5 KB)
   📁 lib\resend/
     📄 .gitkeep  (0.0 KB)
     📄 autofetch-report.ts  (2.9 KB)
@@ -1118,7 +1164,7 @@ NODE_ENV=
     📄 bill2-reminder.ts  (0.8 KB)
     📄 client.ts  (0.3 KB)
     📄 inbound.ts  (1.6 KB)
-    📄 notifications.ts  (1.4 KB)
+    📄 notifications.ts  (1.5 KB)
     📄 send-dispute.ts  (1.3 KB)
   📁 lib\scrapers/
     📄 generic.ts  (12.9 KB)
@@ -1126,18 +1172,26 @@ NODE_ENV=
     📄 types.ts  (2.7 KB)
     📁 lib\scrapers\configs/
       📄 city-of-cape-town.json  (1.8 KB)
+    📁 lib\scrapers\discovery/
+      📄 index.ts  (1.4 KB)
   📁 lib\supabase/
     📄 .gitkeep  (0.0 KB)
     📄 admin.ts  (0.6 KB)
     📄 client.ts  (0.2 KB)
     📄 server.ts  (0.7 KB)
   📁 lib\tariff/
-    📄 coct-tariff-lookup.test.ts  (9.0 KB)
-    📄 coct-tariff-lookup.ts  (6.3 KB)
     📄 gazette-fetcher.ts  (0.8 KB)
     📄 gazette-parser.ts  (0.3 KB)
+    📄 generic-store.test.ts  (9.8 KB)
+    📄 generic-store.ts  (0.5 KB)
+    📄 registry.ts  (0.6 KB)
     📄 tariff-resolver.ts  (3.4 KB)
     📄 tariffLookup.ts  (4.3 KB)
+    📄 types.ts  (0.4 KB)
+    📁 lib\tariff\_archive/
+      📄 coct-tariff-lookup-v5.ts  (6.3 KB)
+    📁 lib\tariff\configs/
+      📄 city-of-cape-town.json  (14.4 KB)
     📁 lib\tariff\data/
       📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
       📄 CRITICAL_LEGAL_NOTE.md  (1.9 KB)
@@ -1339,10 +1393,11 @@ NODE_ENV=
           📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
       📁 lib\tariff\data\{metros/
     📁 lib\tariff\verifiers/
-      📄 electricityHUCharge.ts  (2.1 KB)
-      📄 ratesCharge.ts  (2.5 KB)
-      📄 refuseCharge.ts  (1.8 KB)
-      📄 waterFixedCharge.ts  (3.1 KB)
+      📄 electricityHUCharge.ts  (2.3 KB)
+      📄 ratesCharge.ts  (2.7 KB)
+      📄 refuseCharge.ts  (2.0 KB)
+      📄 waterFixedCharge.ts  (3.3 KB)
+      📄 waterTierRate.ts  (1.4 KB)
   📁 lib\tiers/
     📄 disclosureRequest.ts  (1.5 KB)
     📄 tier2Analysis.ts  (2.2 KB)
@@ -1352,8 +1407,8 @@ NODE_ENV=
     📄 get-client-ip.ts  (0.8 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
-    📄 bill-validator.test.ts  (10.9 KB)
-    📄 bill-validator.ts  (17.7 KB)
+    📄 bill-validator.test.ts  (20.1 KB)
+    📄 bill-validator.ts  (26.5 KB)
     📄 fallback-chain.test.ts  (2.7 KB)
     📄 prescription.test.ts  (13.4 KB)
     📄 prescription.ts  (9.8 KB)
@@ -1365,13 +1420,25 @@ NODE_ENV=
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
   📄 answer-key.json  (1.4 KB)
+  📄 corpus-matcher.test.ts  (5.4 KB)
+  📄 corpus-test-results.json  (1.5 KB)
+  📄 corpus-test-runner.ts  (7.1 KB)
+  📄 corpus_t1_results.md  (162.8 KB)
+  📄 debug-parse-bill.ts  (3.0 KB)
   📄 extract-sample-bill.ts  (0.6 KB)
   📄 generate_test_bill.py  (10.9 KB)
+  📄 query-tariffs.ts  (1.0 KB)
   📄 regression.ts  (7.6 KB)
+  📄 run-test.js  (0.7 KB)
   📄 scorecard.ts  (4.4 KB)
   📄 seed-tariff-cache.ts  (3.1 KB)
+  📄 setup-tariff-bucket.ts  (11.8 KB)
   📄 social-monitor.ts  (0.2 KB)
   📄 test-bill.pdf  (4.4 KB)
+  📄 tier2-blind-runner.ts  (7.2 KB)
+  📄 tier2-raw-output.json  (24.7 KB)
+  📄 tier3-blind-runner.ts  (6.3 KB)
+  📄 tier3-raw-output.json  (10.7 KB)
 📁 supabase/
   📁 supabase\.temp/
     📄 cli-latest  (0.0 KB)
@@ -1405,6 +1472,7 @@ NODE_ENV=
     📄 020_mandate_consent.sql  (6.4 KB)
     📄 021_consent_events.sql  (1.7 KB)
     📄 022_municipal_autofetch.sql  (6.6 KB)
+    📄 023_profile_id_number.sql  (2.4 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
   📄 consent.test.ts  (8.1 KB)
@@ -1446,9 +1514,95 @@ NODE_ENV=
     📄 ISU260009230832.pdf  (23.0 KB)
     📄 ISU280008356737.pdf  (23.0 KB)
     📄 ISU290007488789.pdf  (22.9 KB)
+  📁 tests\corpus/
+    📁 tests\corpus\v5/
+      📁 tests\corpus\v5\billdog-test-corpus-v5/
+        📄 README.md  (4.2 KB)
+        📄 answer_key.json  (40.9 KB)
+        📁 tests\corpus\v5\billdog-test-corpus-v5\tier1_single_bill/
+          📄 T1-C01.pdf  (5.1 KB)
+          📄 T1-C02.pdf  (5.1 KB)
+          📄 T1-C03.pdf  (5.0 KB)
+          📄 T1-C04.pdf  (5.0 KB)
+          📄 T1-C05.pdf  (5.0 KB)
+          📄 T1-C06.pdf  (5.0 KB)
+          📄 T1-C07.pdf  (5.1 KB)
+          📄 T1-C08.pdf  (5.1 KB)
+          📄 T1-C09.pdf  (5.1 KB)
+          📄 T1-C10.pdf  (5.0 KB)
+          📄 T1-C11.pdf  (5.0 KB)
+          📄 T1-C12.pdf  (5.1 KB)
+          📄 T1-C13.pdf  (5.0 KB)
+          📄 T1-C14.pdf  (5.0 KB)
+          📄 T1-C15.pdf  (5.0 KB)
+          📄 T1-C16.pdf  (5.0 KB)
+          📄 T1-C17.pdf  (5.0 KB)
+          📄 T1-C18.pdf  (5.0 KB)
+          📄 T1-C19.pdf  (5.1 KB)
+          📄 T1-C20.pdf  (5.0 KB)
+          📄 T1-E01.pdf  (5.0 KB)
+          📄 T1-E02.pdf  (5.0 KB)
+          📄 T1-E03.pdf  (5.0 KB)
+          📄 T1-E04.pdf  (5.0 KB)
+          📄 T1-E05.pdf  (5.0 KB)
+          📄 T1-E06.pdf  (5.0 KB)
+          📄 T1-E07.pdf  (5.0 KB)
+          📄 T1-E08.pdf  (4.9 KB)
+          📄 T1-E09.pdf  (5.0 KB)
+          📄 T1-E10.pdf  (5.0 KB)
+          📄 T1-E11.pdf  (5.0 KB)
+          📄 T1-E12.pdf  (5.0 KB)
+          📄 T1-E13.pdf  (5.0 KB)
+          📄 T1-E14.pdf  (5.0 KB)
+          📄 T1-E15.pdf  (5.0 KB)
+          📄 T1-E16.pdf  (5.0 KB)
+        📁 tests\corpus\v5\billdog-test-corpus-v5\tier2_series/
+          📄 T2-S01.pdf  (5.0 KB)
+          📄 T2-S02.pdf  (5.0 KB)
+          📄 T2-S03.pdf  (5.0 KB)
+          📄 T2-S04.pdf  (5.0 KB)
+          📄 T2-S05.pdf  (5.0 KB)
+          📄 T2-S06.pdf  (5.0 KB)
+          📄 T2-S07.pdf  (5.0 KB)
+          📄 T2-S08.pdf  (5.0 KB)
+          📄 T2-S09.pdf  (5.0 KB)
+          📄 T2-S10.pdf  (5.0 KB)
+          📄 T2-S11.pdf  (5.0 KB)
+          📄 T2-S12.pdf  (5.0 KB)
+        📁 tests\corpus\v5\billdog-test-corpus-v5\tier3_edge_cases/
+          📄 T3-01.pdf  (5.0 KB)
+          📄 T3-02.pdf  (5.0 KB)
+          📄 T3-03.pdf  (5.0 KB)
+          📄 T3-04.pdf  (5.1 KB)
+          📄 T3-05.pdf  (5.0 KB)
+          📄 T3-06.pdf  (5.0 KB)
+      📁 tests\corpus\v5\billdog-tier2-bills/
+        📄 README.md  (1.9 KB)
+        📁 tests\corpus\v5\billdog-tier2-bills\tier2_series/
+          📄 T2-S01.pdf  (5.0 KB)
+          📄 T2-S02.pdf  (5.0 KB)
+          📄 T2-S03.pdf  (5.0 KB)
+          📄 T2-S04.pdf  (5.0 KB)
+          📄 T2-S05.pdf  (5.0 KB)
+          📄 T2-S06.pdf  (5.0 KB)
+          📄 T2-S07.pdf  (5.0 KB)
+          📄 T2-S08.pdf  (5.0 KB)
+          📄 T2-S09.pdf  (5.0 KB)
+          📄 T2-S10.pdf  (5.0 KB)
+          📄 T2-S11.pdf  (5.0 KB)
+          📄 T2-S12.pdf  (5.0 KB)
+      📁 tests\corpus\v5\billdog-tier3-bills/
+        📄 README.md  (1.6 KB)
+        📁 tests\corpus\v5\billdog-tier3-bills\tier3_edge_cases/
+          📄 T3-01.pdf  (5.0 KB)
+          📄 T3-02.pdf  (5.0 KB)
+          📄 T3-03.pdf  (5.0 KB)
+          📄 T3-04.pdf  (5.1 KB)
+          📄 T3-05.pdf  (5.0 KB)
+          📄 T3-06.pdf  (5.0 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (5.7 KB)
+  📄 analysis.ts  (6.4 KB)
   📄 index.ts  (10.1 KB)
 ```
 

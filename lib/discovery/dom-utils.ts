@@ -89,5 +89,5 @@ export async function getSimplifiedDOM(target: Page | Frame, credentials: { user
     return processNode(document.body);
   })(${JSON.stringify(credentials)})`);
 
-  return result || { tag: 'body' };
+  return (result || { tag: 'body' }) as DOMNode;
 }

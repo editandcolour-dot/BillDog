@@ -18,7 +18,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 30,
     commonErrors: ["Estimated readings spanning several months", "Water meter faults causing massive usage spikes", "Property valuation errors inflating rates"],
     heroHeadline: "City of Cape Town Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a City of Cape Town bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000). The City of Cape Town has 30 days to respond and cannot disconnect your services while the dispute is active." },
       { question: "How long does City of Cape Town take to respond?", answer: "On average, the City of Cape Town takes 30 days to officially respond to a formally lodged Section 102 dispute letter. Follow-ups are critical during this period." },
@@ -36,7 +36,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 45,
     commonErrors: ["Consecutive estimated readings instead of actuals", "Account linking errors misallocating funds", "Duplicate charges appearing on statements"],
     heroHeadline: "City of Johannesburg Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a City of Johannesburg bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000). The City of Johannesburg generally requires 45 days to resolve issues." },
       { question: "How long does Joburg take to respond?", answer: "The City of Johannesburg has an average response time of 45 days for formal disputes. We automatically track this timeline and escalate if ignored." },
@@ -54,7 +54,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 30,
     commonErrors: ["Incorrect property rates valuation applied", "Unexplained electricity estimated readings", "Refuse removal charged irregularly"],
     heroHeadline: "City of Tshwane Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a City of Tshwane bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000). Tshwane must investigate the matter formally." },
       { question: "How long does Tshwane take to respond?", answer: "Tshwane typically takes around 30 days to respond to properly structured legal disputes. Incorrectly formatted disputes are often ignored." },
@@ -71,7 +71,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 60,
     commonErrors: ["Massive water consumption spikes", "Sewerage charges calculated incorrectly", "Refuse removal billing errors"],
     heroHeadline: "eThekwini Municipality Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute an eThekwini municipal bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000). eThekwini is legally bound to review this." },
       { question: "How long does eThekwini take to respond to disputes?", answer: "Due to high backlogs, eThekwini has an average response time of 60 days. Persistent follow-up and escalation to the ombudsman is frequently required." },
@@ -88,7 +88,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 45,
     commonErrors: ["Electricity billing based on consecutive estimates", "Property rates valuation incorrectly categorised", "Unread meters leading to catch-up shocks"],
     heroHeadline: "Ekurhuleni Municipality Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute an Ekurhuleni municipal bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000). Ekurhuleni will assign a reference number." },
       { question: "How long does Ekurhuleni take to process disputes?", answer: "Ekurhuleni typically takes around 45 days to finalise internal investigations regarding billing errors." },
@@ -105,7 +105,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 60,
     commonErrors: ["Faulty water meters registering ghost usage", "Sundry charges applied without explanation", "Duplicate billing periods overlaid"],
     heroHeadline: "Nelson Mandela Bay Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a NMBM bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000)." },
       { question: "How long does Nelson Mandela Bay take to respond?", answer: "Nelson Mandela Bay typically takes around 60 days to process complex billing disputes, though delays are common. We act on your behalf to force an answer." },
@@ -122,7 +122,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 60,
     commonErrors: ["Wild estimates due to lack of meter reading staff", "Rates calculation errors on property zoning", "Sewage calculations disproportionate to water use"],
     heroHeadline: "Buffalo City Municipality Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a Buffalo City bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000)." },
       { question: "How long does Buffalo City take to respond?", answer: "Responses frequently take up to 60 days. BCM relies heavily on formal escalations before acting on frozen accounts." },
@@ -139,7 +139,7 @@ export const municipalitiesSeoData: Record<string, MunicipalitySeoData> = {
     avgResponseDays: 60,
     commonErrors: ["Estimated water readings applied retrospectively", "Electricity billing glitches on prepaid handovers", "Missing payments not allocated to account"],
     heroHeadline: "Mangaung Municipality Overcharging You? We'll Fight It.",
-    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 20% only if we win.",
+    heroSubheadline: "AI-powered dispute letters citing Section 102 of the Municipal Systems Act. 15% only if we win.",
     faq: [
       { question: "How do I dispute a Mangaung municipal bill?", answer: "To dispute a municipal bill in South Africa, you must submit a formal written dispute to the Municipal Manager citing Section 102 of the Municipal Systems Act (No. 32 of 2000)." },
       { question: "How long does Mangaung take to resolve a dispute?", answer: "Due to administrative backlogs, Mangaung disputes average around 60 days before a resolution is met. Having a legally tight letter forces them to act." },

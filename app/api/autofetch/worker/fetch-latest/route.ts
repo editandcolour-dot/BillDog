@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
             userName: profile.full_name || 'User',
             municipalityName: municipality.name,
             reason: result.errorCode.toLowerCase(),
-            settingsUrl: `${appUrl}/settings`
+            settingsUrl: `${appUrl}/account`
           });
         }
         return NextResponse.json({ success: false, error: result.error, errorCode: result.errorCode }, { status: 200 });
@@ -372,6 +372,18 @@ export async function POST(request: NextRequest) {
       .eq('id', jobId);
 
     console.log(`[autofetch/worker] Job ${jobId} completed — bill "${bill.period}" downloaded and stored`);
+
+    // 15. Schedule recovery detection
+    // After the bill is analysed (in a subsequent pipeline step), recovery detection
+    // will compare credit line items against prior month's findings.
+    // For now, mark the case_bill as ready for analysis, and the analysis pipeline
+    // will call detectRecoveries() after parsing + validation completes.
+    await supabaseAdmin.from('case_events').insert({
+      case_id: caseId,
+      event_type: 'autofetch_bill_downloaded',
+      note: `Auto-fetched bill for period "${bill.period}" ready for analysis and recovery detection.`,
+      metadata: { job_id: jobId, case_bill_id: caseBill.id, storage_path: storagePath },
+    });
 
     return NextResponse.json({
       job_id: jobId,

@@ -153,7 +153,7 @@ export async function POST(request: NextRequest) {
             userName: profile.full_name || 'User',
             municipalityName: municipality.name,
             reason: result.errorCode.toLowerCase(),
-            settingsUrl: `${appUrl}/settings`
+            settingsUrl: `${appUrl}/account`
           });
         }
         await markJobFailed(supabaseAdmin, jobId, result.error || 'Scrape failed');

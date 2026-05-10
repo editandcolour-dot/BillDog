@@ -7,6 +7,7 @@ export interface BillingError {
   legal_basis: string;
   recoverable: boolean;
   service_type: 'electricity' | 'water' | 'gas' | 'rates' | 'sewerage' | 'refuse' | 'other';
+  finding_type?: string; // Original ValidationFinding.type — used by corpus test runner for precise matching
 }
 
 export interface AnalysisResult {
@@ -145,6 +146,14 @@ export interface ParsedBill {
   };
   vatAmount: number;
 
+  // Account summary fields (from page 1)
+  previousBalance?: number;
+  paymentsReceived?: number;
+
+  // Meter reading status (from section headers)
+  waterReadingStatus?: 'actual' | 'estimated';
+  sewerageReadingStatus?: 'actual' | 'estimated';
+
   // Anomalies discovered by the parser itself (e.g. tier-line mismatches, missing rebates)
   parser_anomalies?: ValidationFinding[];
 }
@@ -160,7 +169,16 @@ export type FindingType =
   | 'VAT_MISMATCH'
   | 'SEWERAGE_RATIO_ERROR'
   | 'METER_READING_MISMATCH'
-  | 'UNKNOWN_TARIFF';
+  | 'UNKNOWN_TARIFF'
+  | 'TIER_LINE_INFLATION'
+  | 'FIXED_CHARGE_MISMATCH'
+  | 'TIER_LINE_ARITHMETIC_MISMATCH'
+  | 'WATER_TARIFF_OVERCHARGE'
+  | 'WATER_TARIFF_UNDERCHARGE'
+  | 'MISSING_REBATE'
+  | 'POSSIBLE_CARRYOVER_ERROR'
+  | 'REVIEW_REQUIRED'
+  | 'ESTIMATED_READING_FLAGGED';
 
 export interface ValidationFinding {
   type: FindingType;

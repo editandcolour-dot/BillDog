@@ -1,6 +1,6 @@
 {
   "corpus_metadata": {
-    "version": "1.0",
+    "version": "1.4",
     "total_bills": 54,
     "tier1_count": 36,
     "tier2_count": 12,
@@ -9,21 +9,24 @@
     "clean_bill_count": 26,
     "edge_case_count": 1,
     "vat_rate_used": 0.15,
-    "vat_rate_history_note": "All test bills use 15% VAT (the rate effective from 1 April 2018 onwards). For bills predating this, the rate would be 14% (1993-04-07 to 2018-03-31) or 10% (1991-09-30 to 1993-04-06).",
-    "tariff_basis": "May 2023 CoCT residential tariffs used as constants across the corpus. Test focus is parser/analyser correctness, not real-world tariff knowledge."
+    "fiscal_year": "FY2024/25 (1 July 2024 to 30 June 2025)",
+    "fy_boundary_test_bill": "T1-E16 spans 1 July 2025",
+    "v1_1_changes": "Statement dates moved to mid-FY2024/25 to keep periods within FY2024/25.",
+    "v1_3_changes": "T1-E16 expected_findings updated to whitelist the 5 fiscal-boundary rate-mismatch findings Billdog correctly emits.",
+    "v1_4_changes": "Added 6th expected finding (UNKNOWN_TARIFF for water fixed basic FY2025/26) to T1-E16. All findings now include explicit type field for the new (type, overchargeZar) tuple matcher."
   },
   "tier_descriptions": {
     "tier1": {
-      "purpose": "Single-bill error detection. Each error bill has ONE injected error embedded among clean bills. Tests detection rate and false-positive rate.",
+      "purpose": "Single-bill detection",
       "error_count": 16,
       "clean_count": 20
     },
     "tier2": {
-      "purpose": "Series-level trend error detection. 12-month sequence for one account with compounding tariff errors, recurring duplicate charges, and carryover balance errors. Tests cross-bill analysis.",
-      "narrative": "Months 1-3: clean baseline. Months 4-7: water tariff overcharge compounding (+R0.50/kl per month). Months 5-7: duplicate refuse charge in sundries. Month 8: clean. Months 9-12: payments not credited (carryover error)."
+      "purpose": "12-month series for trend errors",
+      "narrative": "M1-3 clean. M4-7 compounding water. M5-7 duplicate refuse. M8 clean. M9-12 carryover."
     },
     "tier3": {
-      "purpose": "Edge cases. Stacked errors, magnitude scaling, UNKNOWN_TARIFF behaviour, format/parsing edge cases.",
+      "purpose": "Edge cases",
       "count": 6
     }
   },
@@ -32,14 +35,14 @@
       "bill_id": "T1-E01",
       "tier": 1,
       "category": "error",
-      "label": "Water tier-line inflation (small)",
+      "label": "Water tier-line inflation",
       "pdf_filename": "T1-E01.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TIER_LINE_INFLATION",
-          "line_item": "Water tier 1: 6kl @ R16.89",
-          "expected_calc": 101.34,
-          "shown_amount": 119.34,
+          "line_item": "Water tier 1: 6kl @ R19.59",
+          "expected_calc": 117.54,
+          "shown_amount": 135.54,
           "delta": 18.0,
           "vat_cascade": 2.7,
           "expected_recoverable": 20.7,
@@ -47,7 +50,8 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E02",
@@ -58,9 +62,9 @@
       "expected_findings": [
         {
           "error_type": "SEWER_TIER_LINE_INFLATION",
-          "line_item": "Sewer disposal: 4.20kl @ R14.84",
-          "expected_calc": 62.33,
-          "shown_amount": 90.33,
+          "line_item": "Sewer tier 1: 4.20kl @ R17.22",
+          "expected_calc": 72.32,
+          "shown_amount": 100.32,
           "delta": 28.0,
           "vat_cascade": 4.2,
           "expected_recoverable": 32.2,
@@ -68,20 +72,21 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E03",
       "tier": 1,
       "category": "error",
-      "label": "HUC inflation (R140 + 15% VAT cascade)",
+      "label": "HUC inflation R140 + 15% VAT cascade",
       "pdf_filename": "T1-E03.pdf",
       "expected_findings": [
         {
           "error_type": "SUNDRIES_HUC_INFLATION",
-          "line_item": "Electricity Home User Charge - 03.2024",
-          "expected_amount": 185.0,
-          "shown_amount": 325.0,
+          "line_item": "Electricity Home User Charge - 11.2024",
+          "expected_amount": 245.03,
+          "shown_amount": 385.03,
           "delta": 140.0,
           "vat_cascade": 21.0,
           "expected_recoverable": 161.0,
@@ -89,20 +94,21 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E04",
       "tier": 1,
       "category": "error",
-      "label": "Refuse charge inflation (small + VAT cascade)",
+      "label": "Refuse charge inflation + VAT cascade",
       "pdf_filename": "T1-E04.pdf",
       "expected_findings": [
         {
           "error_type": "REFUSE_CHARGE_INFLATION",
           "line_item": "Refuse charge (1 x 240lBIN x 1 Removals)",
-          "expected_amount": 149.13,
-          "shown_amount": 171.13,
+          "expected_amount": 166.26,
+          "shown_amount": 188.26,
           "delta": 22.0,
           "vat_cascade": 3.3,
           "expected_recoverable": 25.3,
@@ -110,20 +116,21 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E05",
       "tier": 1,
       "category": "error",
-      "label": "Water tariff overcharge (rate inflated R1.50/kl)",
+      "label": "Water tariff overcharge",
       "pdf_filename": "T1-E05.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_OVERCHARGE",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 18.39,
-          "expected_rate": 16.89,
+          "shown_rate": 21.09,
+          "expected_rate": 19.59,
           "delta_per_kl": 1.5,
           "total_inflation": 9.0,
           "vat_cascade": 1.35,
@@ -132,20 +139,21 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E06",
       "tier": 1,
       "category": "error",
-      "label": "Water tariff undercharge (rate deflated R1.00/kl)",
+      "label": "Water tariff undercharge",
       "pdf_filename": "T1-E06.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_UNDERCHARGE",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 15.89,
-          "expected_rate": 16.89,
+          "shown_rate": 18.59,
+          "expected_rate": 19.59,
           "delta_per_kl": -1.0,
           "total_undercharge": 6.0,
           "expected_recoverable": 0.0,
@@ -155,7 +163,8 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E07",
@@ -167,33 +176,35 @@
         {
           "error_type": "DUPLICATE_LINE_ITEM",
           "line_item": "Refuse charge appearing twice (once in REFUSE section, once in SUNDRIES)",
-          "duplicated_amount": 149.13,
-          "vat_cascade": 22.37,
-          "expected_recoverable": 171.5,
+          "duplicated_amount": 166.26,
+          "vat_cascade": 24.94,
+          "expected_recoverable": 191.2,
           "legal_basis": "Municipal Finance Management Act 56 of 2003 \u2014 billing must reflect actual services provided exactly once."
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E08",
       "tier": 1,
       "category": "error",
-      "label": "Missing property rates rebate credit",
+      "label": "Missing property rates rebate",
       "pdf_filename": "T1-E08.pdf",
       "expected_findings": [
         {
           "error_type": "MISSING_REBATE",
           "line_item": "Property rates additional rebate credit",
-          "missing_rebate_amount": 138.7,
+          "missing_rebate_amount": 221.28,
           "vat_cascade": 0.0,
-          "expected_recoverable": 138.7,
+          "expected_recoverable": 221.28,
           "legal_basis": "Municipal Property Rates Act 6 of 2004, s 15 \u2014 eligible rebates must be applied."
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E09",
@@ -212,7 +223,8 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E10",
@@ -223,24 +235,25 @@
       "expected_findings": [
         {
           "error_type": "DECIMAL_TYPO_INFLATION",
-          "line_item": "Electricity Home User Charge - 10.2024",
-          "expected_amount": 185.0,
-          "shown_amount": 1850.0,
-          "delta": 1665.0,
-          "vat_cascade": 249.75,
-          "expected_recoverable": 1914.75,
+          "line_item": "Electricity Home User Charge - 06.2025",
+          "expected_amount": 245.03,
+          "shown_amount": 2450.3,
+          "delta": 2205.27,
+          "vat_cascade": 330.79,
+          "expected_recoverable": 2536.06,
           "note": "Decimal placement error \u2014 value is 10x what it should be. Should be flagged on magnitude alone.",
           "legal_basis": "Municipal Systems Act 32 of 2000, s 75A \u2014 service charges must reflect approved tariffs."
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E11",
       "tier": 1,
       "category": "error",
-      "label": "Carryover balance error (paid amount not credited)",
+      "label": "Carryover balance error",
       "pdf_filename": "T1-E11.pdf",
       "expected_findings": [
         {
@@ -254,26 +267,28 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E12",
       "tier": 1,
       "category": "error",
-      "label": "VAT charged on zero-rated property rates",
+      "label": "VAT on zero-rated property rates",
       "pdf_filename": "T1-E12.pdf",
       "expected_findings": [
         {
           "error_type": "VAT_ON_ZERO_RATED",
           "line_item": "Property rates (zero-rated under SARS ruling, but marked & VATable)",
-          "incorrect_vat_amount": 313.31,
-          "expected_recoverable": 313.31,
+          "incorrect_vat_amount": 316.04,
+          "expected_recoverable": 316.04,
           "vat_cascade": 0.0,
           "legal_basis": "Value-Added Tax Act 89 of 1991, s 11 \u2014 property rates levied by a municipality are zero-rated supplies."
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E13",
@@ -293,28 +308,30 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E14",
       "tier": 1,
       "category": "error",
-      "label": "Extra refuse bin charge (2 bins billed; 1 actual)",
+      "label": "Extra refuse bin charge",
       "pdf_filename": "T1-E14.pdf",
       "expected_findings": [
         {
           "error_type": "EXTRA_REFUSE_BIN_CHARGE",
           "line_item": "Refuse charge (2 bins billed; should be 1)",
-          "expected_amount": 149.13,
-          "shown_amount": 298.26,
-          "delta": 149.13,
-          "vat_cascade": 22.37,
-          "expected_recoverable": 171.5,
+          "expected_amount": 166.26,
+          "shown_amount": 332.52,
+          "delta": 166.26,
+          "vat_cascade": 24.94,
+          "expected_recoverable": 191.2,
           "legal_basis": "Municipal Systems Act 32 of 2000 \u2014 service charges must reflect actual service provision."
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E15",
@@ -334,29 +351,103 @@
         }
       ],
       "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-E16",
       "tier": 1,
       "category": "error",
-      "label": "Fiscal boundary clean bill (parser must capture all 4 segments \u2014 no error to detect)",
+      "label": "Fiscal boundary bill (rate mismatches across 1 July 2025 \u2014 old FY rates retained after boundary)",
       "pdf_filename": "T1-E16.pdf",
       "expected_findings": [
         {
-          "error_type": "FISCAL_BOUNDARY_NO_ERROR",
-          "expected_segments_captured": 4,
-          "pre_rates_amount": 1155.66,
-          "pre_rebate_amount": -71.96,
-          "post_rates_amount": 1193.28,
-          "post_rebate_amount": -74.3,
-          "total_rates_subtotal": 2202.68,
-          "note": "Bill is correctly billed across fiscal boundary. Parser MUST capture all 4 segments and detect NO error. Old parser would have read only first 2 segments and falsely flagged the printed subtotal as wrong.",
-          "legal_basis": "n/a \u2014 clean bill, parser correctness test"
+          "type": "UNKNOWN_RATE_APPLIED",
+          "error_type": "UNKNOWN_RATE_APPLIED",
+          "line_item": "Rates segment from 16/06/2025: R4577000 @ 0.006144",
+          "service_type": "rates",
+          "amount_charged": 1155.66,
+          "expected_amount": 1247.26,
+          "overchargeZar": 82.89,
+          "issue": "Rate applied (0.006144) doesn't match known municipality rate for this period (0.006631). Net impact across main and rebate segments.",
+          "recoverable": true,
+          "expected_recoverable": 82.89,
+          "legal_basis": "Municipal Property Rates Act 6 of 2004 \u2014 rates must align with the gazetted rate-in-the-Rand for the applicable fiscal year."
+        },
+        {
+          "type": "UNKNOWN_RATE_APPLIED",
+          "error_type": "UNKNOWN_RATE_APPLIED",
+          "line_item": "Rates segment from 01/07/2025: R4577000 @ 0.006344",
+          "service_type": "rates",
+          "amount_charged": 1193.28,
+          "expected_amount": 1346.58,
+          "overchargeZar": 138.73,
+          "issue": "Rate applied (0.006344) doesn't match known municipality rate for this period (0.007159). Net impact across main and rebate segments.",
+          "recoverable": true,
+          "expected_recoverable": 138.73,
+          "legal_basis": "Municipal Property Rates Act 6 of 2004 \u2014 rates must align with the gazetted rate-in-the-Rand for the applicable fiscal year."
+        },
+        {
+          "type": "HUC_AMOUNT_WRONG",
+          "error_type": "HUC_AMOUNT_WRONG",
+          "line_item": "- 07.2025 (PREPAID 4907315610) 245.03",
+          "service_type": "electricity",
+          "amount_charged": 245.03,
+          "expected_amount": 339.89,
+          "overchargeZar": 109.09,
+          "issue": "Discrepancy in Electricity HU Charge. Expected approx R339.89, billed R245.03",
+          "recoverable": true,
+          "expected_recoverable": 109.09,
+          "legal_basis": "Municipal Systems Act 32 of 2000, s 75A \u2014 service charges must reflect approved tariffs for the applicable fiscal year."
+        },
+        {
+          "type": "UNKNOWN_RATE_APPLIED",
+          "error_type": "UNKNOWN_RATE_APPLIED",
+          "line_item": "Refuse charge ( 1 X 240lBIN X 1 Removals ) 166.26",
+          "service_type": "rates",
+          "amount_charged": 166.26,
+          "expected_amount": 178.52,
+          "overchargeZar": 14.1,
+          "issue": "Discrepancy in Refuse Charge. Expected approx R178.52, billed R166.26",
+          "recoverable": true,
+          "expected_recoverable": 14.1,
+          "legal_basis": "Municipal Systems Act 32 of 2000 \u2014 refuse charges must align with the published tariff schedule for the applicable fiscal year."
+        },
+        {
+          "type": "WATER_TARIFF_UNDERCHARGE",
+          "error_type": "WATER_TARIFF_UNDERCHARGE",
+          "line_item": "& (1) 6.0000 kl @ R 19.5900 117.54",
+          "service_type": "other",
+          "amount_charged": 117.54,
+          "expected_amount": 126.9,
+          "overchargeZar": 0.0,
+          "issue": "Water tier 1 rate mismatch. Billed R19.59/kl, expected R21.15/kl (delta R-1.56/kl \u00d7 6kl).",
+          "recoverable": false,
+          "expected_recoverable": 0.0,
+          "expected_finding_severity": "INFORMATIONAL",
+          "note": "Undercharge \u2014 customer benefits. No recoverable amount.",
+          "legal_basis": "n/a \u2014 informational, customer benefit"
+        },
+        {
+          "type": "UNKNOWN_TARIFF",
+          "error_type": "UNKNOWN_TARIFF",
+          "line_item": "Water Fixed Basic Charge 20mm",
+          "service_type": "water",
+          "amount_charged": 135.54,
+          "expected_amount": 0,
+          "overchargeZar": 0,
+          "expected_recoverable": 0,
+          "issue": "Tariff data unknown for Water Fixed Charge in 13/07/2025. Flagged for review.",
+          "recoverable": false,
+          "expected_finding_severity": "REVIEW_ONLY",
+          "note": "FY2025/26 has no water fixed basic tariff data in the generic store. Billdog correctly flags as UNKNOWN_TARIFF for review.",
+          "legal_basis": "n/a \u2014 review-only flag"
         }
       ],
-      "expected_non_findings_note": "No findings other than the one listed above.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Five rate-mismatch findings expected. Synthetic bill prints pre-FY2024/25 rates that don't match either FY2024/25 or FY2025/26 gazetted rates \u2014 simulating a municipality that fails to update tariffs at the fiscal boundary.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25 \u2192 FY2025/26 (spans boundary)",
+      "test_purpose": "Tests parser capture of all 4 rates segments AND validator's tariff cross-check across the fiscal boundary."
     },
     {
       "bill_id": "T1-C01",
@@ -365,9 +456,10 @@
       "label": "Clean bill (val=R3200000, water=8kl)",
       "pdf_filename": "T1-C01.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2342.95
+      "expected_total_due": 2501.92,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C02",
@@ -376,9 +468,10 @@
       "label": "Clean bill (val=R4800000, water=12kl)",
       "pdf_filename": "T1-C02.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3330.14
+      "expected_total_due": 3544.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C03",
@@ -387,9 +480,10 @@
       "label": "Clean bill (val=R5500000, water=4kl)",
       "pdf_filename": "T1-C03.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3309.15
+      "expected_total_due": 3499.12,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C04",
@@ -398,9 +492,10 @@
       "label": "Clean bill (val=R7200000, water=6kl)",
       "pdf_filename": "T1-C04.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 4199.22
+      "expected_total_due": 4436.64,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C05",
@@ -409,9 +504,10 @@
       "label": "Clean bill (val=R9800000, water=10kl)",
       "pdf_filename": "T1-C05.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 5645.32
+      "expected_total_due": 5959.2,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C06",
@@ -420,9 +516,10 @@
       "label": "Clean bill (val=R4592000, water=3kl)",
       "pdf_filename": "T1-C06.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2835.89
+      "expected_total_due": 3000.85,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C07",
@@ -431,9 +528,10 @@
       "label": "Clean bill (val=R4592000, water=15kl)",
       "pdf_filename": "T1-C07.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3419.97
+      "expected_total_due": 3644.64,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C08",
@@ -442,9 +540,10 @@
       "label": "Clean bill (val=R4592000, water=18kl)",
       "pdf_filename": "T1-C08.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3611.02
+      "expected_total_due": 3851.07,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C09",
@@ -453,9 +552,10 @@
       "label": "Clean bill (val=R4592000, water=25kl)",
       "pdf_filename": "T1-C09.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 4056.81
+      "expected_total_due": 4332.73,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C10",
@@ -464,9 +564,10 @@
       "label": "Clean bill (val=R4592000, water=0.5kl)",
       "pdf_filename": "T1-C10.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2757.47
+      "expected_total_due": 2909.88,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C11",
@@ -475,9 +576,10 @@
       "label": "Clean bill (val=R4592000, water=6kl)",
       "pdf_filename": "T1-C11.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2930.01
+      "expected_total_due": 3110.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C12",
@@ -486,9 +588,10 @@
       "label": "Clean bill (val=R4592000, water=8kl)",
       "pdf_filename": "T1-C12.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3020.39
+      "expected_total_due": 3210.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C13",
@@ -497,9 +600,10 @@
       "label": "Clean bill (val=R4592000, water=6kl)",
       "pdf_filename": "T1-C13.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2930.01
+      "expected_total_due": 3110.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C14",
@@ -508,9 +612,10 @@
       "label": "Clean bill (val=R4592000, water=7kl)",
       "pdf_filename": "T1-C14.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2975.2
+      "expected_total_due": 3160.02,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C15",
@@ -519,9 +624,10 @@
       "label": "Clean bill (val=R4592000, water=9kl)",
       "pdf_filename": "T1-C15.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 3065.58
+      "expected_total_due": 3260.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C16",
@@ -530,9 +636,10 @@
       "label": "Clean bill (val=R1850000, water=5kl)",
       "pdf_filename": "T1-C16.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 1564.21
+      "expected_total_due": 1678.83,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C17",
@@ -541,9 +648,10 @@
       "label": "Clean bill (val=R2400000, water=4kl)",
       "pdf_filename": "T1-C17.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 1800.49
+      "expected_total_due": 1922.21,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C18",
@@ -552,9 +660,10 @@
       "label": "Clean bill (val=R12000000, water=8kl)",
       "pdf_filename": "T1-C18.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 6625.59
+      "expected_total_due": 6978.3,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C19",
@@ -563,9 +672,10 @@
       "label": "Clean bill (val=R15000000, water=11kl)",
       "pdf_filename": "T1-C19.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 8230.42
+      "expected_total_due": 8663.74,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T1-C20",
@@ -574,277 +684,290 @@
       "label": "Clean bill (val=R4592000, water=6kl)",
       "pdf_filename": "T1-C20.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Bill is internally consistent and tariff-compliant. No findings expected.",
+      "expected_non_findings_note": "Bill is internally consistent. No findings expected.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2930.01
+      "expected_total_due": 3110.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S01",
       "tier": 2,
       "category": "clean",
       "series_position": 1,
-      "label": "Clean baseline",
+      "label": "Month 1: Clean baseline",
       "pdf_filename": "T2-S01.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S02",
       "tier": 2,
       "category": "clean",
       "series_position": 2,
-      "label": "Clean baseline",
+      "label": "Month 2: Clean baseline",
       "pdf_filename": "T2-S02.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S03",
       "tier": 2,
       "category": "clean",
       "series_position": 3,
-      "label": "Clean baseline",
+      "label": "Month 3: Clean baseline",
       "pdf_filename": "T2-S03.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S04",
       "tier": 2,
       "category": "error",
       "series_position": 4,
-      "label": "Trend errors: WATER_TARIFF_OVERCHARGE_COMPOUNDING",
+      "label": "Month 4: WATER_TARIFF_OVERCHARGE_COMPOUNDING",
       "pdf_filename": "T2-S04.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_OVERCHARGE_COMPOUNDING",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 17.39,
-          "expected_rate": 16.89,
+          "shown_rate": 20.09,
+          "expected_rate": 19.59,
           "delta_per_kl": 0.5,
           "total_inflation": 3.0,
           "vat_cascade": 0.45,
           "expected_recoverable": 3.45,
           "legal_basis": "Water Services Act 108 of 1997, s 10 \u2014 water tariffs must align with the gazetted tariff schedule.",
-          "compounding_note": "Month 4 of compounding error; inflation grew from previous month."
+          "compounding_note": "Month 4: compounding water tariff."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S05",
       "tier": 2,
       "category": "error",
       "series_position": 5,
-      "label": "Trend errors: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
+      "label": "Month 5: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
       "pdf_filename": "T2-S05.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_OVERCHARGE_COMPOUNDING",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 17.89,
-          "expected_rate": 16.89,
+          "shown_rate": 20.59,
+          "expected_rate": 19.59,
           "delta_per_kl": 1.0,
           "total_inflation": 6.0,
           "vat_cascade": 0.9,
           "expected_recoverable": 6.9,
           "legal_basis": "Water Services Act 108 of 1997, s 10 \u2014 water tariffs must align with the gazetted tariff schedule.",
-          "compounding_note": "Month 5 of compounding error; inflation grew from previous month."
+          "compounding_note": "Month 5: compounding water tariff."
         },
         {
           "error_type": "DUPLICATE_LINE_ITEM_RECURRING",
           "line_item": "Refuse charge appearing twice (once in REFUSE section, once in SUNDRIES)",
-          "duplicated_amount": 149.13,
-          "vat_cascade": 22.37,
-          "expected_recoverable": 171.5,
+          "duplicated_amount": 166.26,
+          "vat_cascade": 24.94,
+          "expected_recoverable": 191.2,
           "legal_basis": "Municipal Finance Management Act 56 of 2003 \u2014 billing must reflect actual services provided exactly once.",
-          "recurring_note": "Duplicate appeared in months 5-7; this is month 5."
+          "recurring_note": "Month 5: duplicate refuse."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S06",
       "tier": 2,
       "category": "error",
       "series_position": 6,
-      "label": "Trend errors: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
+      "label": "Month 6: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
       "pdf_filename": "T2-S06.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_OVERCHARGE_COMPOUNDING",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 18.39,
-          "expected_rate": 16.89,
+          "shown_rate": 21.09,
+          "expected_rate": 19.59,
           "delta_per_kl": 1.5,
           "total_inflation": 9.0,
           "vat_cascade": 1.35,
           "expected_recoverable": 10.35,
           "legal_basis": "Water Services Act 108 of 1997, s 10 \u2014 water tariffs must align with the gazetted tariff schedule.",
-          "compounding_note": "Month 6 of compounding error; inflation grew from previous month."
+          "compounding_note": "Month 6: compounding water tariff."
         },
         {
           "error_type": "DUPLICATE_LINE_ITEM_RECURRING",
           "line_item": "Refuse charge appearing twice (once in REFUSE section, once in SUNDRIES)",
-          "duplicated_amount": 149.13,
-          "vat_cascade": 22.37,
-          "expected_recoverable": 171.5,
+          "duplicated_amount": 166.26,
+          "vat_cascade": 24.94,
+          "expected_recoverable": 191.2,
           "legal_basis": "Municipal Finance Management Act 56 of 2003 \u2014 billing must reflect actual services provided exactly once.",
-          "recurring_note": "Duplicate appeared in months 5-7; this is month 6."
+          "recurring_note": "Month 6: duplicate refuse."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S07",
       "tier": 2,
       "category": "error",
       "series_position": 7,
-      "label": "Trend errors: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
+      "label": "Month 7: WATER_TARIFF_OVERCHARGE_COMPOUNDING, DUPLICATE_LINE_ITEM_RECURRING",
       "pdf_filename": "T2-S07.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TARIFF_OVERCHARGE_COMPOUNDING",
           "line_item": "Water tier 1 step (6kl)",
-          "shown_rate": 18.89,
-          "expected_rate": 16.89,
+          "shown_rate": 21.59,
+          "expected_rate": 19.59,
           "delta_per_kl": 2.0,
           "total_inflation": 12.0,
           "vat_cascade": 1.8,
           "expected_recoverable": 13.8,
           "legal_basis": "Water Services Act 108 of 1997, s 10 \u2014 water tariffs must align with the gazetted tariff schedule.",
-          "compounding_note": "Month 7 of compounding error; inflation grew from previous month."
+          "compounding_note": "Month 7: compounding water tariff."
         },
         {
           "error_type": "DUPLICATE_LINE_ITEM_RECURRING",
           "line_item": "Refuse charge appearing twice (once in REFUSE section, once in SUNDRIES)",
-          "duplicated_amount": 149.13,
-          "vat_cascade": 22.37,
-          "expected_recoverable": 171.5,
+          "duplicated_amount": 166.26,
+          "vat_cascade": 24.94,
+          "expected_recoverable": 191.2,
           "legal_basis": "Municipal Finance Management Act 56 of 2003 \u2014 billing must reflect actual services provided exactly once.",
-          "recurring_note": "Duplicate appeared in months 5-7; this is month 7."
+          "recurring_note": "Month 7: duplicate refuse."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S08",
       "tier": 2,
       "category": "clean",
       "series_position": 8,
-      "label": "Clean baseline",
+      "label": "Month 8: Clean baseline",
       "pdf_filename": "T2-S08.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S09",
       "tier": 2,
       "category": "error",
       "series_position": 9,
-      "label": "Trend errors: CARRYOVER_BALANCE_ERROR",
+      "label": "Month 9: CARRYOVER_BALANCE_ERROR",
       "pdf_filename": "T2-S09.pdf",
       "expected_findings": [
         {
           "error_type": "CARRYOVER_BALANCE_ERROR",
-          "line_item": "Account summary \u2014 previous balance not credited despite payment",
-          "incorrect_previous_balance": 2930.01,
-          "expected_payment_credit": 2930.01,
-          "expected_recoverable": 2930.01,
+          "line_item": "Payment not credited",
+          "incorrect_previous_balance": 3110.01,
+          "expected_payment_credit": 3110.01,
+          "expected_recoverable": 3110.01,
           "vat_cascade": 0.0,
-          "compounding_note": "Month 9: payment from prior month not credited.",
-          "legal_basis": "Municipal Systems Act 32 of 2000, s 102 \u2014 payments must be credited correctly."
+          "compounding_note": "Month 9: prior payment missing.",
+          "legal_basis": "Municipal Systems Act 32 of 2000, s 102."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S10",
       "tier": 2,
       "category": "error",
       "series_position": 10,
-      "label": "Trend errors: CARRYOVER_BALANCE_ERROR",
+      "label": "Month 10: CARRYOVER_BALANCE_ERROR",
       "pdf_filename": "T2-S10.pdf",
       "expected_findings": [
         {
           "error_type": "CARRYOVER_BALANCE_ERROR",
-          "line_item": "Account summary \u2014 previous balance not credited despite payment",
-          "incorrect_previous_balance": 2930.01,
-          "expected_payment_credit": 2930.01,
-          "expected_recoverable": 2930.01,
+          "line_item": "Payment not credited",
+          "incorrect_previous_balance": 3110.01,
+          "expected_payment_credit": 3110.01,
+          "expected_recoverable": 3110.01,
           "vat_cascade": 0.0,
-          "compounding_note": "Month 10: payment from prior month not credited.",
-          "legal_basis": "Municipal Systems Act 32 of 2000, s 102 \u2014 payments must be credited correctly."
+          "compounding_note": "Month 10: prior payment missing.",
+          "legal_basis": "Municipal Systems Act 32 of 2000, s 102."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S11",
       "tier": 2,
       "category": "error",
       "series_position": 11,
-      "label": "Trend errors: CARRYOVER_BALANCE_ERROR",
+      "label": "Month 11: CARRYOVER_BALANCE_ERROR",
       "pdf_filename": "T2-S11.pdf",
       "expected_findings": [
         {
           "error_type": "CARRYOVER_BALANCE_ERROR",
-          "line_item": "Account summary \u2014 previous balance not credited despite payment",
-          "incorrect_previous_balance": 2930.01,
-          "expected_payment_credit": 2930.01,
-          "expected_recoverable": 2930.01,
+          "line_item": "Payment not credited",
+          "incorrect_previous_balance": 3110.01,
+          "expected_payment_credit": 3110.01,
+          "expected_recoverable": 3110.01,
           "vat_cascade": 0.0,
-          "compounding_note": "Month 11: payment from prior month not credited.",
-          "legal_basis": "Municipal Systems Act 32 of 2000, s 102 \u2014 payments must be credited correctly."
+          "compounding_note": "Month 11: prior payment missing.",
+          "legal_basis": "Municipal Systems Act 32 of 2000, s 102."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T2-S12",
       "tier": 2,
       "category": "error",
       "series_position": 12,
-      "label": "Trend errors: CARRYOVER_BALANCE_ERROR",
+      "label": "Month 12: CARRYOVER_BALANCE_ERROR",
       "pdf_filename": "T2-S12.pdf",
       "expected_findings": [
         {
           "error_type": "CARRYOVER_BALANCE_ERROR",
-          "line_item": "Account summary \u2014 previous balance not credited despite payment",
-          "incorrect_previous_balance": 2930.01,
-          "expected_payment_credit": 2930.01,
-          "expected_recoverable": 2930.01,
+          "line_item": "Payment not credited",
+          "incorrect_previous_balance": 3110.01,
+          "expected_payment_credit": 3110.01,
+          "expected_recoverable": 3110.01,
           "vat_cascade": 0.0,
-          "compounding_note": "Month 12: payment from prior month not credited.",
-          "legal_basis": "Municipal Systems Act 32 of 2000, s 102 \u2014 payments must be credited correctly."
+          "compounding_note": "Month 12: prior payment missing.",
+          "legal_basis": "Municipal Systems Act 32 of 2000, s 102."
         }
       ],
-      "expected_non_findings_note": "Series-level checks must catch trend errors that single-bill analysis cannot.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Cross-bill analysis catches trend errors.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-01",
       "tier": 3,
       "category": "error",
-      "label": "Stacked errors: water tier-line + HUC inflation (system must catch BOTH)",
+      "label": "Stacked errors: water tier-line + HUC",
       "pdf_filename": "T3-01.pdf",
       "expected_findings": [
         {
           "error_type": "WATER_TIER_LINE_INFLATION",
-          "line_item": "Water tier 1: 6kl @ R16.89",
-          "expected_calc": 101.34,
-          "shown_amount": 119.34,
+          "line_item": "Water tier 1: 6kl @ R19.59",
+          "expected_calc": 117.54,
+          "shown_amount": 135.54,
           "delta": 18.0,
           "vat_cascade": 2.7,
           "expected_recoverable": 20.7,
@@ -852,113 +975,119 @@
         },
         {
           "error_type": "SUNDRIES_HUC_INFLATION",
-          "line_item": "Electricity Home User Charge - 06.2024",
-          "expected_amount": 185.0,
-          "shown_amount": 325.0,
+          "line_item": "Electricity Home User Charge - 11.2024",
+          "expected_amount": 245.03,
+          "shown_amount": 385.03,
           "delta": 140.0,
           "vat_cascade": 21.0,
           "expected_recoverable": 161.0,
           "legal_basis": "Municipal Systems Act 32 of 2000, s 75A \u2014 service charges must reflect approved tariffs; VAT cascades on overcharged taxable supplies."
         }
       ],
-      "expected_non_findings_note": "Two independent errors on the same bill. System must catch both, not stop at first.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Both must be caught.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-02",
       "tier": 3,
       "category": "error",
-      "label": "Small-magnitude error (R5 HUC inflation \u2014 tests detection threshold)",
+      "label": "Small-magnitude error",
       "pdf_filename": "T3-02.pdf",
       "expected_findings": [
         {
           "error_type": "SUNDRIES_HUC_INFLATION",
-          "line_item": "Electricity Home User Charge - 06.2024",
-          "expected_amount": 185.0,
-          "shown_amount": 190.0,
+          "line_item": "Electricity Home User Charge - 12.2024",
+          "expected_amount": 245.03,
+          "shown_amount": 250.03,
           "delta": 5.0,
           "vat_cascade": 0.75,
           "expected_recoverable": 5.75,
           "legal_basis": "Municipal Systems Act 32 of 2000, s 75A \u2014 service charges must reflect approved tariffs; VAT cascades on overcharged taxable supplies.",
           "expected_finding_severity": "MARGINAL",
-          "note": "Small inflation amount (R5) \u2014 tests detection threshold. Should still be flagged."
+          "note": "Small inflation (R5)."
         }
       ],
-      "expected_non_findings_note": "Marginal error \u2014 system must not skip due to low absolute value.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Marginal \u2014 must not skip.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-03",
       "tier": 3,
       "category": "error",
-      "label": "Large-magnitude error (R200 HUC inflation \u2014 same as T3-02 with bigger value)",
+      "label": "Large-magnitude error",
       "pdf_filename": "T3-03.pdf",
       "expected_findings": [
         {
           "error_type": "SUNDRIES_HUC_INFLATION",
-          "line_item": "Electricity Home User Charge - 06.2024",
-          "expected_amount": 185.0,
-          "shown_amount": 385.0,
+          "line_item": "Electricity Home User Charge - 01.2025",
+          "expected_amount": 245.03,
+          "shown_amount": 445.03,
           "delta": 200.0,
           "vat_cascade": 30.0,
           "expected_recoverable": 230.0,
           "legal_basis": "Municipal Systems Act 32 of 2000, s 75A \u2014 service charges must reflect approved tariffs; VAT cascades on overcharged taxable supplies.",
-          "note": "Large inflation amount (R200) \u2014 should be caught same as small amounts. Detection scales."
+          "note": "Large inflation."
         }
       ],
-      "expected_non_findings_note": "Detection should not differ from T3-02 except in magnitude.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Should scale identically to T3-02.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-04",
       "tier": 3,
       "category": "edge_case",
-      "label": "UNKNOWN_TARIFF (step-3 water rate; bill is correct, but system may not have verified data)",
+      "label": "UNKNOWN_TARIFF (water step 3)",
       "pdf_filename": "T3-04.pdf",
       "expected_findings": [
         {
           "error_type": "UNKNOWN_TARIFF_FLAG",
           "expected_finding_severity": "REVIEW_ONLY",
           "expected_recoverable": 0.0,
-          "note": "If the system has unverified step-3 water tariff data, it should surface as UNKNOWN_TARIFF for human review \u2014 not block letter generation, not inflate recoverable.",
+          "note": "Surface as review only \u2014 never inflate recoverable.",
           "legal_basis": "n/a \u2014 review-only flag"
         }
       ],
-      "expected_non_findings_note": "Bill is correct. UNKNOWN_TARIFF flag is acceptable but optional. No recoverable amount.",
-      "internal_arithmetic_verified": true
+      "expected_non_findings_note": "Bill correct. Flag acceptable but optional.",
+      "internal_arithmetic_verified": true,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-05",
       "tier": 3,
       "category": "clean",
-      "label": "Clean bill \u2014 control case for edge case set",
+      "label": "Clean control",
       "pdf_filename": "T3-05.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Standard clean bill in edge case set.",
+      "expected_non_findings_note": "Standard clean bill.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2930.01
+      "expected_total_due": 3110.01,
+      "billing_period_fy": "FY2024/25"
     },
     {
       "bill_id": "T3-06",
       "tier": 3,
       "category": "clean",
-      "label": "Ambiguous case \u2014 bill is clean, but is the kind of bill where the system might be tempted to flag",
+      "label": "Borderline clean (false-positive resistance)",
       "pdf_filename": "T3-06.pdf",
       "expected_findings": [],
-      "expected_non_findings_note": "Tests false-positive resistance. Bill is clean. System should not invent findings.",
+      "expected_non_findings_note": "Bill clean. No invented findings.",
       "internal_arithmetic_verified": true,
-      "expected_total_due": 2930.01
+      "expected_total_due": 3110.01,
+      "billing_period_fy": "FY2024/25"
     }
   ],
   "execution_order": {
-    "step1": "Run Tier 1 bills through Billdog. Compare detected findings against expected_findings per bill. Iterate until 100% match.",
-    "step2": "Run Tier 2 series through Billdog. Cross-bill analysis must catch trend errors single-bill analysis cannot.",
-    "step3": "Run Tier 3 edge cases. Confirm stacked errors both caught, magnitude scaling works, UNKNOWN_TARIFF surfaces correctly, no false positives on clean edge cases.",
-    "step4": "Once all 3 tiers pass, proceed to real-bill testing (Test 2) using Jason's actual 36 CoCT bills."
+    "step1": "Run Tier 1. Iterate to 100% match.",
+    "step2": "Run Tier 2 series.",
+    "step3": "Run Tier 3 edge cases.",
+    "step4": "Then Test 2 with Jason's real 36 bills."
   },
   "scoring": {
-    "detection_rate_per_error_type": "For each error type, measure: did Billdog catch it? Each error bill has exactly the listed findings expected.",
-    "false_positive_rate": "For clean bills, Billdog must produce zero findings. Any finding on a clean bill is a false positive.",
-    "recoverable_amount_accuracy": "For each detected error, the recoverable amount Billdog produces must match the expected_recoverable in the answer key (within R1.00 tolerance for rounding)."
+    "detection_rate_per_error_type": "Each error bill: exactly the listed findings. expected_recoverable matches within R1.00.",
+    "false_positive_rate": "Clean bills must produce zero findings.",
+    "recoverable_amount_accuracy": "Within R1.00 tolerance."
   }
 }

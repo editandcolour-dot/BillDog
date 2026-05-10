@@ -72,7 +72,7 @@ export async function DELETE(request: NextRequest) {
       from: 'Billdog <support@billdog.co.za>',
       to: user.email,
       subject: 'Your Billdog mandate has been revoked',
-      text: `Your authorisation for Billdog to act on your behalf in municipal billing disputes has been revoked as of ${revokedAt}. Active disputes will not advance further. To re-grant, visit https://www.billdog.co.za/settings.`,
+      text: `Your authorisation for Billdog to act on your behalf in municipal billing disputes has been revoked as of ${revokedAt}. Active disputes will not advance further. To re-grant, visit https://www.billdog.co.za/account.`,
     });
   } catch (e) {
     console.error('[api/user/mandate] confirmation email failed', e);

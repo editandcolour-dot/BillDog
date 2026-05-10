@@ -301,7 +301,7 @@ export default function PrivacyPolicyPage() {
             </p>
             <p className="mt-3">
               <strong>Revoking your mandate.</strong> You can revoke at any time via your{' '}
-              <a href="/settings" className="text-blue underline">account settings</a> or by emailing{' '}
+              <a href="/account" className="text-blue underline">account settings</a> or by emailing{' '}
               <a href="mailto:support@billdog.co.za" className="text-blue underline">
                 support@billdog.co.za
               </a>. Revocation halts all active disputes and you will receive an email

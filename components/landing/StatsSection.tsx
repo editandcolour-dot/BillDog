@@ -13,9 +13,9 @@ const FEATURES = [
     description: 'Disputes fully compliant with the Municipal Systems Act',
   },
   {
-    value: '20%',
+    value: '15%',
     label: 'Success fee only if we win — zero upfront',
-    description: 'No risk to you. We only charge a 20% fee when you recover money',
+    description: 'No risk to you. We only charge a 15% fee when you recover money',
   },
 ] as const;
 

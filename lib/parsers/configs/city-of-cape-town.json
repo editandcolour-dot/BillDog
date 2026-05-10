@@ -78,7 +78,7 @@
       {
         "type": "regex_extract",
         "multiple": true,
-        "pattern": "Fixed Basic Charge\\s*\\((?<meterSize>R[\\s\\d]+\\s*-\\s*R[\\s\\d]+)\\)[\\sR]*(?<unitRate>[\\d,]+\\.?\\d*)(?:\\s*x\\s*(?<multiplier>\\d+))?\\s+(?<totalCharged>[\\d,]+\\.?\\d*)",
+        "pattern": "Fixed Basic Charge[ \\t]*\\((?<meterSize>R[\\s\\d]+[ \\t]*-[ \\t]*R[\\s\\d]+)\\)[ \\tR]*(?<totalCharged>[\\d,]+\\.?\\d*)",
         "output_mapping": {
           "chargeType": "WATER_FIXED_BASIC",
           "section": "WATER"
@@ -89,7 +89,7 @@
       {
         "type": "regex_extract",
         "multiple": true,
-        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>.*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>(?!.*?(?:Fixed [bB]asic [Cc]harge|domestic cluster)).*?[A-Za-z].*?)\\s+(?<amount>-?[\\d,]+\\.\\d{2})\\s*$",
         "output_mapping": {
           "serviceType": "water",
           "section": "WATER",
@@ -101,7 +101,7 @@
       {
         "type": "regex_extract",
         "multiple": true,
-        "pattern": "Refuse\\s+[Cc]harge.*?(?<binSize>\\d+)[lL].*?(?<amount>[\\d,]+\\.\\d+)\\s*$",
+        "pattern": "Refuse\\s+[Cc]harge.*?(?<binSize>\\d+[lL]).*?(?<amount>[\\d,]+\\.\\d+)\\s*$",
         "output_mapping": {
           "chargeType": "REFUSE",
           "section": "REFUSE"
@@ -112,7 +112,7 @@
       {
         "type": "regex_extract",
         "multiple": true,
-        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>.*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>.*?[A-Za-z].*?)\\s+(?<amount>-?[\\d,]+\\.\\d{2})\\s*$",
         "output_mapping": {
           "serviceType": "sewerage",
           "section": "SEWERAGE",
@@ -124,7 +124,7 @@
       {
         "type": "regex_extract",
         "multiple": true,
-        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>(?!.*?PREPAID).*?)\\s+(?<amount>-?[\\d,]+\\.\\d+)\\s*$",
+        "pattern": "^(?<vatIndicator>[&#])?\\s*(?<description>(?!.*?PREPAID).*?[A-Za-z].*?)\\s+(?<amount>-?[\\d,]+\\.\\d{2})\\s*$",
         "output_mapping": {
           "serviceType": "sundry",
           "section": "SUNDRIES",

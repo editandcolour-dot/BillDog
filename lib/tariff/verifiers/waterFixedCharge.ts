@@ -1,5 +1,6 @@
 import { resolveTariff } from '../tariff-resolver';
-import { getCoctFixedBasicForDate } from '../coct-tariff-lookup';
+import { getTariffStore } from '../registry';
+import { getTariffYearForDate } from '../tariffLookup';
 
 export interface VerificationResult {
   result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
@@ -48,11 +49,13 @@ export async function verifyWaterFixedCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    console.warn(`[Water Fixed Basic] No tariff found via resolver. Falling back to coct-tariff-lookup.`);
-    const fallback = getCoctFixedBasicForDate(billingDate, sizeOrBand);
+    console.warn(`[Water Fixed Basic] No tariff found via resolver. Falling back to generic store.`);
+    const store = getTariffStore('city-of-cape-town');
+    const fy = getTariffYearForDate(billingDate);
+    const fallback = store.getRate('WATER_FIXED_BASIC_METER', fy, sizeOrBand);
 
     if (fallback !== undefined) {
-      const expectedTotal = fallback * multiplier;
+      const expectedTotal = fallback.rate_value * multiplier;
       if (Math.abs(billedAmount - expectedTotal) <= 0.10) {
         return { result: 'PASS', approved_amount: parseFloat(expectedTotal.toFixed(2)) };
       } else {
@@ -61,8 +64,8 @@ export async function verifyWaterFixedCharge(
           approved_amount: parseFloat(expectedTotal.toFixed(2)),
           billed_amount: billedAmount,
           delta: parseFloat((billedAmount - expectedTotal).toFixed(2)),
-          source_document: 'coct-tariff-lookup.ts',
-          source_url: 'N/A',
+          source_document: fallback.source_document_title || 'Generic Store',
+          source_url: fallback.source_url || 'N/A',
           confidence: 'CONFIRMED'
         };
       }

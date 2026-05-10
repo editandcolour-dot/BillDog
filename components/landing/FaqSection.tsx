@@ -11,7 +11,7 @@ const FAQ_ITEMS = [
   {
     question: 'What does it cost?',
     answer:
-      'Nothing upfront. Billdog operates on a 20% success fee — we only charge if we successfully recover money for you. If we don\'t find errors or the dispute is unsuccessful, you pay nothing. Ever.',
+      'Nothing upfront. Billdog operates on a 15% success fee — we only charge if we successfully recover money for you. If we don\'t find errors or the dispute is unsuccessful, you pay nothing. Ever.',
   },
   {
     question: 'Is this legal?',

@@ -29,7 +29,7 @@ const STEPS = [
     number: 5,
     title: 'You Get Paid',
     description:
-      'When the municipality corrects the bill, you save. We take 20% of what we recover — only if we win.',
+      'When the municipality corrects the bill, you save. We take 15% of what we recover — only if we win.',
   },
 ] as const;
 

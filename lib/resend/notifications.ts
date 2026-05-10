@@ -1,4 +1,5 @@
 import { getResendClient } from './client';
+import { RECOVERY_FEE_DISPLAY } from '../constants/fees';
 
 export async function sendResolutionSuccessEmail(toEmail: string, amount: number, fee: number, caseId: string) {
   const resend = getResendClient();
@@ -8,7 +9,7 @@ export async function sendResolutionSuccessEmail(toEmail: string, amount: number
     from: `Billdog <${fromEmail}>`,
     to: [toEmail],
     subject: `Great news — your dispute was resolved (Case ${caseId})`,
-    text: `Your municipality responded and credited R${amount.toFixed(2)} to your account.\n\nAs agreed, we have safely charged the 20% success fee of R${fee.toFixed(2)} to your card on file.\n\nThank you for using Billdog.`,
+    text: `Your municipality responded and credited R${amount.toFixed(2)} to your account.\n\nAs agreed, we have safely charged the ${RECOVERY_FEE_DISPLAY} success fee of R${fee.toFixed(2)} to your card on file.\n\nThank you for using Billdog.`,
   });
 }
 

@@ -3,11 +3,12 @@ import fs from 'fs';
 import path from 'path';
 import { parseBillFile } from '../pdf/parse';
 import { getParser } from './registry';
-import { getCoctRatesForDate } from '../tariff/coct-tariff-lookup';
+import { getTariffStore } from '../tariff/registry';
+import { getTariffYearForDate } from '../tariff/tariffLookup';
 import { verifyRatesCharge } from '../tariff/verifiers/ratesCharge';
 
 // Mock the tariff resolver to simulate Supabase being unavailable (SKIP path)
-// This forces the fallback to coct-tariff-lookup.ts which is the local verified data
+// This forces the fallback to the generic store which is the local verified data
 vi.mock('../tariff/tariff-resolver', () => ({
   resolveTariff: vi.fn().mockResolvedValue({ result: 'SKIP', reason: 'Test environment - no Supabase' }),
 }));
@@ -19,7 +20,7 @@ const BILLS_DIR = path.join(__dirname, '../../tests/bills');
  * 
  * For every rates line in all 36 bills, verifies that:
  * 1. The resolver path returns SKIP (mocked).
- * 2. coct-tariff-lookup returns a valid rate (or undefined for truly unknown dates).
+ * 2. generic-store returns a valid rate (or undefined for truly unknown dates).
  * 3. UNKNOWN_TARIFF is only emitted when BOTH sources return no data.
  * 
  * Logs diagnostic output for every rates line.
@@ -47,8 +48,10 @@ describe('UNKNOWN_TARIFF proof — 36 bills', () => {
       for (const seg of parsed.rates) {
         if (seg.parse_status === 'PARSE_FAILED') continue;
 
-        // Direct check: what does coct-tariff-lookup return?
-        const fallbackRate = getCoctRatesForDate(seg.fromDate);
+        // Direct check: what does generic-store return?
+        const store = getTariffStore('city-of-cape-town');
+        const fy = getTariffYearForDate(seg.fromDate);
+        const fallbackRate = store.getRate('RATES', fy, 'residential')?.rate_value;
         
         // Run the verifier (resolver is mocked to SKIP)
         const result = await verifyRatesCharge(seg.annualRate, seg.fromDate, 'CoCT');
@@ -61,7 +64,7 @@ describe('UNKNOWN_TARIFF proof — 36 bills', () => {
         if (fallbackRate !== undefined && result.result === 'SKIP') {
           falseUnknowns.push(
             `FALSE UNKNOWN_TARIFF: ${file} fromDate=${seg.fromDate} rate=${seg.annualRate} — ` +
-            `coct-tariff-lookup returned ${fallbackRate} but verifier returned SKIP`
+            `generic-store returned ${fallbackRate} but verifier returned SKIP`
           );
         }
       }

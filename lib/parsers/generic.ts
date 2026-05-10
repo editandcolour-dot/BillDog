@@ -66,17 +66,37 @@ export class GenericParser implements BillParser {
       }
     }
 
+    // 2b. Account summary — extract previousBalance and paymentsReceived
+    const prevBalMatch = text.match(/Previous\s+account\s+balance\s+([\d,]+\.\d{2})/i);
+    if (prevBalMatch) {
+      bill.previousBalance = parseAmount(prevBalMatch[1]);
+    }
+    const paymentsMatch = text.match(/Less\s+payments\s+.*?(\d[\d,]*\.\d{2})/i);
+    if (paymentsMatch) {
+      bill.paymentsReceived = parseAmount(paymentsMatch[1]);
+    }
+
     // 3. Sections (Anchor slice)
     const sectionTexts: Record<string, string> = {};
-    const sectionPeriods: Record<string, string> = {};
+    const sectionPeriods: Record<string, { start?: string, end?: string }> = {};
     for (const [sectionName, secCfg] of Object.entries(this.config.sections)) {
-      sectionTexts[sectionName] = this._anchorSlice(text, secCfg.anchors);
+      sectionTexts[sectionName] = this._anchorSlice(text, secCfg.anchors).replace(/\s*--\s*\d+\s+of\s+\d+\s*--\s*/g, '\n');
       
-      // Extract periodStart if available in section header
-      const periodRegex = new RegExp(`^${sectionName}\\s*\\(\\s*Period\\s+(?<periodStart>\\d{2}/\\d{2}/\\d{4})`, 'i');
-      const periodMatch = sectionTexts[sectionName].match(periodRegex);
-      if (periodMatch && periodMatch.groups?.periodStart) {
-        sectionPeriods[sectionName] = periodMatch.groups.periodStart;
+      // Extract periodStart and periodEnd if available in section header
+      const periodMatch = sectionTexts[sectionName].match(/\(\s*Period\s+(?<periodStart>\d{2}\/\d{2}\/\d{4})(?:\s+to\s+(?<periodEnd>\d{2}\/\d{2}\/\d{4}))?/i);
+      if (periodMatch && periodMatch.groups) {
+        sectionPeriods[sectionName] = {
+           start: periodMatch.groups.periodStart,
+           end: periodMatch.groups.periodEnd
+        };
+      }
+
+      // Extract meter reading status: (Actual reading) or (Estimated reading)
+      const readingStatusMatch = sectionTexts[sectionName].match(/\((Actual|Estimated)\s+reading\)/i);
+      if (readingStatusMatch) {
+        const status = readingStatusMatch[1].toLowerCase() as 'actual' | 'estimated';
+        if (sectionName === 'WATER') bill.waterReadingStatus = status;
+        else if (sectionName === 'SEWERAGE') bill.sewerageReadingStatus = status;
       }
 
       // Extract subtotal using standard matching
@@ -131,8 +151,13 @@ export class GenericParser implements BillParser {
             }
           }
 
-          if (!item.periodStart && sectionPeriods[targetSection]) {
-            item.periodStart = sectionPeriods[targetSection];
+          if (sectionPeriods[targetSection]) {
+            if (!item.periodStart && sectionPeriods[targetSection].start) {
+              item.periodStart = sectionPeriods[targetSection].start;
+            }
+            if (!item.periodEnd && sectionPeriods[targetSection].end) {
+              item.periodEnd = sectionPeriods[targetSection].end;
+            }
           }
 
           // Lookup Table / VAT cascade
@@ -186,9 +211,8 @@ export class GenericParser implements BillParser {
                 billingDate: bill.billingDate,
                 recoverable: true
               });
-            } else {
-              paired.push(s);
             }
+            paired.push(s);
           }
 
           (bill as any)[targetArray].push(...paired);
@@ -208,7 +232,7 @@ export class GenericParser implements BillParser {
         let claimed = false;
         for (const [arrName, arr] of Object.entries(bill)) {
           if (Array.isArray(arr) && arrName !== 'otherCharges' && arrName !== 'parser_anomalies') {
-            if (arr.some((item: any) => item.raw_line && item.raw_line.includes(line))) {
+            if (arr.some((item: any) => item.raw_line && (item.raw_line.includes(line) || line.includes(item.raw_line.trim())))) {
               claimed = true;
               break;
             }
@@ -242,7 +266,16 @@ export class GenericParser implements BillParser {
     if (this.config.reconciliation_rules) {
       for (const rule of this.config.reconciliation_rules) {
         const items = (bill as any)[rule.target_array] as any[];
-        const sum = items.reduce((acc, curr) => acc + (curr[rule.sum_field] || 0), 0);
+        let sum = items.reduce((acc, curr) => acc + (curr[rule.sum_field] || 0), 0);
+        
+        let fixedSum = 0;
+        if (rule.target_array === 'waterTierCharges' && bill.waterFixedCharges) {
+          fixedSum = bill.waterFixedCharges.reduce((acc, curr) => acc + (curr.totalCharged || 0), 0);
+          sum += fixedSum;
+        } else if (rule.target_array === 'sewerageCharges' && (bill as any).sewerageFixedCharges) {
+          fixedSum = (bill as any).sewerageFixedCharges.reduce((acc: number, curr: any) => acc + (curr.totalCharged || 0), 0);
+          sum += fixedSum;
+        }
         
         // Resolve control field (e.g. "subtotals.water")
         const ctrlParts = rule.control_field.split('.');
@@ -261,18 +294,37 @@ export class GenericParser implements BillParser {
              finalOvercharge = parseFloat((overchargeBase * (1 + rate)).toFixed(2));
            }
 
+           let isFixedChargeMismatch = false;
+           if (fixedSum > 0 && Math.abs(overchargeBase - fixedSum) <= rule.tolerance) {
+              isFixedChargeMismatch = true;
+           }
+
            if (rule.on_fail_actions.includes('surface_anomaly')) {
-             bill.parser_anomalies!.push({
-                type: (rule.anomaly_type as any) || 'PARSER_MISMATCH',
-                description: `Tier-line arithmetic mismatch in ${rule.target_array}. Printed lines sum to ${sum}, but section subtotal is ${ctrlVal}.`,
-                billedAmount: ctrlVal,
-                expectedAmount: sum,
-                overchargeZar: finalOvercharge,
-                lineReference: `Subtotal: ${ctrlVal}`,
-                invoiceNumber: bill.invoiceNumber,
-                billingDate: bill.billingDate,
-                recoverable: true
-             });
+             if (isFixedChargeMismatch) {
+               bill.parser_anomalies!.push({
+                  type: 'FIXED_CHARGE_MISMATCH',
+                  description: `Fixed-charge arithmetic mismatch in ${rule.target_array}. Printed subtotal mismatch exactly matches the fixed charge amount.`,
+                  billedAmount: ctrlVal,
+                  expectedAmount: sum,
+                  overchargeZar: finalOvercharge,
+                  lineReference: `Subtotal: ${ctrlVal}`,
+                  invoiceNumber: bill.invoiceNumber,
+                  billingDate: bill.billingDate,
+                  recoverable: true
+               });
+             } else {
+               bill.parser_anomalies!.push({
+                  type: (rule.anomaly_type as any) || 'PARSER_MISMATCH',
+                  description: `Tier-line arithmetic mismatch in ${rule.target_array}. Printed lines sum to ${sum}, but section subtotal is ${ctrlVal}.`,
+                  billedAmount: ctrlVal,
+                  expectedAmount: sum,
+                  overchargeZar: finalOvercharge,
+                  lineReference: `Subtotal: ${ctrlVal}`,
+                  invoiceNumber: bill.invoiceNumber,
+                  billingDate: bill.billingDate,
+                  recoverable: true
+               });
+             }
            }
 
            if (rule.on_fail_actions.includes('abort_section')) {

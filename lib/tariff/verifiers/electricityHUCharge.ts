@@ -1,5 +1,6 @@
 import { resolveTariff } from '../tariff-resolver';
-import { getCoctHucForPeriod } from '../coct-tariff-lookup';
+import { getTariffStore } from '../registry';
+import { getTariffYearForDate } from '../tariffLookup';
 
 export interface VerificationResult {
   result: 'PASS' | 'FAIL' | 'UNKNOWN' | 'SKIP';
@@ -26,20 +27,23 @@ export async function verifyElectricityHUCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    console.warn(`[HUC] No tariff entry found via resolver. Falling back to coct-tariff-lookup.`);
-    const fallback = getCoctHucForPeriod(billingDate);
+    console.warn(`[HUC] No tariff entry found via resolver. Falling back to generic store.`);
+    const store = getTariffStore('city-of-cape-town');
+    const fy = getTariffYearForDate(billingDate);
+    const fallback = store.getRate('HUC', fy, 'residential');
+
     if (fallback !== undefined) {
-      const delta = billedAmount - fallback;
+      const delta = billedAmount - fallback.rate_value;
       if (Math.abs(delta) <= 0.10) {
-        return { result: 'PASS', approved_amount: fallback };
+        return { result: 'PASS', approved_amount: fallback.rate_value };
       } else {
         return {
           result: 'FAIL',
-          approved_amount: fallback,
+          approved_amount: fallback.rate_value,
           billed_amount: billedAmount,
           delta: parseFloat(delta.toFixed(2)),
-          source_document: 'coct-tariff-lookup.ts',
-          source_url: 'N/A',
+          source_document: fallback.source_document_title || 'Generic Store',
+          source_url: fallback.source_url || 'N/A',
           confidence: 'CONFIRMED'
         };
       }

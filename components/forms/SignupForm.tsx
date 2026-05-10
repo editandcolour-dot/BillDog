@@ -5,10 +5,13 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { CURRENT_POPIA_CONSENT, CURRENT_MANDATE_CONSENT } from '@/lib/popia/consent';
+import { validateSAID } from '@/lib/validators/sa-id';
+import { RECOVERY_FEE_DISPLAY } from '@/lib/constants/fees';
 
 export function SignupForm() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [idNumber, setIdNumber] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [dataConsent, setDataConsent] = useState(false);
@@ -34,6 +37,14 @@ export function SignupForm() {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
+      setIsLoading(false);
+      return;
+    }
+
+    // Validate SA ID number
+    const idValidation = validateSAID(idNumber);
+    if (!idValidation.isValid) {
+      setError(idValidation.message || 'Invalid SA ID number.');
       setIsLoading(false);
       return;
     }
@@ -85,6 +96,19 @@ export function SignupForm() {
 
         if (profileError) {
           console.error('[Auth]', profileError);
+        }
+
+        // Store ID number to Vault via profile-level RPC (write once, never prompt again)
+        try {
+          const { error: idError } = await supabase.rpc('store_profile_id', {
+            id_number: idNumber,
+          });
+          if (idError) {
+            console.error('[Auth] ID storage failed:', idError.message);
+          }
+        } catch (idErr) {
+          // Non-fatal for signup flow — ID can be re-prompted once on next route
+          console.error('[Auth] ID storage exception:', idErr);
         }
 
         // Append-only consent audit log (POPIA evidence). Server captures IP + UA.
@@ -151,6 +175,22 @@ export function SignupForm() {
       </div>
 
       <div>
+        <label className="sr-only" htmlFor="idNumber">SA ID Number</label>
+        <input
+          id="idNumber"
+          type="text"
+          required
+          inputMode="numeric"
+          pattern="\d{13}"
+          maxLength={13}
+          placeholder="SA ID Number (13 digits)"
+          value={idNumber}
+          onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, ''))}
+          className="w-full px-4 py-2 min-h-[44px] bg-white/5 border border-white/10 rounded text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange"
+        />
+      </div>
+
+      <div>
         <label className="sr-only" htmlFor="password">Password</label>
         <input
           id="password"
@@ -205,7 +245,7 @@ export function SignupForm() {
           className="mt-1 min-w-4 min-h-4"
         />
         <span className="text-sm text-white/70">
-          I agree to the 20% success fee on funds recovered through disputed
+          I agree to the {RECOVERY_FEE_DISPLAY} success fee on funds recovered through disputed
           charges, as described in our{' '}
           <a href="/terms" className="text-orange underline" target="_blank" rel="noopener noreferrer">
             Terms of Service

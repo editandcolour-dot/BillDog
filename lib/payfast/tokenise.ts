@@ -63,7 +63,7 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
     merchant_id: String(process.env['PAYFAST_MERCHANT_ID']).trim(),
     merchant_key: String(process.env['PAYFAST_MERCHANT_KEY']).trim(),
     return_url: `${appUrl}/dashboard?card=saved`,
-    cancel_url: `${appUrl}/settings?card=cancelled`,
+    cancel_url: `${appUrl}/account?card=cancelled`,
     notify_url: String(process.env['PAYFAST_ITN_URL']).trim(),
     name_first: String(params.userName).split(' ')[0].trim(),
     email_address: String(params.userEmail).trim(),

@@ -67,7 +67,7 @@ async function processLead(lead: Lead) {
       model: 'claude-sonnet-4-20250514',
       max_tokens: 500,
       system: `You are Billdog's social listening triage agent.
-Read the user's complaint. If it is about incorrect municipal billing, overcharges, or estimated reading disputes in South Africa, reply strictly with roughly 2-3 sentences of an empathetic drafted response that Jason can copy-paste to reply to them online, ending by directing them to billdog.co.za and stating: "No win, no fee — we only charge 20% of what we recover for you."
+Read the user's complaint. If it is about incorrect municipal billing, overcharges, or estimated reading disputes in South Africa, reply strictly with roughly 2-3 sentences of an empathetic drafted response that Jason can copy-paste to reply to them online, ending by directing them to billdog.co.za and stating: "No win, no fee — we only charge 15% of what we recover for you."
 If the complaint is about potholes, general service delivery, politics, or something unrelated to billing, reply strictly with the exact word "IGNORE".`,
       messages: [{ role: 'user', content: `Author: ${lead.author}\nPlatform: ${lead.platform}\nText:\n${lead.text}` }]
     });

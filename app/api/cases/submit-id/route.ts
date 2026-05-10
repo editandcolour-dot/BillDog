@@ -12,6 +12,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'AUTH_ERROR' }, { status: 401 });
     }
 
+    // 1b. Check if profile already has ID (write-once persistence)
+    const { data: hasId } = await supabase.rpc('has_profile_id');
+    if (hasId) {
+      return NextResponse.json({ already_stored: true, message: 'ID already on file' });
+    }
+
     const body = await request.json();
     const { caseId, idNumber, consent } = body;
 

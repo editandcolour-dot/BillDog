@@ -45,7 +45,7 @@ export function CtaSection() {
             </Button>
           </div>
           <p className="mt-6 text-white/30 text-sm">
-            No win, no fee. We only charge 20% of what we recover.
+            No win, no fee. We only charge 15% of what we recover.
           </p>
         </ScrollReveal>
       </div>

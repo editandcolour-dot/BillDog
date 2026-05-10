@@ -1,0 +1,73 @@
+{
+  "metros": [
+    {
+      "id": "city-of-cape-town",
+      "name": "City of Cape Town",
+      "province": "Western Cape",
+      "portal_url": "https://eservices.capetown.gov.za",
+      "scraper_status": "live",
+      "scraper_config": "lib/scrapers/configs/city-of-cape-town.json"
+    },
+    {
+      "id": "city-of-johannesburg",
+      "name": "City of Johannesburg",
+      "province": "Gauteng",
+      "portal_url": "https://eservices.joburg.org.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "city-of-tshwane",
+      "name": "City of Tshwane",
+      "province": "Gauteng",
+      "portal_url": "https://www.tshwane.gov.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "ekurhuleni",
+      "name": "Ekurhuleni Metropolitan",
+      "province": "Gauteng",
+      "portal_url": "https://www.ekurhuleni.gov.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "ethekwini",
+      "name": "eThekwini (Durban)",
+      "province": "KwaZulu-Natal",
+      "portal_url": "https://eservices.durban.gov.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "nelson-mandela-bay",
+      "name": "Nelson Mandela Bay",
+      "province": "Eastern Cape",
+      "portal_url": "https://www.nelsonmandelabay.gov.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "buffalo-city",
+      "name": "Buffalo City (East London)",
+      "province": "Eastern Cape",
+      "portal_url": "https://www.buffalocity.gov.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    },
+    {
+      "id": "mangaung",
+      "name": "Mangaung (Bloemfontein)",
+      "province": "Free State",
+      "portal_url": "https://www.mangaung.co.za",
+      "scraper_status": "discovery_pending",
+      "scraper_config": null
+    }
+  ],
+  "other_option": {
+    "id": "other",
+    "name": "Other / my municipality isn't listed",
+    "scraper_status": "manual_request"
+  }
+}

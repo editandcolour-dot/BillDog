@@ -1,5 +1,6 @@
 import { resolveTariff } from '../tariff-resolver';
-import { getCoctRefuseForDate } from '../coct-tariff-lookup';
+import { getTariffStore } from '../registry';
+import { getTariffYearForDate } from '../tariffLookup';
 
 export interface RefuseVerificationResult {
   result: 'PASS' | 'FAIL' | 'SKIP';
@@ -24,18 +25,20 @@ export async function verifyRefuseCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    console.warn(`[Refuse] No tariff found via resolver. Falling back to coct-tariff-lookup.`);
-    const fallback = getCoctRefuseForDate(billingDateStr);
+    console.warn(`[Refuse] No tariff found via resolver. Falling back to generic store.`);
+    const store = getTariffStore('city-of-cape-town');
+    const fy = getTariffYearForDate(billingDateStr);
+    const fallback = store.getRate('REFUSE', fy, '240L');
 
     if (fallback !== undefined) {
-      const delta = billedAmount - fallback;
+      const delta = billedAmount - fallback.rate_value;
       if (Math.abs(delta) > 0.02) {
         return {
           result: 'FAIL',
-          approved_amount: fallback,
+          approved_amount: fallback.rate_value,
           delta: parseFloat(delta.toFixed(2)),
           confidence: 'CONFIRMED',
-          source_url: 'coct-tariff-lookup.ts'
+          source_url: fallback.source_url || 'Generic Store'
         };
       }
       return { result: 'PASS' };

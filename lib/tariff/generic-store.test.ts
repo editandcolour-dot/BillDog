@@ -1,10 +1,31 @@
 import { describe, it, expect } from 'vitest';
-import {
-  getCoctRatesForDate,
-  getCoctHucForPeriod,
-  getCoctRefuseForDate,
-  getCoctFixedBasicForDate,
-} from './coct-tariff-lookup';
+import { getTariffStore } from './registry';
+import { getTariffYearForDate } from './tariffLookup';
+
+const store = getTariffStore('city-of-cape-town');
+
+function getCoctRatesForDate(dateStr: string) {
+  const fy = getTariffYearForDate(dateStr);
+  return store.getRate('RATES', fy, 'residential')?.rate_value;
+}
+
+function getCoctHucForPeriod(dateStr: string) {
+  const fy = getTariffYearForDate(dateStr);
+  return store.getRate('HUC', fy, 'residential')?.rate_value;
+}
+
+function getCoctRefuseForDate(dateStr: string) {
+  const fy = getTariffYearForDate(dateStr);
+  return store.getRate('REFUSE', fy, '240L')?.rate_value;
+}
+
+function getCoctFixedBasicForDate(dateStr: string, sizeOrBand: string) {
+  const fy = getTariffYearForDate(dateStr);
+  const normalized = sizeOrBand.replace(/\s/g, '');
+  const rate = store.getRate('WATER_FIXED_BASIC_METER', fy, normalized) || 
+               store.getRate('WATER_FIXED_BASIC_PROPERTY_BAND', fy, normalized);
+  return rate?.rate_value;
+}
 
 // ════════════════════════════════════════════════════════════
 // RATES — rates-in-the-rand

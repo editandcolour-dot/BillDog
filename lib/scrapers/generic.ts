@@ -1,6 +1,6 @@
 import { chromium, Browser, Page, Frame } from 'playwright-core';
 import { ScraperResult, BillDownload, MunicipalScraper, ScraperConfig, ScraperAction } from './types';
-import { ScraperError } from './errors';
+// ScraperError import removed — module was never created and class was unused
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -188,7 +188,7 @@ export class GenericScraper implements MunicipalScraper {
         }, ext.row_selector);
 
         const period = parsePeriod(rowText || '') || 'Unknown Period';
-        const page = target.page();
+        const page = 'page' in target ? target.page() : target;
         let pdfBuffer: Buffer | null = null;
 
         // Strategy 1: Download interception (SAP serves file as attachment)

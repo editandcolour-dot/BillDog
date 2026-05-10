@@ -213,6 +213,7 @@ export async function analyseBill(billText: string, municipalityCode: string = '
       issue: f.description,
       legal_basis: f.legalBasis || getLegalBasis(f.type),
       recoverable: f.recoverable !== false,
+      finding_type: f.type,
     }));
 
     const totalRecoverable = validatorFindings.reduce(

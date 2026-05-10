@@ -1,0 +1,351 @@
+{
+  "municipality_id": "city-of-cape-town",
+  "tariffs": {
+    "RATES": [
+      {
+        "fiscal_year": "2022/23",
+        "category": "residential",
+        "rate_value": 0.006344,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2023/24",
+        "category": "residential",
+        "rate_value": 0.006273,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 0.006631,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 0.007159,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      }
+    ],
+    "HUC": [
+      {
+        "fiscal_year": "2022/23",
+        "category": "residential",
+        "rate_value": 185,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2023/24",
+        "category": "residential",
+        "rate_value": 219.21,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 245.03,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 339.89,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      }
+    ],
+    "REFUSE": [
+      {
+        "fiscal_year": "2022/23",
+        "category": "240L",
+        "rate_value": 149.13,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2023/24",
+        "category": "240L",
+        "rate_value": 157.3,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2024/25",
+        "category": "240L",
+        "rate_value": 166.26,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "240L",
+        "rate_value": 178.52,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      }
+    ],
+    "WATER_FIXED_BASIC_METER": [
+      {
+        "fiscal_year": "2022/23",
+        "category": "20mm",
+        "rate_value": 116.86,
+        "vat_inclusive": false,
+        "source_url": "FLAGGED: MISSING PDF",
+        "source_document_title": "FLAGGED: MISSING PDF",
+        "source_page": "N/A",
+        "source_sha256": "FLAGGED: MISSING PDF"
+      },
+      {
+        "fiscal_year": "2023/24",
+        "category": "20mm",
+        "rate_value": 126.91,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2024/25",
+        "category": "20mm",
+        "rate_value": 135.54,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      }
+    ],
+    "WATER_FIXED_BASIC_PROPERTY_BAND": [
+      {
+        "fiscal_year": "2025/26",
+        "category": "R4500001-R5000000",
+        "rate_value": 214.89,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.8",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "WATER_TIER_1": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 19.59,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.1",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 21.15,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.1",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "WATER_TIER_2": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 26.92,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.1",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 29.06,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.1",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "WATER_TIER_3": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 36.58,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.1",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 43.44,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.1",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "WATER_TIER_4": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 67.5,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.1",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 83.8,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.1",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "SEWER_TIER_1": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 17.22,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 15.46,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.7",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "SEWER_TIER_2": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 23.65,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 21.24,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.7",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "SEWER_TIER_3": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 33.22,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 32.80,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.7",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ],
+    "SEWER_TIER_4": [
+      {
+        "fiscal_year": "2024/25",
+        "category": "residential",
+        "rate_value": 52.25,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Budget2425_Ann6_WaterandSanitationServices-WaterLevelWaterWise-NoRestriction.pdf",
+        "source_document_title": "Annexure 6 Water and Sanitation Services",
+        "source_page": "54.7",
+        "source_sha256": "a240494fb12eae2c26df52ec7de203a2fe16be2a150c705972eec16cb2292289"
+      },
+      {
+        "fiscal_year": "2025/26",
+        "category": "residential",
+        "rate_value": 53.95,
+        "vat_inclusive": false,
+        "source_url": "https://resource.capetown.gov.za/documentcentre/Documents/Financial%20documents/Water%20and%20Sanitation-Water%20Tariffs.pdf",
+        "source_document_title": "Water and Sanitation Water Tariffs",
+        "source_page": "54.7",
+        "source_sha256": "f5a5577942aab351e6e3026723880e7313c6c22a42741a6907beb937c0c8eb0d"
+      }
+    ]
+  }
+}

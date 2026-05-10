@@ -34,7 +34,7 @@ export function BlogLayout({ title, author, date, jsonLdFaq, children }: BlogLay
            <div className="bg-off-white rounded-2xl p-8 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-6">
                 <div>
                     <h3 className="font-display text-3xl text-navy tracking-wide mb-2">Ready to Dispute Your Bill?</h3>
-                    <p className="font-body text-grey text-base max-w-md">Our AI generates Section 102 compliant letters that municipalities cannot ignore. We only take a 20% success fee if we win.</p>
+                    <p className="font-body text-grey text-base max-w-md">Our AI generates Section 102 compliant letters that municipalities cannot ignore. We only take a 15% success fee if we win.</p>
                 </div>
                 <Link href="/signup" className="shrink-0 min-h-[44px] px-8 py-3 bg-orange text-white font-body font-bold rounded-md hover:bg-orange-light transition-all flex items-center justify-center whitespace-nowrap">
                     Check My Bill →

@@ -28,6 +28,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { encryptCredentials } from '@/lib/crypto/credentials';
 import { getScraper, isMunicipalitySupported } from '@/lib/scrapers/registry';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+import { getMetroByName } from '@/lib/municipalities/sa-metros';
 
 const credentialLimiter = getRateLimiter(5, '1 h');
 
@@ -95,7 +96,12 @@ export async function POST(request: NextRequest) {
     // Derive slug from municipality name (kebab-case)
     const slug = municipality.name.toLowerCase().replace(/\s+/g, '-');
 
-    if (!isMunicipalitySupported(slug)) {
+    // Check metro config for discovery status
+    const metroConfig = getMetroByName(municipality.name);
+    const isLive = isMunicipalitySupported(slug);
+    const isDiscoveryPending = metroConfig?.scraper_status === 'discovery_pending';
+
+    if (!isLive && !isDiscoveryPending) {
       return NextResponse.json(
         { error: `Auto-fetch is not yet available for ${municipality.name}` },
         { status: 400 }
@@ -185,24 +191,39 @@ export async function POST(request: NextRequest) {
 
     console.log(`[autofetch/credentials] Stored credential ${newCred.id} for user ${user.id}`);
 
-    // 10. Enqueue backfill job via QStash
+    // 10. Enqueue job via QStash — backfill for live, discovery for pending
     const { qstashClient } = await import('@/lib/qstash/client');
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    let targetCredId = existingCred ? existingCred.id : (newCred as any).id;
+    const targetCredId = newCred.id as string;
 
     try {
-      await qstashClient.publish({
-        url: `${appUrl}/api/autofetch/worker/backfill`,
-        body: JSON.stringify({ credential_id: targetCredId }),
-        retries: 3,
-      });
-      console.log(`[autofetch/credentials] Enqueued backfill job for credential ${targetCredId}`);
+      if (isLive) {
+        // Live municipality — enqueue backfill
+        await qstashClient.publish({
+          url: `${appUrl}/api/autofetch/worker/backfill`,
+          body: JSON.stringify({ credential_id: targetCredId }),
+          retries: 3,
+        });
+        console.log(`[autofetch/credentials] Enqueued backfill job for credential ${targetCredId}`);
+      } else if (isDiscoveryPending) {
+        // Discovery pending — enqueue Model B discovery
+        await qstashClient.publish({
+          url: `${appUrl}/api/autofetch/worker/discovery`,
+          body: JSON.stringify({
+            credential_id: targetCredId,
+            municipality_slug: slug,
+            portal_url: metroConfig?.portal_url || '',
+          }),
+          retries: 1, // Discovery is expensive, don't retry aggressively
+        });
+        console.log(`[autofetch/credentials] Enqueued Model B discovery for ${municipality.name} (credential ${targetCredId})`);
+      }
     } catch (qstashErr) {
-      console.error('[autofetch/credentials] Failed to enqueue backfill job:', qstashErr);
+      console.error('[autofetch/credentials] Failed to enqueue job:', qstashErr);
       // We don't fail the verification if QStash publish fails, but we log it
     }
 
-    return NextResponse.json({ verified: true, credential_id: targetCredId });
+    return NextResponse.json({ verified: true, credential_id: targetCredId, discovery: isDiscoveryPending });
 
   } catch (error) {
     console.error('[autofetch/credentials] Unexpected error:', error);

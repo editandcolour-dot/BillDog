@@ -18,13 +18,17 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
   ];
   const seenLabels = new Set<string>();
 
+  // Normalise label for comparison: collapse whitespace, lowercase
+  const normalise = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+
   const checkDuplicates = (charges: { description: string }[] | undefined, arrName: string) => {
     if (!charges) return;
     for (const c of charges) {
       if (NEVER_FLAG_AS_DUPLICATE.some(s => c.description.toLowerCase().includes(s.toLowerCase()))) {
         continue;
       }
-      if (seenLabels.has(c.description)) {
+      const key = normalise(c.description);
+      if (seenLabels.has(key)) {
         const dupAmount = ('amount' in c) ? (c as any).amount : 0;
         findings.push({
           type: 'RATES_CALC_ERROR',
@@ -36,7 +40,7 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
           billingDate: bill.billingDate,
         });
       } else {
-        seenLabels.add(c.description);
+        seenLabels.add(key);
       }
     }
   };
@@ -46,6 +50,32 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
   checkDuplicates(bill.waterFixedCharges.map(c => ({ ...c, description: `Fixed Basic Charge ${c.meterSize}` })), 'water_fixed');
   checkDuplicates(bill.sewerageCharges, 'sewerage');
   checkDuplicates(bill.refuseCharges.map(c => ({ ...c, description: `Refuse Charge ${c.binSize}` })), 'refuse');
+
+  // Cross-section duplicate: refuse charge appearing in both REFUSE and SUNDRIES sections
+  if (bill.refuseCharges && bill.sundryCharges) {
+    for (const sundry of bill.sundryCharges) {
+      if (!sundry.description.toLowerCase().includes('refuse')) continue;
+      for (const refuse of bill.refuseCharges) {
+        if (Math.abs(sundry.amount - refuse.amount) < 0.01) {
+          // Include VAT cascade since refuse is taxable
+          const cascadedOvercharge = sundry.hasVat
+            ? parseFloat((sundry.amount * 1.15).toFixed(2))
+            : sundry.amount;
+          findings.push({
+            type: 'RATES_CALC_ERROR',
+            description: `Duplicate refuse charge detected: R${sundry.amount.toFixed(2)} appears in both REFUSE and SUNDRIES sections.`,
+            billedAmount: sundry.amount,
+            overchargeZar: cascadedOvercharge,
+            lineReference: sundry.raw_line || sundry.description,
+            invoiceNumber: bill.invoiceNumber,
+            billingDate: bill.billingDate,
+            recoverable: true
+          });
+          break; // Only flag once per sundry match
+        }
+      }
+    }
+  }
 
   // 3. Property rates internal consistency check
   // (value × rate-in-rand / 365 × days)
@@ -74,6 +104,40 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
       }
     }
   }
+
+  // 4. Per-line arithmetic check: qty × rate ≈ amount
+  // Catches tier-line inflation where printed amount ≠ qty × unit rate
+  const checkLineArithmetic = (charges: { description: string; amount: number; hasVat: boolean }[] | undefined, serviceName: string) => {
+    if (!charges) return;
+    for (const c of charges) {
+      // Extract qty and rate from description like "(1) 6.0000 kl @ R 19.5900"
+      const match = c.description.match(/\(?\d+\)?\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/i);
+      if (!match) continue;
+      const qty = parseFloat(match[1]);
+      const rate = parseFloat(match[2]);
+      if (isNaN(qty) || isNaN(rate) || qty === 0) continue;
+      const expectedAmount = parseFloat((qty * rate).toFixed(2));
+      const delta = Math.abs(c.amount - expectedAmount);
+      if (delta > 0.10) {
+        // Include VAT cascade for taxable services (water, sewerage)
+        const cascadedDelta = c.hasVat ? parseFloat((delta * 1.15).toFixed(2)) : delta;
+        findings.push({
+          type: 'TIER_LINE_ARITHMETIC_MISMATCH',
+          description: `${serviceName} line arithmetic error. ${qty} kl × R${rate} = R${expectedAmount}, but billed R${c.amount} (delta R${delta.toFixed(2)}).`,
+          billedAmount: c.amount,
+          expectedAmount: expectedAmount,
+          overchargeZar: cascadedDelta,
+          lineReference: c.description,
+          invoiceNumber: bill.invoiceNumber,
+          billingDate: bill.billingDate,
+          recoverable: true
+        });
+      }
+    }
+  };
+
+  checkLineArithmetic(bill.waterTierCharges, 'Water');
+  checkLineArithmetic(bill.sewerageCharges, 'Sewerage');
 
   return findings;
 }

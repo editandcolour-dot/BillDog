@@ -1,5 +1,6 @@
 import { resolveTariff } from '../tariff-resolver';
-import { getCoctRatesForDate } from '../coct-tariff-lookup';
+import { getTariffStore } from '../registry';
+import { getTariffYearForDate } from '../tariffLookup';
 
 export interface VerificationResult {
   result: 'PASS' | 'FAIL' | 'SKIP';
@@ -24,7 +25,10 @@ export async function verifyRatesCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    const fallbackRate = getCoctRatesForDate(fromDateStr);
+    const store = getTariffStore('city-of-cape-town');
+    const fy = getTariffYearForDate(fromDateStr);
+    const fallback = store.getRate('RATES', fy, 'residential');
+    const fallbackRate = fallback?.rate_value;
     
     // Diagnostic: log both sources and final decision
     console.log(`[RATES_TARIFF_DIAG] fromDate=${fromDateStr} rate=${annualRateApplied} resolver=${JSON.stringify(resolution.result)} fallback=${fallbackRate !== undefined ? fallbackRate : 'undefined'} decision=${fallbackRate !== undefined ? (Math.abs(annualRateApplied - fallbackRate) > 0.0000001 ? 'FAIL' : 'PASS') : 'SKIP→UNKNOWN_TARIFF'}`);
@@ -36,8 +40,8 @@ export async function verifyRatesCharge(
           approved_rate: fallbackRate,
           delta: annualRateApplied - fallbackRate,
           confidence: 'CONFIRMED',
-          source_url: 'N/A',
-          source_document: 'coct-tariff-lookup.ts'
+          source_url: fallback?.source_url || 'N/A',
+          source_document: fallback?.source_document_title || 'Generic Store'
         };
       }
       return { result: 'PASS', approved_rate: fallbackRate };

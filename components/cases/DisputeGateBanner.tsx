@@ -29,7 +29,7 @@ export function DisputeGateBanner({ caseId, mandateRevoked, idCaptured }: Props)
         <p className="text-sm text-slate-600 mt-1 mb-3">
           Re-grant your mandate in settings to continue this dispute.
         </p>
-        <Link href="/settings" className="inline-block">
+        <Link href="/account" className="inline-block">
           <Button variant="primary">Go to Settings</Button>
         </Link>
       </div>
