@@ -329,28 +329,33 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Compute date range from cross analysis inputs
+    const periods = crossAnalysisInputs.map(c => c.bill_period).filter(Boolean).sort();
+    const dateRangeStart = periods[0] || null;
+    const dateRangeEnd = periods[periods.length - 1] || null;
+
+    const caseSummary: Record<string, any> = {
+      status: totalRecoverable > 0 ? 'letter_ready' : 'closed',
+      total_recoverable_all: totalRecoverable,
+      recoverable: totalRecoverable,
+      date_range_start: dateRangeStart,
+      date_range_end: dateRangeEnd,
+      bill_period: dateRangeEnd, // Latest period for display
+      updated_at: new Date().toISOString(),
+    };
+
     // 8. Cross-Bill Analysis
     if (crossAnalysisInputs.length > 0) {
       try {
         const crossResults = await analyseCrossBill(crossAnalysisInputs);
-        await supabaseAdmin.from('cases').update({
-          cross_bill_analysis: crossResults,
-          status: totalRecoverable > 0 ? 'letter_ready' : 'closed', // Let user trigger letter
-          updated_at: new Date().toISOString()
-        }).eq('id', caseId);
+        caseSummary.cross_analysis = crossResults;
       } catch (crossErr) {
         console.error('[autofetch/backfill] Cross-bill analysis failed:', crossErr);
-        await supabaseAdmin.from('cases').update({
-          status: totalRecoverable > 0 ? 'letter_ready' : 'closed',
-          updated_at: new Date().toISOString()
-        }).eq('id', caseId);
+        // Continue without cross-analysis — individual results still valid
       }
-    } else {
-      await supabaseAdmin.from('cases').update({
-        status: totalRecoverable > 0 ? 'letter_ready' : 'closed',
-        updated_at: new Date().toISOString()
-      }).eq('id', caseId);
     }
+
+    await supabaseAdmin.from('cases').update(caseSummary).eq('id', caseId);
 
     // 9. Send Summary Email
     if (profile?.email && billsAnalysed > 0) {
