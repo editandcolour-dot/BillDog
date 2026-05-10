@@ -40,7 +40,7 @@ export function HeroCTA() {
   if (state === 'loading') {
     return (
       <Button href="/signup" className="w-full sm:w-auto opacity-90">
-        Connect Your Municipality →
+        Connect & Analyse 36 Months →
       </Button>
     );
   }
@@ -56,7 +56,7 @@ export function HeroCTA() {
   if (state === 'not-connected') {
     return (
       <Button href="/onboarding/auto-fetch" className="w-full sm:w-auto">
-        Connect Your Municipality →
+        Connect & Analyse 36 Months →
       </Button>
     );
   }
@@ -64,7 +64,7 @@ export function HeroCTA() {
   // anonymous
   return (
     <Button href="/signup" className="w-full sm:w-auto">
-      Connect Your Municipality →
+      Connect & Analyse 36 Months →
     </Button>
   );
 }

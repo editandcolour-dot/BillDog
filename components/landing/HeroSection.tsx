@@ -33,11 +33,12 @@ export function HeroSection() {
               id="hero-heading"
               className="font-display text-white tracking-wider leading-[1.1] text-[clamp(2.5rem,8vw,5rem)]"
             >
-              YOUR MUNICIPALITY GOT IT{' '}
-              <span className="text-orange">WRONG</span>
+              FIND ERRORS ON YOUR{' '}
+              <span className="text-orange">MUNICIPAL BILL</span>
             </h1>
             <p className="mt-6 text-white/60 text-base sm:text-lg leading-relaxed max-w-lg">
-              No lawyers. No queues. No nonsense. Just results.
+              We pull your last 36 bills, analyse every line, and dispute
+              overcharges. You only pay 15% of what we recover.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <HeroCTA />
@@ -50,7 +51,7 @@ export function HeroSection() {
               </Button>
             </div>
             <p className="mt-4 text-white/40 text-sm">
-              AI-powered analysis, legally-templated letters
+              No lawyers. No queues. No nonsense — just results.
             </p>
           </div>
 
