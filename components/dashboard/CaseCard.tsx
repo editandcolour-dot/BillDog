@@ -40,6 +40,14 @@ function formatCurrency(amount: number | null): string {
   return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
 }
 
+function formatRegisteredDate(dateStr: string): string {
+  return new Date(dateStr).toLocaleDateString('en-ZA', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export function CaseCard({ caseRecord }: { caseRecord: Case }) {
   const statusClasses = getStatusClasses(caseRecord.status);
   
@@ -62,7 +70,7 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-3 gap-4 mb-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Period</p>
           <p className="font-body text-base text-navy font-medium">{caseRecord.bill_period || 'N/A'}</p>
@@ -70,6 +78,10 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Total</p>
           <p className="font-body text-base text-navy font-medium">{formatCurrency(caseRecord.total_billed)}</p>
+        </div>
+        <div>
+          <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Registered</p>
+          <p className="font-body text-sm text-navy font-medium">{formatRegisteredDate(caseRecord.created_at)}</p>
         </div>
       </div>
 

@@ -165,9 +165,9 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
                   </span>
                 </li>
                 <li className="flex flex-col gap-1">
-                  <span className="text-grey uppercase font-bold text-xs tracking-wide">Created</span>
+                  <span className="text-grey uppercase font-bold text-xs tracking-wide">Registered</span>
                   <span className="text-navy font-medium">
-                    {new Date(c.created_at).toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    {new Date(c.created_at).toLocaleDateString('en-ZA', { year: 'numeric', month: 'long', day: 'numeric' })} at {new Date(c.created_at).toLocaleTimeString('en-ZA', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </li>
                 {c.letter_sent_at && (
