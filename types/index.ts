@@ -105,7 +105,7 @@ export interface Profile {
 /** Dispute case — maps to `cases` table. */
 export interface Case {
   id: string;
-  user_id: string;
+  user_id: string | null;
   status: CaseStatus;
   bill_url: string | null;
   bill_text: string | null;

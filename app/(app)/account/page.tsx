@@ -23,6 +23,7 @@ export default function AccountPage() {
   
   // Danger zone state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
   // Mandate state
   const [showMandateConfirm, setShowMandateConfirm] = useState(false);
@@ -183,23 +184,24 @@ export default function AccountPage() {
   };
 
   const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') return;
     setDeleting(true);
     try {
       const res = await fetch('/api/user/delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ confirm: true }),
+        body: JSON.stringify({ confirm: 'DELETE' }),
       });
       if (res.ok) {
         router.push('/');
       } else {
         const data = await res.json().catch(() => ({}));
-        setMessage({ text: data.error || 'Failed to delete account.', type: 'error' });
+        setMessage({ text: data.error || 'Account deletion failed. Our team has been notified. Contact support@billdog.co.za.', type: 'error' });
         setDeleting(false);
       }
     } catch (err) {
       console.error(err);
-      setMessage({ text: 'Network error. Please try again.', type: 'error' });
+      setMessage({ text: 'Network error. Please try again or contact support@billdog.co.za.', type: 'error' });
       setDeleting(false);
     }
   };
@@ -508,17 +510,62 @@ export default function AccountPage() {
         {/* DANGER ZONE */}
         <section className="bg-red-50 rounded-2xl border border-red-200 shadow-sm p-6 md:p-8 mb-8">
           <h2 className="text-xl font-bold text-error mb-2">Danger Zone</h2>
-          <p className="text-sm text-red-900/70 mb-6">Permanently delete your account and all associated billing data per POPIA guidelines.</p>
+          <p className="text-sm text-red-900/70 mb-6">Permanently delete your account per POPIA section 14.</p>
           
           {showDeleteConfirm ? (
             <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
-              <h3 className="font-bold text-navy mb-2">Are you fully sure?</h3>
-              <p className="text-sm text-slate-600 mb-6">This will permanently delete your account, case history, and remove all files from our servers. This action is irreversible.</p>
+              <h3 className="font-bold text-navy mb-4">Account Deletion — What Happens</h3>
+              
+              <div className="mb-4">
+                <p className="text-sm font-bold text-navy mb-2">Permanently deleted:</p>
+                <ul className="text-sm text-slate-600 space-y-1 ml-4 list-disc">
+                  <li>Your personal information (name, email, phone)</li>
+                  <li>Your login credentials and all active sessions</li>
+                  <li>Your municipal portal credentials (encrypted data destroyed)</li>
+                  <li>Your uploaded bill PDFs</li>
+                  <li>Your payment method (if any)</li>
+                </ul>
+              </div>
+              
+              <div className="mb-4">
+                <p className="text-sm font-bold text-navy mb-2">Anonymised (retained per POPIA section 14(2)):</p>
+                <ul className="text-sm text-slate-600 space-y-1 ml-4 list-disc">
+                  <li>Dispute financial records (amounts and findings retained, all personal identifiers removed)</li>
+                  <li>Consent event timestamps (for legal compliance evidence)</li>
+                </ul>
+              </div>
+              
+              <p className="text-sm text-error font-bold mb-4">This action is irreversible.</p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-navy mb-2">
+                  Type <span className="text-error">DELETE</span> to confirm:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE here"
+                  className="w-full px-4 py-2 border border-red-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-error"
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </div>
+              
               <div className="flex gap-4">
-                <Button onClick={handleDeleteAccount} disabled={deleting} variant="primary" className="bg-error hover:bg-red-600">
-                  {deleting ? 'Deleting...' : 'Yes, Delete My Account'}
+                <Button
+                  onClick={handleDeleteAccount}
+                  disabled={deleting || deleteConfirmText !== 'DELETE'}
+                  variant="primary"
+                  className="bg-error hover:bg-red-600 disabled:opacity-40"
+                >
+                  {deleting ? 'Deleting...' : 'Permanently Delete My Account'}
                 </Button>
-                <Button onClick={() => setShowDeleteConfirm(false)} variant="outline-dark" disabled={deleting}>
+                <Button
+                  onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
+                  variant="outline-dark"
+                  disabled={deleting}
+                >
                   Cancel
                 </Button>
               </div>
