@@ -50,7 +50,7 @@ export function OnboardingForm({
         propertyType
       });
 
-      router.push('/upload');
+      router.push('/onboarding/auto-fetch');
     } catch (error) {
       console.error('[Auth]', error);
       setError('Failed to save your profile. Please try again.');

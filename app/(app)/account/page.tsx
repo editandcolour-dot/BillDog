@@ -53,9 +53,15 @@ export default function AccountPage() {
     // Fetch auto-fetch status
     fetch('/api/autofetch/status')
       .then((res) => res.json())
-      .then((data) => setAutofetchStatus(data))
+      .then((data) => {
+        setAutofetchStatus(data);
+        // If no municipality connected, redirect to onboarding flow
+        if (!data?.credential) {
+          router.push('/onboarding/auto-fetch');
+        }
+      })
       .catch((err) => console.error('[autofetch status]', err));
-  }, []);
+  }, [router]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
