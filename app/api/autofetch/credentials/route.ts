@@ -219,11 +219,11 @@ export async function POST(request: NextRequest) {
     // 11. Enqueue job via QStash — backfill for live, discovery for pending
 
     try {
-      const { qstashClient } = await import('@/lib/qstash/client');
-
+      const { getQstashClient } = await import('@/lib/qstash/client');
+      const qstash = getQstashClient();
       if (isLive) {
         // Live municipality — enqueue backfill
-        await qstashClient.publish({
+        await qstash.publish({
           url: `${appUrl}/api/autofetch/worker/backfill`,
           body: JSON.stringify({ credential_id: targetCredId }),
           retries: 3,
@@ -231,7 +231,7 @@ export async function POST(request: NextRequest) {
         console.log(`[autofetch/credentials] Enqueued backfill job for credential ${targetCredId}`);
       } else if (isDiscoveryPending) {
         // Discovery pending — enqueue Model B discovery
-        await qstashClient.publish({
+        await qstash.publish({
           url: `${appUrl}/api/autofetch/worker/discovery`,
           body: JSON.stringify({
             credential_id: targetCredId,
