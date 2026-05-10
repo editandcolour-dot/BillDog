@@ -273,8 +273,8 @@ export async function POST(request: NextRequest) {
         const extractedText = await parseBillFile(bill.pdfBuffer, 'application/pdf');
         
         await supabaseAdmin.from('case_bills').update({
-          parse_status: 'success',
-          parsed_text: extractedText
+          parse_status: 'parsed',
+          bill_text: extractedText
         }).eq('id', caseBill.id);
 
         const analysis = await analyseBill(extractedText, 'CoCT'); // Hardcoded to CoCT for now
@@ -284,14 +284,14 @@ export async function POST(request: NextRequest) {
         });
 
         await supabaseAdmin.from('case_bills').update({
-          analysis_status: 'success',
-          analysis_results: {
+          analysis_status: 'complete',
+          errors_found: {
             errors: analysis.errors,
-            total_billed: analysis.total_billed,
-            total_recoverable: analysis.total_recoverable,
             prescription_warnings,
             confidence: analysis.confidence
-          }
+          },
+          total_billed: analysis.total_billed,
+          recoverable: analysis.total_recoverable,
         }).eq('id', caseBill.id);
 
         billsAnalysed++;
@@ -319,7 +319,7 @@ export async function POST(request: NextRequest) {
         console.error(`[autofetch/backfill] Analysis failed for ${bill.period}:`, analysisErr);
         await supabaseAdmin.from('case_bills').update({
           analysis_status: 'failed',
-          analysis_results: { error: String(analysisErr) }
+          error_message: String(analysisErr)
         }).eq('id', caseBill.id);
       }
     }
