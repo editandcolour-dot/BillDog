@@ -144,6 +144,8 @@ export async function POST(request: NextRequest) {
     const { ciphertext, iv } = encryptCredentials(portal_username, portal_password);
 
     // 9. Store or upsert credential row
+    let targetCredId: string;
+
     if (existingCred) {
       // Re-activate previously revoked credential
       const { error: updateError } = await supabaseAdmin
@@ -165,30 +167,31 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to store credentials' }, { status: 500 });
       }
 
-      console.log(`[autofetch/credentials] Re-activated credential ${existingCred.id} for user ${user.id}`);
-      return NextResponse.json({ verified: true, credential_id: existingCred.id });
+      targetCredId = existingCred.id;
+      console.log(`[autofetch/credentials] Re-activated credential ${targetCredId} for user ${user.id}`);
+    } else {
+      // Insert new credential
+      const { data: newCred, error: insertError } = await supabaseAdmin
+        .from('municipal_credentials')
+        .insert({
+          user_id: user.id,
+          municipality_id: municipality.id,
+          encrypted_credentials: ciphertext,
+          encryption_iv: iv,
+          verified_at: new Date().toISOString(),
+          last_login_at: new Date().toISOString(),
+        })
+        .select('id')
+        .single();
+
+      if (insertError || !newCred) {
+        console.error('[autofetch/credentials] Insert failed:', insertError?.message);
+        return NextResponse.json({ error: 'Failed to store credentials' }, { status: 500 });
+      }
+
+      targetCredId = newCred.id as string;
+      console.log(`[autofetch/credentials] Stored credential ${targetCredId} for user ${user.id}`);
     }
-
-    // Insert new credential
-    const { data: newCred, error: insertError } = await supabaseAdmin
-      .from('municipal_credentials')
-      .insert({
-        user_id: user.id,
-        municipality_id: municipality.id,
-        encrypted_credentials: ciphertext,
-        encryption_iv: iv,
-        verified_at: new Date().toISOString(),
-        last_login_at: new Date().toISOString(),
-      })
-      .select('id')
-      .single();
-
-    if (insertError || !newCred) {
-      console.error('[autofetch/credentials] Insert failed:', insertError?.message);
-      return NextResponse.json({ error: 'Failed to store credentials' }, { status: 500 });
-    }
-
-    console.log(`[autofetch/credentials] Stored credential ${newCred.id} for user ${user.id}`);
 
     // 10. Pre-flight: assert QStash and app URL are configured
     const qstashToken = process.env.QSTASH_TOKEN;
@@ -196,11 +199,16 @@ export async function POST(request: NextRequest) {
 
     if (!qstashToken || !appUrl) {
       // Roll back the credential — dead state without QStash
-      await supabaseAdmin.from('municipal_credentials').delete().eq('id', newCred.id);
-      console.error(`[autofetch/credentials] QSTASH_TOKEN or NEXT_PUBLIC_APP_URL not set. Credential ${newCred.id} rolled back.`);
+      // For re-activated creds: re-revoke. For new creds: delete.
+      if (existingCred) {
+        await supabaseAdmin.from('municipal_credentials').update({ revoked_at: new Date().toISOString() }).eq('id', targetCredId);
+      } else {
+        await supabaseAdmin.from('municipal_credentials').delete().eq('id', targetCredId);
+      }
+      console.error(`[autofetch/credentials] QSTASH_TOKEN or NEXT_PUBLIC_APP_URL not set. Credential ${targetCredId} rolled back.`);
       await sendAdminAlert(
         `QStash not configured — credential rolled back`,
-        `User ${user.id} submitted credentials for ${municipality.name} but QSTASH_TOKEN=${qstashToken ? 'set' : 'MISSING'}, NEXT_PUBLIC_APP_URL=${appUrl || 'MISSING'}. Credential ${newCred.id} was rolled back.`,
+        `User ${user.id} submitted credentials for ${municipality.name} but QSTASH_TOKEN=${qstashToken ? 'set' : 'MISSING'}, NEXT_PUBLIC_APP_URL=${appUrl || 'MISSING'}. Credential ${targetCredId} was rolled back.`,
       );
       return NextResponse.json(
         { error: 'Server misconfigured. Admin notified.', code: 'QSTASH_NOT_CONFIGURED' },
@@ -209,7 +217,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 11. Enqueue job via QStash — backfill for live, discovery for pending
-    const targetCredId = newCred.id as string;
 
     try {
       const { qstashClient } = await import('@/lib/qstash/client');
@@ -237,7 +244,11 @@ export async function POST(request: NextRequest) {
       }
     } catch (qstashErr) {
       // QStash publish failed — roll back credential to avoid dead state
-      await supabaseAdmin.from('municipal_credentials').delete().eq('id', newCred.id);
+      if (existingCred) {
+        await supabaseAdmin.from('municipal_credentials').update({ revoked_at: new Date().toISOString() }).eq('id', targetCredId);
+      } else {
+        await supabaseAdmin.from('municipal_credentials').delete().eq('id', targetCredId);
+      }
       const errMsg = qstashErr instanceof Error ? qstashErr.message : String(qstashErr);
       console.error(`[autofetch/credentials] QStash publish failed. Credential ${targetCredId} rolled back. Error:`, errMsg);
       await sendAdminAlert(
