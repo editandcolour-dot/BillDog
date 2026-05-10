@@ -334,10 +334,26 @@ export async function POST(request: NextRequest) {
     const dateRangeStart = periods[0] || null;
     const dateRangeEnd = periods[periods.length - 1] || null;
 
+    // Aggregate all per-bill errors into a single array for the letter generator
+    const aggregatedErrors: any[] = [];
+    let aggregatedTotalBilled = 0;
+    for (const input of crossAnalysisInputs) {
+      if (input.analysis?.errors) {
+        for (const err of input.analysis.errors) {
+          aggregatedErrors.push({ ...err, bill_period: input.bill_period });
+        }
+      }
+      if (input.analysis?.total_billed) {
+        aggregatedTotalBilled += input.analysis.total_billed;
+      }
+    }
+
     const caseSummary: Record<string, any> = {
       status: totalRecoverable > 0 ? 'letter_ready' : 'closed',
       total_recoverable_all: totalRecoverable,
       recoverable: totalRecoverable,
+      total_billed: aggregatedTotalBilled,
+      errors_found: aggregatedErrors,
       date_range_start: dateRangeStart,
       date_range_end: dateRangeEnd,
       bill_period: dateRangeEnd, // Latest period for display

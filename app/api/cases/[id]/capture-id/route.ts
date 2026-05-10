@@ -10,6 +10,13 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
   // Check if profile already has ID stored (write-once)
   const { data: hasId } = await supabase.rpc('has_profile_id');
   if (hasId) {
+    const { id: caseId } = await ctx.params;
+    // Stamp the case so the UI stops prompting
+    await supabase
+      .from('cases')
+      .update({ id_collected_at: new Date().toISOString() })
+      .eq('id', caseId)
+      .eq('user_id', user.id);
     return NextResponse.json({ already_stored: true, message: 'ID already on file' });
   }
 
