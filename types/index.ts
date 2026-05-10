@@ -141,6 +141,7 @@ export interface Case {
   id_deletion_scheduled_at: string | null;
   created_at: string;
   updated_at: string;
+  deleted_at: string | null;
 }
 
 /** Case timeline event — maps to `case_events` table. */

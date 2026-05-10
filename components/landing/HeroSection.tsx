@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/Button';
+import { HeroCTA } from '@/components/landing/HeroCTA';
 
 /**
  * Hero section — full-viewport, navy background, gradient glows.
@@ -39,9 +40,7 @@ export function HeroSection() {
               No lawyers. No queues. No nonsense. Just results.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Button href="/signup" className="w-full sm:w-auto">
-                Connect Your Municipality →
-              </Button>
+              <HeroCTA />
               <Button
                 href="#how-it-works"
                 variant="outline-dark"
