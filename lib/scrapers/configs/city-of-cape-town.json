@@ -1,6 +1,6 @@
 {
   "municipality_id": "city-of-cape-town",
-  "version": "1.0",
+  "version": "1.1",
   "steps": {
     "login": [
       {
@@ -21,7 +21,7 @@
     "navigate": [
       {
         "selector": "#divContentArea",
-        "timeout_ms": 5000,
+        "timeout_ms": 15000,
         "action": "waitForSelector"
       },
       {
@@ -38,7 +38,7 @@
       },
       {
         "type": "waitForTimeout",
-        "ms": 5000
+        "ms": 10000
       }
     ],
     "filter_history": [
@@ -48,7 +48,12 @@
       },
       {
         "type": "waitForTimeout",
-        "ms": 5000
+        "ms": 15000
+      },
+      {
+        "selector": "select[name='billType']",
+        "timeout_ms": 30000,
+        "action": "waitForSelector"
       },
       {
         "action": "select",
@@ -62,11 +67,44 @@
       },
       {
         "action": "click",
-        "selector": "input[name='Search'][value='Find']"
+        "selector": "input[name='Search']"
       },
       {
         "type": "waitForTimeout",
-        "ms": 8000
+        "ms": 10000
+      }
+    ],
+    "filter_latest": [
+      {
+        "selector": "iframe[name='isolatedWorkArea']",
+        "action": "switchFrame"
+      },
+      {
+        "type": "waitForTimeout",
+        "ms": 15000
+      },
+      {
+        "selector": "select[name='billType']",
+        "timeout_ms": 30000,
+        "action": "waitForSelector"
+      },
+      {
+        "action": "select",
+        "selector": "select[name='billType']",
+        "value": "3"
+      },
+      {
+        "action": "select",
+        "selector": "select[name='searchDateId']",
+        "value": "365"
+      },
+      {
+        "action": "click",
+        "selector": "input[name='Search']"
+      },
+      {
+        "type": "waitForTimeout",
+        "ms": 10000
       }
     ]
   },
