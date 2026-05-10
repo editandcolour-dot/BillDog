@@ -295,6 +295,11 @@ export async function POST(request: NextRequest) {
         }).eq('id', caseBill.id);
 
         billsAnalysed++;
+
+        // Update progress incrementally so the UI shows real-time progress
+        await supabaseAdmin.from('scrape_jobs').update({
+          processed_bills: billsAnalysed + billsSkipped,
+        }).eq('id', jobId);
         
         if (analysis.total_recoverable > 0) {
           totalRecoverable += analysis.total_recoverable;
