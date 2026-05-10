@@ -513,7 +513,7 @@ export default function AccountPage() {
           <p className="text-sm text-red-900/70 mb-6">Permanently delete your account per POPIA section 14.</p>
           
           {showDeleteConfirm ? (
-            <div className="bg-white p-6 rounded-xl border border-red-200 shadow-sm">
+            <div className="bg-white p-4 sm:p-6 rounded-xl border border-red-200 shadow-sm overflow-hidden">
               <h3 className="font-bold text-navy mb-4">Account Deletion — What Happens</h3>
               
               <div className="mb-4">
@@ -538,26 +538,27 @@ export default function AccountPage() {
               <p className="text-sm text-error font-bold mb-4">This action is irreversible.</p>
               
               <div className="mb-4">
-                <label className="block text-sm font-bold text-navy mb-2">
+                <label htmlFor="delete-confirm-input" className="block text-sm font-bold text-navy mb-2">
                   Type <span className="text-error">DELETE</span> to confirm:
                 </label>
                 <input
+                  id="delete-confirm-input"
                   type="text"
                   value={deleteConfirmText}
                   onChange={(e) => setDeleteConfirmText(e.target.value)}
                   placeholder="Type DELETE here"
-                  className="w-full px-4 py-2 border border-red-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-error"
+                  className="w-full max-w-full px-4 py-3 border border-red-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-error box-border"
                   autoComplete="off"
                   spellCheck={false}
                 />
               </div>
               
-              <div className="flex gap-4">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <Button
                   onClick={handleDeleteAccount}
                   disabled={deleting || deleteConfirmText !== 'DELETE'}
                   variant="primary"
-                  className="bg-error hover:bg-red-600 disabled:opacity-40"
+                  className="bg-error hover:bg-red-600 disabled:opacity-40 w-full sm:w-auto"
                 >
                   {deleting ? 'Deleting...' : 'Permanently Delete My Account'}
                 </Button>
@@ -565,6 +566,7 @@ export default function AccountPage() {
                   onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(''); }}
                   variant="outline-dark"
                   disabled={deleting}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
