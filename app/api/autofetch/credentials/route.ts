@@ -190,12 +190,30 @@ export async function POST(request: NextRequest) {
 
     console.log(`[autofetch/credentials] Stored credential ${newCred.id} for user ${user.id}`);
 
-    // 10. Enqueue job via QStash — backfill for live, discovery for pending
-    const { qstashClient } = await import('@/lib/qstash/client');
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    // 10. Pre-flight: assert QStash and app URL are configured
+    const qstashToken = process.env.QSTASH_TOKEN;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!qstashToken || !appUrl) {
+      // Roll back the credential — dead state without QStash
+      await supabaseAdmin.from('municipal_credentials').delete().eq('id', newCred.id);
+      console.error(`[autofetch/credentials] QSTASH_TOKEN or NEXT_PUBLIC_APP_URL not set. Credential ${newCred.id} rolled back.`);
+      await sendAdminAlert(
+        `QStash not configured — credential rolled back`,
+        `User ${user.id} submitted credentials for ${municipality.name} but QSTASH_TOKEN=${qstashToken ? 'set' : 'MISSING'}, NEXT_PUBLIC_APP_URL=${appUrl || 'MISSING'}. Credential ${newCred.id} was rolled back.`,
+      );
+      return NextResponse.json(
+        { error: 'Server misconfigured. Admin notified.', code: 'QSTASH_NOT_CONFIGURED' },
+        { status: 500 },
+      );
+    }
+
+    // 11. Enqueue job via QStash — backfill for live, discovery for pending
     const targetCredId = newCred.id as string;
 
     try {
+      const { qstashClient } = await import('@/lib/qstash/client');
+
       if (isLive) {
         // Live municipality — enqueue backfill
         await qstashClient.publish({
@@ -218,8 +236,41 @@ export async function POST(request: NextRequest) {
         console.log(`[autofetch/credentials] Enqueued Model B discovery for ${municipality.name} (credential ${targetCredId})`);
       }
     } catch (qstashErr) {
-      console.error('[autofetch/credentials] Failed to enqueue job:', qstashErr);
-      // We don't fail the verification if QStash publish fails, but we log it
+      // QStash publish failed — roll back credential to avoid dead state
+      await supabaseAdmin.from('municipal_credentials').delete().eq('id', newCred.id);
+      const errMsg = qstashErr instanceof Error ? qstashErr.message : String(qstashErr);
+      console.error(`[autofetch/credentials] QStash publish failed. Credential ${targetCredId} rolled back. Error:`, errMsg);
+      await sendAdminAlert(
+        `QStash publish failed — credential rolled back`,
+        `User ${user.id} verified credentials for ${municipality.name} but QStash publish failed.\nCredential ${targetCredId} was rolled back.\nError: ${errMsg}\nApp URL: ${appUrl}`,
+      );
+      return NextResponse.json(
+        { error: 'Could not queue your bill fetch. Please try again or contact support.', code: 'QSTASH_PUBLISH_FAILED' },
+        { status: 500 },
+      );
+    }
+
+    // 12. Send "standby" email — only AFTER successful QStash enqueue
+    try {
+      const { sendAutofetchStandbyEmail } = await import('@/lib/resend/autofetch-standby');
+      const { data: userProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (userProfile?.email) {
+        await sendAutofetchStandbyEmail({
+          userEmail: userProfile.email,
+          userName: userProfile.full_name || 'there',
+          municipalityName: municipality.name,
+          accountUrl: `${appUrl}/account`,
+        });
+        console.log(`[autofetch/credentials] Standby email sent to ${userProfile.email}`);
+      }
+    } catch (emailErr) {
+      // Standby email is non-blocking — QStash job is already enqueued
+      console.error('[autofetch/credentials] Standby email failed (non-blocking):', emailErr);
     }
 
     return NextResponse.json({ verified: true, credential_id: targetCredId, discovery: isDiscoveryPending });
@@ -227,5 +278,26 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[autofetch/credentials] Unexpected error:', error);
     return NextResponse.json({ error: 'An unexpected error occurred' }, { status: 500 });
+  }
+}
+
+/**
+ * Send admin alert email when credential submission fails.
+ * Non-blocking — catch and log any email errors.
+ */
+async function sendAdminAlert(subject: string, detail: string): Promise<void> {
+  try {
+    const { getResendClient } = await import('@/lib/resend/client');
+    const resend = getResendClient();
+    const fromEmail = process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za';
+
+    await resend.emails.send({
+      from: `Billdog Alerts <${fromEmail}>`,
+      to: ['editandcolour@gmail.com'],
+      subject: `⚠️ ${subject}`,
+      html: `<h2>${subject}</h2><pre>${detail}</pre><p>Time: ${new Date().toISOString()}</p>`,
+    });
+  } catch (alertErr) {
+    console.error('[autofetch/credentials] Admin alert email failed:', alertErr);
   }
 }
