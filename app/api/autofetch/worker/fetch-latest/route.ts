@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
     // 5. Look up municipality to resolve scraper
     const { data: municipality } = await supabaseAdmin
       .from('municipalities')
-      .select('id, name')
+      .select('id, name, slug')
       .eq('id', credential.municipality_id)
       .single();
 
@@ -103,7 +103,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Municipality not found' }, { status: 404 });
     }
 
-    const slug = municipality.name.toLowerCase().replace(/\s+/g, '-');
+    const slug = municipality.slug;
     const scraper = getScraper(slug);
 
     if (!scraper) {

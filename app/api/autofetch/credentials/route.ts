@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
 
     // 3. Parse and validate input
     const body = await request.json();
-    const { municipality_id, portal_username, portal_password } = body;
+    const { municipality_id: municipality_slug, portal_username, portal_password } = body;
 
-    if (!municipality_id || !portal_username || !portal_password) {
+    if (!municipality_slug || !portal_username || !portal_password) {
       return NextResponse.json(
         { error: 'municipality_id, portal_username, and portal_password are required' },
         { status: 400 }
@@ -82,19 +82,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Check municipality is supported
-    // Look up the municipality row to get the slug
+    // Look up the municipality row by slug (canonical identifier from frontend)
     const { data: municipality } = await supabaseAdmin
       .from('municipalities')
-      .select('id, name')
-      .eq('id', municipality_id)
+      .select('id, name, slug')
+      .eq('slug', municipality_slug)
       .single();
 
     if (!municipality) {
       return NextResponse.json({ error: 'Municipality not found' }, { status: 404 });
     }
 
-    // Derive slug from municipality name (kebab-case)
-    const slug = municipality.name.toLowerCase().replace(/\s+/g, '-');
+    const slug = municipality.slug;
 
     // Check metro config for discovery status
     const metroConfig = getMetroByName(municipality.name);
@@ -113,7 +112,7 @@ export async function POST(request: NextRequest) {
       .from('municipal_credentials')
       .select('id, revoked_at')
       .eq('user_id', user.id)
-      .eq('municipality_id', municipality_id)
+      .eq('municipality_id', municipality.id)
       .single();
 
     if (existingCred && !existingCred.revoked_at) {
@@ -175,7 +174,7 @@ export async function POST(request: NextRequest) {
       .from('municipal_credentials')
       .insert({
         user_id: user.id,
-        municipality_id,
+        municipality_id: municipality.id,
         encrypted_credentials: ciphertext,
         encryption_iv: iv,
         verified_at: new Date().toISOString(),

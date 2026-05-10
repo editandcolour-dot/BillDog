@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // 3. Load municipality
     const { data: municipality } = await supabaseAdmin
       .from('municipalities')
-      .select('id, name')
+      .select('id, name, slug')
       .eq('id', credential.municipality_id)
       .single();
 
