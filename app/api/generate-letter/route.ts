@@ -123,26 +123,49 @@ export async function POST(request: NextRequest) {
       ? profile.full_name.trim()
       : (user.user_metadata?.full_name || (user.email ? user.email.split('@')[0] : 'Account Holder'));
 
-    // 7. Generate letter via Claude
+    const municipalityName = profile?.municipality || caseRecord.municipality || '';
+
+    // 6a. Fetch municipality dispute procedure for bylaw citation + lodgement address
+    let bylawCitation: string | undefined;
+    let lodgementAddress: string | undefined;
+    if (municipalityName) {
+      const { data: muniData } = await supabase
+        .from('municipalities')
+        .select('dispute_procedure')
+        .ilike('name', `%${municipalityName}%`)
+        .single();
+
+      if (muniData?.dispute_procedure) {
+        const dp = muniData.dispute_procedure as Record<string, unknown>;
+        bylawCitation = dp.bylaw_citation as string | undefined;
+        lodgementAddress = dp.lodgement_address as string | undefined;
+      }
+    }
+
+    // 7. Generate letter via deterministic template (single-bill) or Claude (multi-bill)
     const letterResult = await generateDisputeLetter({
       accountHolder,
       address: propertyAddress,
       accountNumber: profile?.account_number || caseRecord.account_number || '',
-      municipality: profile?.municipality || caseRecord.municipality || '',
+      municipality: municipalityName,
       billPeriod: caseRecord.bill_period || 'Unknown period',
+      billingDate: caseRecord.billing_date || caseRecord.bill_period || '',
+      totalBilled: caseRecord.total_billed || 0,
       verification: {
         fullName: accountHolder,
         idNumber,
         accountNumber: profile?.account_number || caseRecord.account_number || '',
         propertyAddress,
         email: user.email || profile?.email || '',
-        municipalityName: profile?.municipality || caseRecord.municipality || '',
+        municipalityName,
         caseId: caseRecord.id,
         mandateConsentAt: profile.mandate_consent_at,
       },
       errors: disputeErrors,
       prescribedExclusions,
       legislationContext: legislation.text,
+      bylawCitation,
+      lodgementAddress,
     });
 
     // 8. Save letter to cases table

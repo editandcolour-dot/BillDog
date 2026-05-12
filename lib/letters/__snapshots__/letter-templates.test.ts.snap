@@ -1,0 +1,223 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Letter Template Snapshot Tests > Section 50 Notice > produces informational notice for valuation disputes 1`] = `
+"PROPERTY VALUATION NOTICE
+
+Account: 20123456789
+Property: 42 Main Road, Rondebosch, 7700
+Municipality: City of Cape Town
+Bill Period: March 2025
+
+The following billing issues appear to relate to the property valuation rather than a tariff or arithmetic error:
+
+1. Property Rates
+   Billed: R120.50 | Expected: R95.20
+   Issue: Property valuation appears incorrect — zoning mismatch
+
+The property valuation reflected on this account appears to be incorrect. Disputes relating to property valuations fall under Section 50 of the Municipal Property Rates Act (No. 6 of 2004), and must be addressed through the Valuation Roll objection process, not through a Section 102 billing dispute.
+
+To object to a property valuation, you will need to:
+1. Obtain a valuation report from a SACPVP-registered property valuer
+2. Lodge a formal objection with the municipal valuation office during the next objection window
+3. Pay municipal rates based on the current (disputed) valuation while the objection is processed
+
+WHAT BILLDOG CAN DO
+
+Billdog can dispute billing arithmetic errors (tariff rates, tier calculations, fixed charges) via Section 102.
+
+However, property valuation disputes require a professional property valuer's report, which Billdog cannot provide. We recommend contacting a SACPVP-registered valuer in your area.
+
+If you believe the valuation on your account is incorrect, please pursue the Section 50 objection process separately. Billdog will continue to monitor your billing arithmetic for other errors."
+`;
+
+exports[`Letter Template Snapshot Tests > Section 62 Appeal > produces appeal letter with original errors reproduced 1`] = `
+"SECTION 62 APPEAL — MUNICIPAL SYSTEMS ACT
+
+Date: 2026/05/12
+
+To: The Municipal Manager, City of Cape Town
+
+Re: Appeal against rejection of billing dispute
+Account: 20123456789
+Property: 42 Main Road, Rondebosch, 7700
+Original Dispute Reference: CoCT-2025-03-00123
+Original Dispute Date: 20/03/2025
+Rejection Date: 10/04/2025
+
+This appeal is lodged in terms of Section 62 of the Local Government: Municipal Systems Act (No. 32 of 2000), against the decision of the municipality to reject or refuse to correct the billing errors identified in the original dispute letter.
+
+Section 62(1) provides that a person whose rights are affected by a decision taken by a staff member of a municipality may appeal against that decision by giving written notice of the appeal and reasons to the municipal manager within 21 days of the date of the notification of the decision.
+
+SUMMARY OF ORIGINAL DISPUTE
+
+On 20/03/2025, a formal billing dispute was lodged under Section 102(1)(a) of the Municipal Systems Act regarding account 20123456789 for the billing period March 2025.
+
+The dispute identified 1 billing error totalling R25.30 in overcharges.
+
+MUNICIPALITY'S RESPONSE
+
+The municipality responded on 10/04/2025 with the following:
+"The account has been verified and found to be correct."
+
+GROUNDS FOR APPEAL
+
+The municipality has failed to address the specific tariff discrepancy identified. The gazetted rate for Tier 1 water is R9.52/kl, but the bill applies R12.05/kl.
+
+ORIGINAL BILLING ERRORS (REPRODUCED)
+
+| # | Line Item | Service | Billed | Expected | Overcharge |
+|---|-----------|---------|--------|----------|------------|
+| 1 | Water Tier 1 (0-6kl) | water | R120.50 | R95.20 | R25.30 |
+
+LEGAL AUTHORITY
+
+As held in Mkontwana v Nelson Mandela Metropolitan Municipality [2005] ZACC 1, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.
+
+In Tarica v City of Johannesburg [2018] ZAGPJHC 262, the High Court held that a municipality cannot simply assert the correctness of an account without providing verifiable underlying data, including meter readings and applicable tariff schedules.
+
+FORMAL REQUEST
+
+I hereby appeal the decision to reject my billing dispute and request that the Municipal Manager:
+
+1. Review the original dispute and the municipality's response;
+2. Provide a reasoned written decision within 30 calendar days as required by Section 62(4);
+3. Correct the identified billing errors and credit the overcharged amount of R25.30;
+4. Provide an itemised account reconciliation demonstrating the basis for each charge.
+
+If no response is received within 30 days, I reserve the right to approach the relevant external remedies, including the Municipal Ombudsman and, where applicable, the relevant regulator.
+
+Yours faithfully,
+
+John Doe
+Account: 20123456789"
+`;
+
+exports[`Letter Template Snapshot Tests > Section 102 — Multi Error CoCT > produces table with all recoverable errors 1`] = `
+"FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
+
+Date: 2026/05/12
+
+To: The Revenue Manager, City of Cape Town
+
+Re: Account 30987654321
+Property: 15 Beach Road, Sea Point, 8005
+Bill Period: February 2025
+Bill Date: 15/02/2025
+Total Billed: R5 200.00
+
+This dispute is lodged in terms of Section 95(f) of the Local Government: Municipal Systems Act (No. 32 of 2000), which entitles every account holder to reasonable notice of and an opportunity to make representations in respect of any billing errors.
+
+The specific errors identified below constitute grounds for correction under Section 102(1)(a) of the Act, which requires the municipality to revise an account that is incorrect or has been compiled on the basis of incorrect data.
+
+The February 2025 bill contains multiple errors across water and refuse services.
+
+BILLING ERRORS IDENTIFIED
+
+| # | Line Item | Service | Billed | Expected | Overcharge | Reading Type | Prescription |
+|---|-----------|---------|--------|----------|------------|-------------|-------------|
+| 1 | Water Tier 2 (6-10.5kl) | water | R250.00 | R180.00 | R70.00 | actual | Active |
+| 2 | Refuse Removal | refuse | R450.00 | R380.00 | R70.00 | actual | Active |
+
+ADDITIONAL OBSERVATIONS (Non-recoverable / Informational)
+
+1. Estimated reading is 3x actual historical average
+
+LEGAL BASIS PER ERROR
+
+1. Water Tier 2 (6-10.5kl): CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
+   Detail: Tier 2 rate incorrect
+
+2. Refuse Removal: CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
+   Detail: Refuse tariff incorrect for property category
+
+TOTAL OVERCHARGE: R140.00
+
+LEGAL AUTHORITY
+
+As held in Mkontwana v Nelson Mandela Metropolitan Municipality [2005] ZACC 1, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.
+
+In Tarica v City of Johannesburg [2018] ZAGPJHC 262, the High Court held that a municipality cannot simply assert the correctness of an account without providing verifiable underlying data, including meter readings and applicable tariff schedules.
+
+Per Glofurn (Pty) Ltd v Johannesburg City Power [2021] ZASCA 20, the Supreme Court of Appeal confirmed that disconnection of services while a bona fide dispute is pending constitutes unlawful administrative action. The municipality must resolve the dispute before taking enforcement action.
+
+This dispute is further supported by Item 7 of the City of Cape Town Credit Control and Debt Collection Policy.
+
+IMPORTANT: You are required to continue paying the undisputed portion of your account while this dispute is being processed. Failure to pay undisputed charges may result in the municipality refusing to consider your dispute or taking credit control action on the undisputed balance.
+
+FORMAL DEMAND
+
+I hereby demand that the City of Cape Town:
+
+1. Investigate and correct the billing errors listed above within 30 calendar days of receipt of this letter;
+2. Issue a corrected account reflecting the correct charges;
+3. Credit the overcharged amount of R140.00 to my municipal account;
+4. Provide written confirmation of the corrections made.
+
+Failure to respond within 30 calendar days will be treated as a deemed refusal, entitling me to lodge an appeal under Section 62 of the Municipal Systems Act.
+
+Yours faithfully,
+
+Jane Smith
+Account: 30987654321"
+`;
+
+exports[`Letter Template Snapshot Tests > Section 102 — Single Error CoCT > produces deterministic output with all required elements 1`] = `
+"FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
+
+Date: 2026/05/12
+
+To: The Revenue Manager, City of Cape Town
+
+Re: Account 20123456789
+Property: 42 Main Road, Rondebosch, 7700
+Bill Period: March 2025
+Bill Date: 15/03/2025
+Total Billed: R3 450.00
+
+This dispute is lodged in terms of Section 95(f) of the Local Government: Municipal Systems Act (No. 32 of 2000), which entitles every account holder to reasonable notice of and an opportunity to make representations in respect of any billing errors.
+
+The specific errors identified below constitute grounds for correction under Section 102(1)(a) of the Act, which requires the municipality to revise an account that is incorrect or has been compiled on the basis of incorrect data.
+
+The bill for March 2025 contains a water tariff overcharge where the incorrect unit rate was applied to Tier 1 consumption.
+
+BILLING ERRORS IDENTIFIED
+
+| # | Line Item | Service | Billed | Expected | Overcharge | Reading Type | Prescription |
+|---|-----------|---------|--------|----------|------------|-------------|-------------|
+| 1 | Water Tier 1 (0-6kl) | water | R120.50 | R95.20 | R25.30 | actual | Active |
+
+LEGAL BASIS PER ERROR
+
+1. Water Tier 1 (0-6kl): CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
+   Detail: Tier 1 unit rate applied at R12.05/kl instead of gazetted rate R9.52/kl
+
+TOTAL OVERCHARGE: R25.30
+
+LEGAL AUTHORITY
+
+As held in Mkontwana v Nelson Mandela Metropolitan Municipality [2005] ZACC 1, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.
+
+In Tarica v City of Johannesburg [2018] ZAGPJHC 262, the High Court held that a municipality cannot simply assert the correctness of an account without providing verifiable underlying data, including meter readings and applicable tariff schedules.
+
+Per Glofurn (Pty) Ltd v Johannesburg City Power [2021] ZASCA 20, the Supreme Court of Appeal confirmed that disconnection of services while a bona fide dispute is pending constitutes unlawful administrative action. The municipality must resolve the dispute before taking enforcement action.
+
+This dispute is further supported by Item 7 of the City of Cape Town Credit Control and Debt Collection Policy.
+
+IMPORTANT: You are required to continue paying the undisputed portion of your account while this dispute is being processed. Failure to pay undisputed charges may result in the municipality refusing to consider your dispute or taking credit control action on the undisputed balance.
+
+FORMAL DEMAND
+
+I hereby demand that the City of Cape Town:
+
+1. Investigate and correct the billing errors listed above within 30 calendar days of receipt of this letter;
+2. Issue a corrected account reflecting the correct charges;
+3. Credit the overcharged amount of R25.30 to my municipal account;
+4. Provide written confirmation of the corrections made.
+
+Failure to respond within 30 calendar days will be treated as a deemed refusal, entitling me to lodge an appeal under Section 62 of the Municipal Systems Act.
+
+Yours faithfully,
+
+John Doe
+Account: 20123456789"
+`;
