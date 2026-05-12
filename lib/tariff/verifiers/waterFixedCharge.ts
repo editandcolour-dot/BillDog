@@ -73,9 +73,16 @@ export async function verifyWaterFixedCharge(
     return { result: 'SKIP' };
   }
 
-  const expectedAmount = resolution.amount;
+  const rawAmount = resolution.amount;
+  // v2 cache stores excl-VAT, but CoCT bills print water fixed basic INCL-VAT.
+  // Gross up when the resolver provides a vatRate.
+  const expectedAmount = resolution.vatRate
+    ? Math.round(rawAmount * (1 + resolution.vatRate) * 100) / 100
+    : rawAmount;
   const expectedTotal = expectedAmount * multiplier;
   const tolerance = 0.10;
+
+  console.log(`[FIXED_BASIC] meterSize="${sizeOrBand}" unitRate=${billedAmount} expectedRate=${expectedTotal}`);
 
   if (Math.abs(billedAmount - expectedTotal) <= tolerance) {
     return { result: 'PASS', approved_amount: parseFloat(expectedTotal.toFixed(2)) };

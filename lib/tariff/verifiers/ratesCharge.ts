@@ -18,6 +18,37 @@ export async function verifyRatesCharge(
 ): Promise<VerificationResult> {
   const normMunicipality = municipalityCode === 'City of Cape Town' ? 'CoCT' : municipalityCode;
 
+  // ── FAST PATH: Check deterministic local JSON store first ──────────────
+  // The local store has confirmed gazetted rates for all CoCT FYs.
+  // Checking it first avoids expensive VeriCite Claude web-search calls
+  // (~50s per lookup) when deterministic data already exists.
+  const storeKey = normMunicipality === 'CoCT' ? 'city-of-cape-town' : normMunicipality;
+  try {
+    const store = getTariffStore(storeKey);
+    const fy = getTariffYearForDate(fromDateStr);
+    const localRate = store.getRate('RATES', fy, 'residential');
+    
+    if (localRate?.rate_value !== undefined) {
+      const fallbackRate = localRate.rate_value;
+      console.log(`[RATES_TARIFF_DIAG] fromDate=${fromDateStr} rate=${annualRateApplied} source=local_store fallback=${fallbackRate} decision=${Math.abs(annualRateApplied - fallbackRate) > 0.0000001 ? 'FAIL' : 'PASS'}`);
+      
+      if (Math.abs(annualRateApplied - fallbackRate) > 0.0000001) {
+        return {
+          result: 'FAIL',
+          approved_rate: fallbackRate,
+          delta: annualRateApplied - fallbackRate,
+          confidence: 'CONFIRMED',
+          source_url: localRate.source_url || 'N/A',
+          source_document: localRate.source_document_title || 'Generic Store'
+        };
+      }
+      return { result: 'PASS', approved_rate: fallbackRate };
+    }
+  } catch {
+    // Store not found for this municipality — fall through to resolver
+  }
+
+  // ── SLOW PATH: tariff-resolver → v1 cache → v2 cache → VeriCite ──────
   const resolution = await resolveTariff({
     municipality: normMunicipality,
     tariffType: 'RATES',
@@ -25,27 +56,7 @@ export async function verifyRatesCharge(
   });
 
   if (resolution.result === 'SKIP' || !resolution.amount) {
-    const store = getTariffStore('city-of-cape-town');
-    const fy = getTariffYearForDate(fromDateStr);
-    const fallback = store.getRate('RATES', fy, 'residential');
-    const fallbackRate = fallback?.rate_value;
-    
-    // Diagnostic: log both sources and final decision
-    console.log(`[RATES_TARIFF_DIAG] fromDate=${fromDateStr} rate=${annualRateApplied} resolver=${JSON.stringify(resolution.result)} fallback=${fallbackRate !== undefined ? fallbackRate : 'undefined'} decision=${fallbackRate !== undefined ? (Math.abs(annualRateApplied - fallbackRate) > 0.0000001 ? 'FAIL' : 'PASS') : 'SKIP→UNKNOWN_TARIFF'}`);
-    
-    if (fallbackRate !== undefined) {
-      if (Math.abs(annualRateApplied - fallbackRate) > 0.0000001) {
-        return {
-          result: 'FAIL',
-          approved_rate: fallbackRate,
-          delta: annualRateApplied - fallbackRate,
-          confidence: 'CONFIRMED',
-          source_url: fallback?.source_url || 'N/A',
-          source_document: fallback?.source_document_title || 'Generic Store'
-        };
-      }
-      return { result: 'PASS', approved_rate: fallbackRate };
-    }
+    console.log(`[RATES_TARIFF_DIAG] fromDate=${fromDateStr} rate=${annualRateApplied} resolver=${JSON.stringify(resolution.result)} decision=SKIP→UNKNOWN_TARIFF`);
     return { result: 'SKIP' };
   }
 
