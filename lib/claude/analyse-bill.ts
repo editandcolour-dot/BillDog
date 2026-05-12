@@ -3,6 +3,8 @@ import { AnalysisResult, ValidationFinding, FindingType, BillingError } from '@/
 import { getParser } from '@/lib/parsers/registry';
 import { validateBill } from '@/lib/validators/bill-validator';
 import { buildGroundedSystemPrompt } from './grounded-prompt';
+import { classifyDisputeChannel, mapServiceToChargeType } from '@/lib/disputes/classify-channel';
+import { checkPrescription } from '@/lib/validators/prescription';
 
 const CLAUDE_TIMEOUT_MS = 45_000;
 const MODEL = 'claude-sonnet-4-20250514';
@@ -204,17 +206,56 @@ export async function analyseBill(billText: string, municipalityCode: string = '
   // Claude's response is only used for: summary, municipality_detected, bill_period.
   // ────────────────────────────────────────────────────────────────────────
   if (isGroundTruth && parsedBill) {
-    const groundTruthErrors: BillingError[] = validatorFindings.map(f => ({
-      line_item: f.lineReference,
-      service_type: mapFindingTypeToServiceType(f.type),
-      amount_charged: f.billedAmount,
-      expected_amount: f.expectedAmount ?? 0,
-      overchargeZar: f.overchargeZar ?? 0,
-      issue: f.description,
-      legal_basis: f.legalBasis || getLegalBasis(f.type),
-      recoverable: f.recoverable !== false,
-      finding_type: f.type,
-    }));
+    const groundTruthErrors: BillingError[] = validatorFindings.map(f => {
+      const serviceType = mapFindingTypeToServiceType(f.type);
+      const chargeType = mapServiceToChargeType(serviceType);
+      const disputeChannel = classifyDisputeChannel(f.type, f.description);
+
+      // P1.5: Derive reading_type from parser's section-level status
+      let readingType: BillingError['reading_type'] = undefined;
+      if (f.type === 'ESTIMATED_READING_FLAGGED') {
+        readingType = 'estimated';
+      } else if (serviceType === 'water' && parsedBill.waterReadingStatus) {
+        readingType = parsedBill.waterReadingStatus;
+      }
+
+      // P4: Prescription check (uses existing prescription validator)
+      const billPeriod = validated.bill_period || parsedBill.billingDate;
+      let withinPrescription: boolean | null = null;
+      let prescriptionReviewReason: string | undefined = undefined;
+
+      if (billPeriod) {
+        const prescCheck = checkPrescription(billPeriod, chargeType === 'sewer' ? 'sewerage' : chargeType as any);
+        if (prescCheck.status === 'prescribed') {
+          // Argent Industrial edge case: estimated readings may still be disputable
+          if (readingType === 'estimated') {
+            withinPrescription = null; // Human review required
+            prescriptionReviewReason = 'Argent Industrial: prescription may run from when actual reading should have been taken, not when estimated bill was issued.';
+          } else {
+            withinPrescription = false;
+          }
+        } else {
+          withinPrescription = true;
+        }
+      }
+
+      return {
+        line_item: f.lineReference,
+        service_type: serviceType,
+        amount_charged: f.billedAmount,
+        expected_amount: f.expectedAmount ?? 0,
+        overchargeZar: f.overchargeZar ?? 0,
+        issue: f.description,
+        legal_basis: f.legalBasis || getLegalBasis(f.type),
+        recoverable: f.recoverable !== false,
+        finding_type: f.type,
+        reading_type: readingType,
+        dispute_channel: disputeChannel,
+        charge_type: chargeType,
+        within_prescription: withinPrescription,
+        prescription_review_reason: prescriptionReviewReason,
+      };
+    });
 
     const totalRecoverable = validatorFindings.reduce(
       (sum, f) => sum + (f.recoverable !== false ? (f.overchargeZar ?? 0) : 0), 0

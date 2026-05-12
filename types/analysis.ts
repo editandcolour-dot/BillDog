@@ -8,6 +8,14 @@ export interface BillingError {
   recoverable: boolean;
   service_type: 'electricity' | 'water' | 'gas' | 'rates' | 'sewerage' | 'refuse' | 'other';
   finding_type?: string; // Original ValidationFinding.type — used by corpus test runner for precise matching
+  // P1.5: Estimated vs Actual reading flag
+  reading_type?: 'actual' | 'estimated' | 'mixed' | 'unknown';
+  // P1.6: Dispute channel classification
+  dispute_channel?: 'section_102_billing' | 'section_50_valuation';
+  // P4: Prescription-aware detection
+  charge_type?: 'electricity' | 'water' | 'sewer' | 'refuse' | 'rates' | 'sundry';
+  within_prescription?: boolean | null;  // null = requires human review (Argent Industrial edge case)
+  prescription_review_reason?: string;
 }
 
 export interface AnalysisResult {
