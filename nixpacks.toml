@@ -1,12 +1,17 @@
 # Nixpacks config for Railway deployment
 # Required for Playwright/Chromium browser automation (autofetch scrapers)
 #
-# Strategy: Use `playwright install --with-deps chromium` which auto-detects
-# the OS and installs the correct system packages (handles Ubuntu 24.04+
-# package renames like libasound2 → libasound2t64 automatically).
+# CRITICAL: The browser install MUST use the project's own playwright-core
+# binary (node_modules/.bin/playwright-core) — NOT `npx playwright` which
+# pulls the latest global version and downloads a mismatched Chromium revision.
+#
+# Split into two steps:
+#   1. Install OS-level deps (apt packages) via npx playwright install-deps
+#   2. Download the exact Chromium revision matching playwright-core in package.json
 
 [phases.build]
 cmds = [
-  "npx playwright install --with-deps chromium",
+  "npx playwright install-deps chromium",
+  "node node_modules/playwright-core/cli.js install chromium",
   "npm run build",
 ]
