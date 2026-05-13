@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
     // 3. Fetch case + ownership check
     const { data: caseRecord, error: dbError } = await supabase
       .from('cases')
-      .select('id, user_id, status, letter_content, municipality, account_number, bill_period, property_address')
+      .select('id, user_id, status, letter_content, municipality, account_number, bill_period')
       .eq('id', caseId)
       .single();
 
@@ -69,20 +69,19 @@ export async function POST(request: NextRequest) {
     if (!hasHeader || !hasMandate) {
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, address, email, mandate_consent_at')
+        .select('full_name, email, mandate_consent_at')
         .eq('id', user.id)
         .single();
 
       const { data: idNumber } = await supabase.rpc('get_poppi_id', { target_case_id: caseId });
 
+      // NOTE: property_address column doesn't exist yet — use empty string fallback
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const caseRec = caseRecord as any;
       const propertyAddress: string =
-        (caseRec.property_address && String(caseRec.property_address).trim()) ||
-        (profile?.address && String(profile.address).trim()) ||
-        '';
+        (caseRec.property_address && String(caseRec.property_address).trim()) || '';
 
-      if (!profile?.full_name || !idNumber || !profile.mandate_consent_at || !propertyAddress) {
+      if (!profile?.full_name || !idNumber || !profile.mandate_consent_at) {
         return NextResponse.json({ error: 'Cannot reconstruct verification block — required fields missing.' }, { status: 412 });
       }
 
