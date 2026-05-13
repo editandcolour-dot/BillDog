@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { CasesList } from '@/components/dashboard/CasesList';
 import { ProcessingBanner } from '@/components/dashboard/ProcessingBanner';
+import { DashboardActionCards } from '@/components/dashboard/DashboardActionCards';
 import type { Case } from '@/types';
 
 export const metadata = {
@@ -24,6 +25,15 @@ export default async function DashboardPage() {
     .select('full_name')
     .eq('id', user.id)
     .single();
+
+  // Check if user has connected a municipality for autofetch
+  const { data: credential } = await supabase
+    .from('autofetch_credentials')
+    .select('id, municipality_name, status')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const hasAutofetch = !!credential;
 
   // Fetch non-deleted cases for this user
   const { data: casesData, error } = await supabase
@@ -63,6 +73,9 @@ export default async function DashboardPage() {
             </h1>
           </div>
         </div>
+
+        {/* Action cards — Connect Municipality + Upload Manually */}
+        <DashboardActionCards hasAutofetch={hasAutofetch} />
 
         {/* Processing banner — shows when a scrape job is running */}
         <ProcessingBanner />

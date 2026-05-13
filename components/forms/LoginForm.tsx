@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 
@@ -9,11 +9,25 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
+  // Handle redirect query params from auth callback
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    const verified = searchParams.get('verified');
+
+    if (errorParam === 'verification_failed' || errorParam === 'no_code') {
+      setError('Email verification failed. Please try signing up again or contact support.');
+    }
+    if (verified === 'true') {
+      setSuccessMessage('Email verified! You can now log in.');
+    }
+  }, [searchParams]);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -51,6 +65,11 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleLogin} className="space-y-4 w-full max-w-sm">
+      {successMessage && (
+        <div className="p-3 bg-green-900/50 border border-green-500 text-green-100 rounded text-sm">
+          {successMessage}
+        </div>
+      )}
       {error && (
         <div className="p-3 bg-red-900/50 border border-red-500 text-red-100 rounded text-sm">
           {error}
