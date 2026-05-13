@@ -77,9 +77,9 @@ export function DeleteCaseButton({ caseId, caseStatus }: DeleteCaseButtonProps) 
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="w-full min-h-[44px] px-4 py-3 bg-white border border-red-200 text-error font-bold rounded-2xl hover:bg-red-50 hover:border-red-300 transition-all flex items-center justify-center gap-2 text-sm uppercase tracking-wide"
+      className="w-full min-h-[40px] px-3 py-2 bg-white border border-red-100 text-error/70 hover:text-error font-medium rounded-xl hover:bg-red-50 hover:border-red-200 transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide"
     >
-      <Trash2 className="w-4 h-4" />
+      <Trash2 className="w-3.5 h-3.5" />
       Delete Case
     </button>
   );
