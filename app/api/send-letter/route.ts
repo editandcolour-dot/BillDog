@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { sendDisputeLetter } from '@/lib/resend/send-dispute';
 import { buildVerificationBlock } from '@/lib/letters/verification-block';
+import { extractAddressFromCoctBill } from '@/lib/parsers/extract-address';
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -75,11 +76,19 @@ export async function POST(request: NextRequest) {
 
       const { data: idNumber } = await supabase.rpc('get_poppi_id', { target_case_id: caseId });
 
-      // NOTE: property_address column doesn't exist yet — use empty string fallback
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const caseRec = caseRecord as any;
-      const propertyAddress: string =
-        (caseRec.property_address && String(caseRec.property_address).trim()) || '';
+      // Extract property address from the actual bill text (not a phantom column)
+      let propertyAddress = '';
+      const { data: latestBill } = await supabase
+        .from('case_bills')
+        .select('bill_text')
+        .eq('case_id', caseId)
+        .not('bill_text', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      if (latestBill?.bill_text) {
+        propertyAddress = extractAddressFromCoctBill(latestBill.bill_text);
+      }
 
       if (!profile?.full_name || !idNumber || !profile.mandate_consent_at) {
         return NextResponse.json({ error: 'Cannot reconstruct verification block — required fields missing.' }, { status: 412 });

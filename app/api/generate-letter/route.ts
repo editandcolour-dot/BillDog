@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { generateDisputeLetter } from '@/lib/claude/generate-letter';
 import { getLegislationContext } from '@/lib/rag/legislation';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+import { extractAddressFromCoctBill } from '@/lib/parsers/extract-address';
 
 const generateLimiter = getRateLimiter(20, '1 h');
 
@@ -69,16 +70,24 @@ export async function POST(request: NextRequest) {
       .eq('id', user.id)
       .single();
 
-    // 4a. Resolve property address — soft gate with fallback.
-    // NOTE: Neither cases.property_address nor profiles.address columns exist yet.
-    // TODO: Add address capture to onboarding flow and create migration for the column.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const caseRec = caseRecord as any;
-    const propertyAddress: string =
-      (caseRec.property_address && String(caseRec.property_address).trim()) ||
-      '';
+    // 4a. Resolve property address from bill text (the real data source).
+    // Every CoCT bill has the property address in its header. We extract it
+    // from the most recent case_bill's bill_text using a deterministic parser.
+    let propertyAddress = '';
+    const { data: latestBill } = await supabase
+      .from('case_bills')
+      .select('bill_text')
+      .eq('case_id', caseId)
+      .not('bill_text', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (latestBill?.bill_text) {
+      propertyAddress = extractAddressFromCoctBill(latestBill.bill_text);
+    }
     if (!propertyAddress) {
-      console.warn('[API/GenerateLetter] No property address on case — using fallback for letter generation.');
+      console.warn('[API/GenerateLetter] Could not extract property address from bill text — letter will have blank address field.');
     }
 
     // 4b. Decrypt account-holder ID via Vault RPC
