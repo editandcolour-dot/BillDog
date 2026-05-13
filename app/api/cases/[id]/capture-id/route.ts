@@ -11,12 +11,46 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
   const { data: hasId } = await supabase.rpc('has_profile_id');
   if (hasId) {
     const { id: caseId } = await ctx.params;
-    // Stamp the case so the UI stops prompting
-    await supabase
+
+    // Profile has ID on file — but we still need a case-level Vault entry
+    // so get_poppi_id (which looks up by case_id) can find it.
+    // Check if case already has the ID stamped first (idempotent).
+    const { data: caseRow } = await supabase
       .from('cases')
-      .update({ id_collected_at: new Date().toISOString() })
+      .select('id_collected_at')
       .eq('id', caseId)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .single();
+
+    if (!caseRow?.id_collected_at) {
+      // Decrypt profile-level ID and bridge it to case-level Vault
+      const { data: profileIdNumber } = await supabase.rpc('get_profile_id_decrypted');
+      if (profileIdNumber) {
+        try {
+          await supabase.rpc('store_account_holder_id', {
+            target_case_id: caseId,
+            id_number: profileIdNumber,
+          });
+        } catch (bridgeErr) {
+          // store_account_holder_id also stamps cases.id_collected_at on success.
+          // If it throws "already captured", just stamp the case directly.
+          console.warn('[capture-id] Bridge write failed (may be duplicate):', bridgeErr);
+          await supabase
+            .from('cases')
+            .update({ id_collected_at: new Date().toISOString() })
+            .eq('id', caseId)
+            .eq('user_id', user.id);
+        }
+      } else {
+        // Couldn't decrypt — just stamp the case so UI stops prompting
+        await supabase
+          .from('cases')
+          .update({ id_collected_at: new Date().toISOString() })
+          .eq('id', caseId)
+          .eq('user_id', user.id);
+      }
+    }
+
     return NextResponse.json({ already_stored: true, message: 'ID already on file' });
   }
 
