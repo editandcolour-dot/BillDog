@@ -26,7 +26,6 @@ Full name:        ${i.fullName}
 ID number:        ${i.idNumber}
 Account number:   ${i.accountNumber}
 Property address: ${i.propertyAddress}
-Email on file:    ${i.email}
 
 MANDATE
 I, ${i.fullName}, have authorised Billdog (Pty) Ltd
