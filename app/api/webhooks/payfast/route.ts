@@ -121,12 +121,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       console.info('[payfast-itn] Token saved for user', { userId: mPaymentId });
 
-      await supabase.from('case_events').insert({
-        case_id: null,
-        event_type: 'card_tokenised',
-        note: 'PayFast card token saved successfully.',
-        metadata: { user_id: mPaymentId, pf_payment_id: pfPaymentId },
-      });
+      // Audit event — best-effort (case_id NOT NULL constraint may reject null)
+      try {
+        await supabase.from('case_events').insert({
+          case_id: null, // No case associated with tokenisation
+          event_type: 'card_tokenised',
+          note: 'PayFast card token saved successfully.',
+          metadata: { user_id: mPaymentId, pf_payment_id: pfPaymentId },
+        });
+      } catch (auditErr) {
+        // Non-fatal: case_events has NOT NULL on case_id — tokenisation events
+        // don't have an associated case. Token is already saved above.
+        console.warn('[payfast-itn] Audit event insert failed (non-fatal)', {
+          error: auditErr instanceof Error ? auditErr.message : String(auditErr),
+        });
+      }
     } else {
       // Ad-hoc charge payment (success fee)
       const supabase = createAdminClient();
