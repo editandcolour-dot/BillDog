@@ -7,8 +7,7 @@ export default function NotFound() {
         title="404"
         message="This page doesn't exist. Your bill dispute might though."
         primaryAction={{ label: 'Go Home', href: '/' }}
-        // TODO: Update to /upload when upload page is built (Phase TBD)
-        secondaryAction={{ label: 'Upload Your Bill', href: '/' }}
+        secondaryAction={{ label: 'Upload Your Bill', href: '/upload' }}
       />
     </div>
   );
