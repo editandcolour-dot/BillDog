@@ -83,7 +83,7 @@ export function SignupForm() {
 
       if (data.user) {
         const nowIso = new Date().toISOString();
-        const { error: profileError } = await supabase.from('profiles').insert({
+        const { error: profileError } = await supabase.from('profiles').upsert({
           id: data.user.id,
           full_name: fullName,
           email,
@@ -93,7 +93,8 @@ export function SignupForm() {
           mandate_consent_at: nowIso,
           mandate_consent_version: CURRENT_MANDATE_CONSENT.version,
           marketing_consent: marketingConsent,
-        });
+          updated_at: nowIso,
+        }, { onConflict: 'id' });
 
         if (profileError) {
           console.error('[Auth]', profileError);
