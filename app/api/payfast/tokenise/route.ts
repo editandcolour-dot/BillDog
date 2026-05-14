@@ -1,14 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { generateTokeniseFormData } from '@/lib/payfast/tokenise';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Optional caseId — when tokenising from the letter page, this routes the user
+    // back to that letter after PayFast completes. Account page sends no body.
+    let caseId: string | undefined;
+    try {
+      const body = await request.json();
+      caseId = body.caseId;
+    } catch { /* no body = tokenise from account page */ }
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -40,11 +48,13 @@ export async function POST() {
     console.log('[payfast/tokenise] Passphrase length:', passphrase?.length);
     console.log('[payfast/tokenise] NEXT_PUBLIC_APP_URL:', process.env['NEXT_PUBLIC_APP_URL']);
     console.log('[payfast/tokenise] PAYFAST_ITN_URL:', process.env['PAYFAST_ITN_URL']);
+    console.log('[payfast/tokenise] Return caseId:', caseId || '(none — account page flow)');
 
     const formData = generateTokeniseFormData({
       userId: user.id,
       userEmail: user.email ?? '',
       userName: profile?.full_name ?? 'User',
+      returnCaseId: caseId,
     });
 
     // Log the outgoing payload (mask signature)

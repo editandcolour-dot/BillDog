@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 
 export default function LetterPreviewPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const caseId = params.id as string;
+  const cardJustSaved = searchParams.get('card') === 'saved';
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [caseData, setCaseData] = useState<any>(null);
@@ -99,6 +101,19 @@ export default function LetterPreviewPage() {
     init();
   }, [fetchCase, triggerGeneration]);
 
+  // Handle return from PayFast after card tokenisation
+  useEffect(() => {
+    if (cardJustSaved) {
+      // Re-fetch case data to pick up the new payfast_token
+      fetchCase().then(updated => {
+        if (updated?.letter_content) {
+          setLetterContent(updated.letter_content);
+          setStatus('ready');
+        }
+      });
+    }
+  }, [cardJustSaved, fetchCase]);
+
   const handleSave = async (): Promise<boolean> => {
     setIsSaving(true);
     setSaveMessage(null);
@@ -167,7 +182,11 @@ export default function LetterPreviewPage() {
     setIsSending(true);
     setSendError(null);
     try {
-      const res = await fetch('/api/payfast/tokenise', { method: 'POST' });
+      const res = await fetch('/api/payfast/tokenise', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ caseId }),
+      });
       const data = await res.json();
       if (!res.ok) {
         setSendError(data.error || 'Payment gateway returned an error. Please try again.');
@@ -390,8 +409,11 @@ export default function LetterPreviewPage() {
               ) : (
                 <div className="bg-white border border-light-grey rounded-2xl p-6 md:p-8 text-center shadow-sm w-full max-w-md">
                   <h3 className="font-display text-2xl text-navy uppercase tracking-wide mb-3">One last step before sending</h3>
+                  <p className="text-slate-500 font-medium text-sm leading-relaxed mb-2">
+                    To verify your card, a once-off <span className="font-bold text-navy">R5 authorisation hold</span> is placed.
+                  </p>
                   <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
-                    Add a payment method to send your letter. You won&apos;t be charged until we recover money for you.
+                    This is <span className="font-bold text-success">fully refunded within 7 days</span> &mdash; you won&apos;t be charged until we recover money for you.
                   </p>
                   <Button
                     variant="primary"
@@ -399,8 +421,11 @@ export default function LetterPreviewPage() {
                     disabled={isSending}
                     className="w-full h-14 text-lg font-bold uppercase tracking-wider shadow-md"
                   >
-                    {isSending ? 'Please Wait...' : 'Add Payment Method →'}
+                    {isSending ? 'Please Wait...' : 'Verify Card & Continue →'}
                   </Button>
+                  <p className="text-slate-400 text-xs mt-4 leading-relaxed">
+                    💳 Processed securely by PayFast. Your card details never touch Billdog servers.
+                  </p>
                 </div>
               )}
             </div>

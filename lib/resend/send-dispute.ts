@@ -27,7 +27,7 @@ export async function sendDisputeLetter(params: DisputeEmailParams): Promise<str
   const { data, error } = await resend.emails.send({
     from: `Billdog Disputes <${fromEmail}>`,
     to: [params.municipalityEmail],
-    cc: [params.userEmail],
+    bcc: [params.userEmail],
     replyTo: `case-${params.caseId}@disputes.billdog.co.za`,
     subject,
     text: params.letterContent,    // Plain text ONLY — no HTML property

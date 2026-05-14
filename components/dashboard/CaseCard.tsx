@@ -48,8 +48,28 @@ function formatRegisteredDate(dateStr: string): string {
   });
 }
 
+// Progress stepper — maps case status to a linear stage
+const STAGES = ['Upload', 'Analysis', 'Letter', 'Sent', 'Response', 'Resolved'] as const;
+
+function getStageIndex(status: CaseStatus): number {
+  const map: Record<CaseStatus, number> = {
+    uploading: 0,
+    analysing: 1,
+    letter_ready: 2,
+    sent: 3,
+    acknowledged: 4,
+    escalating: 4,
+    escalated: 4,
+    resolved: 5,
+    closed: 5,
+    send_failed: 2, // Failed at send — still at letter stage
+  };
+  return map[status] ?? 0;
+}
+
 export function CaseCard({ caseRecord }: { caseRecord: Case }) {
   const statusClasses = getStatusClasses(caseRecord.status);
+  const currentStage = getStageIndex(caseRecord.status);
   
   return (
     <Link 
@@ -82,6 +102,34 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
         <div className="col-span-2 sm:col-span-1">
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Registered</p>
           <p className="font-body text-sm text-navy font-medium">{formatRegisteredDate(caseRecord.created_at)}</p>
+        </div>
+      </div>
+
+      {/* Progress stepper */}
+      <div className="mb-4 pt-3 border-t border-light-grey">
+        <div className="flex items-center justify-between gap-0.5">
+          {STAGES.map((stage, i) => {
+            const isCompleted = i < currentStage;
+            const isCurrent = i === currentStage;
+            return (
+              <div key={stage} className="flex flex-col items-center flex-1 min-w-0">
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                  isCompleted
+                    ? 'bg-success text-white'
+                    : isCurrent
+                    ? 'bg-orange text-white animate-pulse'
+                    : 'bg-slate-200 text-slate-400'
+                }`}>
+                  {isCompleted ? '✓' : (i + 1)}
+                </div>
+                <span className={`mt-1 text-[9px] font-bold uppercase tracking-wide leading-tight text-center ${
+                  isCompleted ? 'text-success' : isCurrent ? 'text-orange' : 'text-slate-300'
+                }`}>
+                  {stage}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
 

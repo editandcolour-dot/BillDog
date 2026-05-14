@@ -66,10 +66,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ──────────────────────────────────────────────
-    // CHECK 4: Validate amount
+    // CHECK 4: Validate amount (skip for tokenisation — identified by token presence)
     // ──────────────────────────────────────────────
-    let expectedAmount = 0; // Default for tokenisation (0.00)
-    if (params.item_name !== 'Billdog — Save Card') {
+    if (!params.token) {
+      // Non-tokenisation payment — validate amount against case fee
+      let expectedAmount = 0;
       const supabaseAdmin = createAdminClient();
       const { data: caseRecord } = await supabaseAdmin
         .from('cases')
@@ -79,16 +80,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (caseRecord?.fee_charged) {
         expectedAmount = caseRecord.fee_charged;
       }
-    }
 
-    const amountValid = validateAmount(params.amount_gross, expectedAmount);
-    if (!amountValid) {
-      await logSecurityEvent('amount_mismatch', {
-        amount: params.amount_gross,
-        expected: expectedAmount,
-        m_payment_id: params.m_payment_id,
-      });
-      return new NextResponse('Amount mismatch', { status: 400 });
+      const amountValid = validateAmount(params.amount_gross, expectedAmount);
+      if (!amountValid) {
+        await logSecurityEvent('amount_mismatch', {
+          amount: params.amount_gross,
+          expected: expectedAmount,
+          m_payment_id: params.m_payment_id,
+        });
+        return new NextResponse('Amount mismatch', { status: 400 });
+      }
     }
 
     // ──────────────────────────────────────────────
@@ -106,13 +107,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const token = params.token;
     const mPaymentId = params.m_payment_id;
 
-    if (token && parseFloat(params.amount_gross) === 0) {
-      // TOKENISATION — zero-amount, token present
+    if (token) {
+      // TOKENISATION — token present means subscription_type=2 was used.
+      // The R5 auth hold is reversed automatically by PayFast.
       const supabase = createAdminClient();
       await supabase
         .from('profiles')
         .update({ payfast_token: token })
         .eq('id', mPaymentId);
+
+      console.info('[payfast-itn] Token saved for user', { userId: mPaymentId });
 
       await supabase.from('case_events').insert({
         case_id: null,
@@ -121,12 +125,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         metadata: { user_id: mPaymentId, pf_payment_id: pfPaymentId },
       });
     } else {
-      // It's a payment check (like an adhoc charge)
-      // So save an event if needed... the charge token method actually already creates the event
-      // But we need to save the pfPaymentId to prevent idempotency 
+      // Ad-hoc charge payment (success fee)
       const supabase = createAdminClient();
       await supabase.from('case_events').insert({
-        case_id: mPaymentId, // The caseID is passed as m_payment_id during charge Token
+        case_id: mPaymentId, // The caseID is passed as m_payment_id during chargeToken
         event_type: 'payment_received',
         note: `Payment of R${params.amount_gross} processed.`,
         metadata: { amount: params.amount_gross, pf_payment_id: pfPaymentId },

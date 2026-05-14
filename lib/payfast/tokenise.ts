@@ -15,6 +15,7 @@ interface TokeniseParams {
   userId: string;
   userEmail: string;
   userName: string;
+  returnCaseId?: string;  // If set, return to letter page after tokenisation
 }
 
 export interface TokeniseFormData {
@@ -62,7 +63,9 @@ export function generateTokeniseFormData(params: TokeniseParams): TokeniseFormDa
   const fieldValues: Record<string, string> = {
     merchant_id: String(process.env['PAYFAST_MERCHANT_ID']).trim(),
     merchant_key: String(process.env['PAYFAST_MERCHANT_KEY']).trim(),
-    return_url: `${appUrl}/dashboard?card=saved`,
+    return_url: params.returnCaseId
+      ? `${appUrl}/letter/${params.returnCaseId}?card=saved`
+      : `${appUrl}/dashboard?card=saved`,
     cancel_url: `${appUrl}/account?card=cancelled`,
     notify_url: String(process.env['PAYFAST_ITN_URL']).trim(),
     name_first: String(params.userName).split(' ')[0].trim(),
