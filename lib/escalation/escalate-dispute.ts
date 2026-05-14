@@ -7,7 +7,7 @@
  * Rules:
  * - One failed case never stops the batch.
  * - Never advance stage if send fails.
- * - Log all failures to cron_errors.
+ * - Log all failures to console (cron_errors table not in production).
  * - Check last_escalation_at to prevent double-sends.
  */
 
@@ -45,13 +45,12 @@ interface EscalationCase {
   letter_content: string | null;
   letter_sent_at: string | null;
   municipality_email: string | null;
-  escalation_stage: number;
+  escalation_step: number;
   next_action_at: string | null;
   last_escalation_at: string | null;
   escalation_history: EscalationHistoryEntry[];
   dispute_type: string | null;
   id_collected_at: string | null;
-  property_address: string | null;
 }
 
 interface EscalationResult {
@@ -73,14 +72,13 @@ export async function getCasesReadyForEscalation(): Promise<EscalationCase[]> {
     .select(`
       id, user_id, status, municipality, account_number,
       bill_period, letter_content, letter_sent_at,
-      municipality_email, escalation_stage, next_action_at,
-      last_escalation_at, escalation_history, dispute_type, id_collected_at,
-      property_address
+      municipality_email, escalation_step, next_action_at,
+      last_escalation_at, escalation_history, dispute_type, id_collected_at
     `)
     .in('status', ['sent', 'escalated'])
     .not('next_action_at', 'is', null)
     .lte('next_action_at', new Date().toISOString())
-    .lt('escalation_stage', 7)
+    .lt('escalation_step', 7)
     .order('next_action_at', { ascending: true });
 
   if (error) {
@@ -98,7 +96,7 @@ async function escalateCase(
   caseRow: EscalationCase,
 ): Promise<{ success: boolean; error?: string }> {
   const supabase = getServiceClient();
-  const nextStage = caseRow.escalation_stage + 1;
+  const nextStage = caseRow.escalation_step + 1;
   const config = STAGE_CONFIG[nextStage];
 
   if (!config) {
@@ -118,7 +116,7 @@ async function escalateCase(
   // ------------------------------------------------------------------
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, email, address, mandate_consent_at')
+    .select('full_name, email, mandate_consent_at')
     .eq('id', caseRow.user_id)
     .single();
 
@@ -130,12 +128,22 @@ async function escalateCase(
     return { success: false, error: 'Mandate consent missing on profile' };
   }
 
-  const propertyAddress: string =
-    (caseRow.property_address && caseRow.property_address.trim()) ||
-    (profile.address && String(profile.address).trim()) ||
-    '';
+  // Extract property address from bill text (production-safe — no phantom column)
+  const { extractAddressFromCoctBill } = await import('@/lib/parsers/extract-address');
+  let propertyAddress = '';
+  const { data: latestBill } = await supabase
+    .from('case_bills')
+    .select('bill_text')
+    .eq('case_id', caseRow.id)
+    .not('bill_text', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+  if (latestBill?.bill_text) {
+    propertyAddress = extractAddressFromCoctBill(latestBill.bill_text);
+  }
   if (!propertyAddress) {
-    return { success: false, error: 'No property address on case or profile — letter would be rejected by municipality.' };
+    return { success: false, error: 'No property address extractable from bill text — letter would be rejected by municipality.' };
   }
 
   const { data: muni } = await supabase
@@ -193,7 +201,7 @@ async function escalateCase(
     letterContent: caseRow.letter_content ?? '',
     disputeType: (caseRow.dispute_type as EscalationContext['disputeType']) ?? null,
     userEmail: profile.email,
-    currentStage: caseRow.escalation_stage,
+    currentStage: caseRow.escalation_step,
     letterSentAt: caseRow.letter_sent_at ?? caseRow.last_escalation_at ?? new Date().toISOString(),
     idNumber: decryptedId,
   };
@@ -214,7 +222,7 @@ async function escalateCase(
       .from('cases')
       .update({
         status: 'closed',
-        escalation_stage: nextStage,
+        escalation_step: nextStage,
         next_action_at: null,
         last_escalation_at: new Date().toISOString(),
         escalation_history: [...(caseRow.escalation_history ?? []), historyEntry],
@@ -248,7 +256,7 @@ async function escalateCase(
     const { error: updateError } = await supabase
       .from('cases')
       .update({
-        escalation_stage: 5,
+        escalation_step: 5,
         next_action_at: null, // Halts the cron
         updated_at: new Date().toISOString(),
       })
@@ -353,7 +361,7 @@ async function escalateCase(
     .from('cases')
     .update({
       status: 'escalated',
-      escalation_stage: nextStage,
+      escalation_step: nextStage,
       next_action_at: nextActionDate?.toISOString() ?? null,
       last_escalation_at: new Date().toISOString(),
       escalation_history: [...(caseRow.escalation_history ?? []), ...newHistoryEntries],
@@ -470,36 +478,26 @@ export async function processEscalationBatch(): Promise<EscalationResult> {
         result.failed++;
         const errorInfo = {
           caseId: caseRow.id,
-          stage: caseRow.escalation_stage + 1,
+          stage: caseRow.escalation_step + 1,
           error: outcome.error ?? 'Unknown error',
         };
         result.errors.push(errorInfo);
 
-        // Log to cron_errors table
-        await supabase.from('cron_errors').insert({
-          case_id: caseRow.id,
-          stage: caseRow.escalation_stage + 1,
-          error: outcome.error,
-          metadata: { run_at: new Date().toISOString() },
-        });
+        // Log failure (cron_errors table does not exist in production)
+        console.error(`[escalate-dispute] Case ${caseRow.id} stage ${caseRow.escalation_step + 1} failed:`, outcome.error);
       }
     } catch (err) {
       result.failed++;
       const msg = err instanceof Error ? err.message : String(err);
       const errorInfo = {
         caseId: caseRow.id,
-        stage: caseRow.escalation_stage + 1,
+        stage: caseRow.escalation_step + 1,
         error: msg,
       };
       result.errors.push(errorInfo);
 
-      // Log to cron_errors table
-      await supabase.from('cron_errors').insert({
-        case_id: caseRow.id,
-        stage: caseRow.escalation_stage + 1,
-        error: msg,
-        metadata: { run_at: new Date().toISOString(), stack: err instanceof Error ? err.stack : undefined },
-      });
+      // Log failure (cron_errors table does not exist in production)
+      console.error(`[escalate-dispute] Case ${caseRow.id} stage ${caseRow.escalation_step + 1} exception:`, msg);
     }
   }
 

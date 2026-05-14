@@ -52,7 +52,23 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
     .eq('case_id', caseId)
     .order('step', { ascending: true });
 
-  const wardCouncillor = c.escalation_step >= 1 ? await lookupWardCouncillor(c.municipality, c.property_address || '') : null;
+  // Extract property address from bill text for ward councillor lookup
+  let propertyAddress = '';
+  if (c.escalation_step >= 1) {
+    const { extractAddressFromCoctBill } = await import('@/lib/parsers/extract-address');
+    const { data: latestBill } = await supabase
+      .from('case_bills')
+      .select('bill_text')
+      .eq('case_id', caseId)
+      .not('bill_text', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (latestBill?.bill_text) {
+      propertyAddress = extractAddressFromCoctBill(latestBill.bill_text);
+    }
+  }
+  const wardCouncillor = c.escalation_step >= 1 ? await lookupWardCouncillor(c.municipality, propertyAddress) : null;
 
   // Gate state — show banner if user can't yet submit a dispute on this case.
   const { data: profileGate } = await supabase
@@ -116,7 +132,7 @@ export default async function CaseDetailPage({ params }: { params: Promise<{ id:
                 idCaptured={idCaptured}
               />
             )}
-            {c.escalation_stage === 5 && !c.id_collected_at && (
+            {c.escalation_step === 5 && !c.id_collected_at && (
               <div className="mb-8">
                 <PublicProtectorModal caseId={c.id} />
               </div>

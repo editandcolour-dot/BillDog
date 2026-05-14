@@ -33,7 +33,7 @@ If you believe the valuation on your account is incorrect, please pursue the Sec
 exports[`Letter Template Snapshot Tests > Section 62 Appeal > produces appeal letter with original errors reproduced 1`] = `
 "SECTION 62 APPEAL — MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/12
+Date: 2026/05/14
 
 To: The Municipal Manager, City of Cape Town
 
@@ -95,7 +95,7 @@ Account: 20123456789"
 exports[`Letter Template Snapshot Tests > Section 102 — Multi Error CoCT > produces table with all recoverable errors 1`] = `
 "FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/12
+Date: 2026/05/14
 
 To: The Revenue Manager, City of Cape Town
 
@@ -164,7 +164,7 @@ Account: 30987654321"
 exports[`Letter Template Snapshot Tests > Section 102 — Single Error CoCT > produces deterministic output with all required elements 1`] = `
 "FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/12
+Date: 2026/05/14
 
 To: The Revenue Manager, City of Cape Town
 

@@ -23,7 +23,7 @@ export async function runEscalationEngine(): Promise<void> {
   const { data: overdueCases, error } = await supabase
     .from('cases')
     .select(`
-      id, user_id, account_number, property_address, municipality, escalation_step, last_escalation_at,
+      id, user_id, account_number, municipality, escalation_step, last_escalation_at,
       case_bills!inner ( coverage_tier, errors_found )
     `)
     .eq('escalation_blocked', false)
@@ -77,7 +77,7 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('full_name, email, address, mandate_consent_at')
+    .select('full_name, email, mandate_consent_at')
     .eq('id', caseObj.user_id)
     .single();
   if (!profile?.mandate_consent_at) {
@@ -91,12 +91,22 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
     return;
   }
 
-  const propertyAddress: string =
-    (caseObj.property_address && String(caseObj.property_address).trim()) ||
-    (profile.address && String(profile.address).trim()) ||
-    '';
+  // Extract property address from bill text (production-safe — no phantom column)
+  const { extractAddressFromCoctBill } = await import('@/lib/parsers/extract-address');
+  let propertyAddress = '';
+  const { data: latestBill } = await supabase
+    .from('case_bills')
+    .select('bill_text')
+    .eq('case_id', caseObj.id)
+    .not('bill_text', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
+  if (latestBill?.bill_text) {
+    propertyAddress = extractAddressFromCoctBill(latestBill.bill_text);
+  }
   if (!propertyAddress) {
-    console.warn(`[escalationEngine] No property address for ${caseObj.id}`);
+    console.warn(`[escalationEngine] No property address extractable from bill text for ${caseObj.id}`);
     return;
   }
 
@@ -116,7 +126,7 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
   let recipientName = '';
   let ccEmails: string[] = [];
 
-  const wardCouncillor = step >= 2 ? await lookupWardCouncillor(caseObj.municipality, caseObj.property_address || '') : null;
+  const wardCouncillor = step >= 2 ? await lookupWardCouncillor(caseObj.municipality, propertyAddress) : null;
   if (wardCouncillor?.email && step >= 2 && step <= 3) ccEmails.push(wardCouncillor.email);
 
   switch (step) {

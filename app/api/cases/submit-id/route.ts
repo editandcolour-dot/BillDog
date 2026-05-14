@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     // 3. Verify case ownership and stage
     const { data: caseRecord, error: dbError } = await supabase
       .from('cases')
-      .select('id, escalation_stage')
+      .select('id, escalation_step')
       .eq('id', caseId)
       .eq('user_id', user.id)
       .single();
@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 4. Store ID in Vault and update case securely via RPC
-    const { data: secretId, error: rpcError } = await supabase.rpc('store_poppi_id', {
-      case_id: caseId,
+    const { data: secretId, error: rpcError } = await supabase.rpc('store_account_holder_id', {
+      target_case_id: caseId,
       id_number: idNumber,
     });
 

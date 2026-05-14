@@ -28,12 +28,12 @@ export default async function DashboardPage() {
 
   // Check if user has connected a municipality for autofetch
   const { data: credential } = await supabase
-    .from('autofetch_credentials')
-    .select('id, municipality_name, status')
+    .from('municipal_credentials')
+    .select('id, municipality_id, verified_at, revoked_at')
     .eq('user_id', user.id)
     .maybeSingle();
 
-  const hasAutofetch = !!credential;
+  const hasAutofetch = !!(credential?.verified_at && !credential?.revoked_at);
 
   // Fetch non-deleted cases for this user
   const { data: casesData, error } = await supabase

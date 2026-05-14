@@ -105,27 +105,47 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
     }
   }
 
-  // 4. Per-line arithmetic check: qty × rate ≈ amount
-  // Catches tier-line inflation where printed amount ≠ qty × unit rate
+  // 4. Per-line arithmetic check: sum of ALL tier qty × rate ≈ billed amount
+  // A single GeneralCharge may contain multiple tier lines in its description,
+  // e.g. "(1) 6.7070 kl @ R 21.1500 (2) 3.2930 kl @ R 29.0600" with amount = 237.54.
+  // We must extract ALL tiers, sum their expected amounts, and compare the total.
   const checkLineArithmetic = (charges: { description: string; amount: number; hasVat: boolean }[] | undefined, serviceName: string) => {
     if (!charges) return;
     for (const c of charges) {
-      // Extract qty and rate from description like "(1) 6.0000 kl @ R 19.5900"
-      const match = c.description.match(/\(?\d+\)?\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/i);
-      if (!match) continue;
-      const qty = parseFloat(match[1]);
-      const rate = parseFloat(match[2]);
-      if (isNaN(qty) || isNaN(rate) || qty === 0) continue;
-      const expectedAmount = parseFloat((qty * rate).toFixed(2));
-      const delta = Math.abs(c.amount - expectedAmount);
-      if (delta > 0.10) {
+      // Extract ALL tier matches from description
+      const tierMatches = [...c.description.matchAll(/\(?\d+\)?\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/gi)];
+      if (tierMatches.length === 0) continue;
+
+      let sumExpected = 0;
+      const tierDetails: string[] = [];
+      let allValid = true;
+
+      for (const match of tierMatches) {
+        const qty = parseFloat(match[1]);
+        const rate = parseFloat(match[2]);
+        if (isNaN(qty) || isNaN(rate) || qty === 0) { allValid = false; break; }
+        const tierExpected = parseFloat((qty * rate).toFixed(2));
+        sumExpected += tierExpected;
+        tierDetails.push(`${qty} kl × R${rate} = R${tierExpected}`);
+      }
+      if (!allValid) continue;
+
+      // Round the sum to 2dp to avoid floating point drift
+      sumExpected = parseFloat(sumExpected.toFixed(2));
+
+      // Use R1.00 tolerance to absorb rounding across multiple tiers
+      const delta = Math.abs(c.amount - sumExpected);
+      if (delta > 1.00) {
         // Include VAT cascade for taxable services (water, sewerage)
         const cascadedDelta = c.hasVat ? parseFloat((delta * 1.15).toFixed(2)) : delta;
+        const detail = tierMatches.length > 1
+          ? `${serviceName} tier arithmetic error. Sum of tiers: ${tierDetails.join(' + ')} = R${sumExpected}, but billed R${c.amount} (delta R${delta.toFixed(2)}).`
+          : `${serviceName} line arithmetic error. ${tierDetails[0]}, but billed R${c.amount} (delta R${delta.toFixed(2)}).`;
         findings.push({
           type: 'TIER_LINE_ARITHMETIC_MISMATCH',
-          description: `${serviceName} line arithmetic error. ${qty} kl × R${rate} = R${expectedAmount}, but billed R${c.amount} (delta R${delta.toFixed(2)}).`,
+          description: detail,
           billedAmount: c.amount,
-          expectedAmount: expectedAmount,
+          expectedAmount: sumExpected,
           overchargeZar: cascadedDelta,
           lineReference: c.description,
           invoiceNumber: bill.invoiceNumber,

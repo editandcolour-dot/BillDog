@@ -129,11 +129,9 @@ export interface Case {
   prescription_warnings: PrescriptionWarnings | null;
   // Escalation fields
   escalation_step: number;
-  escalation_stage: number;
   escalation_blocked: boolean;
   escalation_block_reason: string | null;
   next_action_at: string | null;
-  property_address: string | null;
   last_escalation_at: string | null;
   escalation_history: EscalationHistoryEntry[];
   dispute_type: DisputeType | null;
