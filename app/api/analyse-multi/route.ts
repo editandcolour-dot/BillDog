@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Case not found or access denied' }, { status: 404 });
     }
 
-    const RETRYABLE = ['uploading', 'analysing', 'closed'];
+    const RETRYABLE = ['uploading', 'analysing', 'closed', 'letter_ready'];
     if (!RETRYABLE.includes(caseRecord.status)) {
       return NextResponse.json({ error: 'Case is already processed' }, { status: 400 });
     }
