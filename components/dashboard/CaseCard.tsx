@@ -70,16 +70,16 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-x-4 gap-y-3 mb-4">
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Period</p>
-          <p className="font-body text-base text-navy font-medium">{caseRecord.bill_period || 'N/A'}</p>
+          <p className="font-body text-sm text-navy font-medium truncate">{caseRecord.bill_period || 'N/A'}</p>
         </div>
         <div>
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Total</p>
-          <p className="font-body text-base text-navy font-medium">{formatCurrency(caseRecord.total_billed)}</p>
+          <p className="font-body text-sm text-navy font-bold tabular-nums">{formatCurrency(caseRecord.total_billed)}</p>
         </div>
-        <div>
+        <div className="col-span-2 sm:col-span-1">
           <p className="text-xs font-bold uppercase tracking-wide text-grey mb-1">Registered</p>
           <p className="font-body text-sm text-navy font-medium">{formatRegisteredDate(caseRecord.created_at)}</p>
         </div>
