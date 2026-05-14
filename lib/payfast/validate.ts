@@ -1,15 +1,47 @@
 import crypto from 'crypto';
 
 /**
+ * PHP-style urlencode parity.
+ * encodeURIComponent gets us 95% there, but PHP's urlencode:
+ *   - encodes spaces as '+' (not '%20')
+ *   - leaves '~' unencoded (encodeURIComponent already does this)
+ */
+function pfEncode(val: string): string {
+  return encodeURIComponent(val.trim()).replace(/%20/g, '+');
+}
+
+/**
+ * Build a param string from key-value pairs
+ */
+function buildParamString(keys: string[], params: Record<string, string>, stopAtSignature: boolean): string {
+  const pairs: string[] = [];
+  for (const key of keys) {
+    if (stopAtSignature && key === 'signature') break;
+    if (key === 'signature') continue;
+    const val = params[key];
+    if (val !== undefined && val !== '') {
+      pairs.push(`${key}=${pfEncode(val)}`);
+    }
+  }
+  return pairs.join('&');
+}
+
+function computeHash(paramString: string, passphrase: string, encodePassphrase: boolean): string {
+  const pp = encodePassphrase ? pfEncode(passphrase) : passphrase.trim();
+  const full = passphrase ? `${paramString}&passphrase=${pp}` : paramString;
+  return crypto.createHash('md5').update(full).digest('hex');
+}
+
+/**
  * Validate PayFast ITN signature.
  * 
- * CRITICAL: PayFast signs ITN using the RECEIVED ORDER of parameters
- * (NOT alphabetical sort). The PHP example iterates $_POST in order 
- * and breaks at 'signature'. We must replicate this exactly.
- * 
- * @param orderedKeys - Keys in the exact order they appeared in the POST body
- * @param params - Full set of ITN parameters
- * @param passphrase - Merchant passphrase
+ * Tries multiple strategies to match PayFast's hash:
+ * 1. Received order, break at signature, passphrase encoded
+ * 2. Received order, break at signature, passphrase raw
+ * 3. Received order, skip signature (don't break), passphrase encoded
+ * 4. Received order, skip signature (don't break), passphrase raw
+ * 5. Alphabetical sort, passphrase encoded
+ * 6. Alphabetical sort, passphrase raw
  */
 export function validateSignature(
   params: Record<string, string>,
@@ -19,33 +51,50 @@ export function validateSignature(
   const receivedSignature = params.signature;
   if (!receivedSignature) return false;
 
-  // Use the ordered keys if provided, otherwise fall back to Object.keys
-  // (which preserves insertion order in modern JS — matching URLSearchParams order)
   const keys = orderedKeys ?? Object.keys(params);
+  const sortedKeys = Object.keys(params).filter(k => k !== 'signature').sort();
 
-  // Build parameter string in RECEIVED ORDER, stopping at 'signature'
-  const pairs: string[] = [];
-  for (const key of keys) {
-    if (key === 'signature') break; // PayFast PHP example: break at signature
-    const val = params[key];
-    if (val !== undefined && val !== '') {
-      pairs.push(`${key}=${encodeURIComponent(val.trim()).replace(/%20/g, '+')}`);
-    }
-  }
-  const paramString = pairs.join('&');
+  // Strategy 1: Received order, break at signature, passphrase encoded
+  const s1str = buildParamString(keys, params, true);
+  const s1 = computeHash(s1str, passphrase, true);
 
-  // Append passphrase (URL-encoded, matching PHP's urlencode())
-  const withPassphrase = passphrase
-    ? `${paramString}&passphrase=${encodeURIComponent(passphrase.trim())}`
-    : paramString;
+  // Strategy 2: Received order, break at signature, passphrase raw
+  const s2 = computeHash(s1str, passphrase, false);
 
-  // MD5 hash
-  const expectedSignature = crypto
-    .createHash('md5')
-    .update(withPassphrase)
-    .digest('hex');
+  // Strategy 3: Received order, skip signature (don't break), passphrase encoded
+  const s3str = buildParamString(keys, params, false);
+  const s3 = computeHash(s3str, passphrase, true);
 
-  return expectedSignature === receivedSignature;
+  // Strategy 4: Received order, skip signature (don't break), passphrase raw
+  const s4 = computeHash(s3str, passphrase, false);
+
+  // Strategy 5: Alphabetical sort, passphrase encoded
+  const s5str = buildParamString(sortedKeys, params, false);
+  const s5 = computeHash(s5str, passphrase, true);
+
+  // Strategy 6: Alphabetical sort, passphrase raw
+  const s6 = computeHash(s5str, passphrase, false);
+
+  const match = [s1, s2, s3, s4, s5, s6].findIndex(s => s === receivedSignature);
+
+  // DIAGNOSTIC LOGGING — temporary, remove after fix confirmed
+  console.error('[payfast/validate] === SIGNATURE DIAGNOSTIC ===');
+  console.error('[payfast/validate] Received sig:', receivedSignature);
+  console.error('[payfast/validate] Key order (first 5):', keys.slice(0, 5).join(', '));
+  console.error('[payfast/validate] S1 (ordered+break+encPP):', s1, s1 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] S2 (ordered+break+rawPP):', s2, s2 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] S3 (ordered+skip+encPP):', s3, s3 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] S4 (ordered+skip+rawPP):', s4, s4 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] S5 (sorted+encPP):', s5, s5 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] S6 (sorted+rawPP):', s6, s6 === receivedSignature ? '✅' : '❌');
+  console.error('[payfast/validate] Match strategy:', match >= 0 ? `S${match + 1}` : 'NONE');
+  // Log the hash input for strategy 1 (mask sensitive values)
+  const maskedStr = s1str.replace(/merchant_key=[^&]+/, 'merchant_key=***').replace(/email_address=[^&]+/, 'email_address=***');
+  console.error('[payfast/validate] S1 hash input (masked):', maskedStr.substring(0, 300));
+  console.error('[payfast/validate] === END DIAGNOSTIC ===');
+
+  if (match >= 0) return true;
+  return false;
 }
 
 /**

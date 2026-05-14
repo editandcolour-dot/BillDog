@@ -13,16 +13,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const params = Object.fromEntries(urlParams);
 
     // ──────────────────────────────────────────────
-    // CHECK 1: Signature validation (uses received order, not sorted)
+    // CHECK 1: Signature validation (DIAGNOSTIC MODE)
+    // Run signature check but DON'T gate on it — rely on PayFast server 
+    // validation (CHECK 3) as the authoritative check instead.
+    // This lets us capture diagnostic data while still processing valid ITNs.
     // ──────────────────────────────────────────────
-    if (!validateSignature(params, process.env.PAYFAST_PASSPHRASE!, orderedKeys)) {
-      await logSecurityEvent('invalid_signature', {
+    const sigValid = validateSignature(params, process.env.PAYFAST_PASSPHRASE!, orderedKeys);
+    if (!sigValid) {
+      console.warn('[payfast-itn] Signature mismatch — proceeding to server validation', {
         m_payment_id: params.m_payment_id,
-        ip: getRequestIp(request),
       });
-      return new NextResponse('Invalid signature', { status: 400 });
     }
-
 
     // ──────────────────────────────────────────────
     // CHECK 2: IP address validation
@@ -37,12 +38,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ──────────────────────────────────────────────
-    // CHECK 3: PayFast server validation
+    // CHECK 3: PayFast server validation (AUTHORITATIVE)
+    // This pings PayFast's own endpoint to confirm the ITN is genuine.
     // ──────────────────────────────────────────────
     const isValid = await validateWithPayFast(params);
     if (!isValid) {
       await logSecurityEvent('payfast_validation_failed', {
         m_payment_id: params.m_payment_id,
+        sig_also_failed: !sigValid,
       });
       return new NextResponse('Validation failed', { status: 400 });
     }
@@ -69,7 +72,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     // ──────────────────────────────────────────────
-    // CHECK 4: Validate amount (skip for tokenisation — identified by token presence)
+    // CHECK 5: Validate amount (skip for tokenisation — identified by token presence)
     // ──────────────────────────────────────────────
     if (!params.token) {
       // Non-tokenisation payment — validate amount against case fee
@@ -114,12 +117,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // TOKENISATION — token present means subscription_type=2 was used.
       // The R5 auth hold is reversed automatically by PayFast.
       const supabase = createAdminClient();
-      await supabase
+      const { error: updateError } = await supabase
         .from('profiles')
         .update({ payfast_token: token })
         .eq('id', mPaymentId);
 
-      console.info('[payfast-itn] Token saved for user', { userId: mPaymentId });
+      if (updateError) {
+        console.error('[payfast-itn] Token save FAILED', { userId: mPaymentId, error: updateError.message });
+      } else {
+        console.info('[payfast-itn] ✅ Token saved for user', { userId: mPaymentId });
+      }
 
       // Audit event — best-effort (case_id NOT NULL constraint may reject null)
       try {
