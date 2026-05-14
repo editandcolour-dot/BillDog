@@ -2,14 +2,14 @@
  * Legal Citation Constants for Billdog Dispute Letters
  *
  * Every dispute letter must contain specific legal citations.
- * These are NOT Claude-generated — they are reviewed, verified,
+ * These are NOT Claude-generated — they are SAFLII-verified,
  * and snapshot-tested to prevent drift.
  *
  * Sources:
  * - Municipal Systems Act (No. 32 of 2000), Section 95(f) and Section 102
- * - Mkontwana v Nelson Mandela Metropolitan Municipality [2005] ZACC 1
- * - Tarica v City of Johannesburg [2018] ZAGPJHC 262
- * - Glofurn (Pty) Ltd v Johannesburg City Power [2021] ZASCA 20
+ * - Mkontwana v Nelson Mandela Metropolitan Municipality 2005 (1) SA 530 (CC); [2004] ZACC 9
+ * - Tarica v City of Johannesburg Metropolitan Municipality [2024] ZAGPJHC 1261
+ * - City of Tshwane Metropolitan Municipality v Glofurn (Pty) Ltd [2024] ZASCA 101
  * - Municipal Property Rates Act (No. 6 of 2004), Section 50
  */
 
@@ -21,11 +21,20 @@ The specific errors identified below constitute grounds for correction under Sec
 
 // ── Case Law Citations ──────────────────────────────────────────────────────
 
-export const MKONTWANA_CITATION = `As held in Mkontwana v Nelson Mandela Metropolitan Municipality [2005] ZACC 1, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.`;
+// Source: https://www.saflii.org/za/cases/ZACC/2004/9.html
+// Relevance: Burden of accurate municipal records — municipalities must demonstrate correctness when challenged
+// Verified: 2026-05-14
+export const MKONTWANA_CITATION = `As held in Mkontwana v Nelson Mandela Metropolitan Municipality 2005 (1) SA 530 (CC); [2004] ZACC 9, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.`;
 
-export const TARICA_CITATION = `In Tarica v City of Johannesburg [2018] ZAGPJHC 262, the High Court held that a municipality cannot simply assert the correctness of an account without providing verifiable underlying data, including meter readings and applicable tariff schedules.`;
+// Source: https://www.saflii.org/za/cases/ZAGPJHC/2024/1261.html
+// Relevance: Municipality cannot assert account correctness without verifiable data; valid s102 disputes block payment allocation
+// Verified: 2026-05-14
+export const TARICA_CITATION = `In Tarica and Another v City of Johannesburg Metropolitan Municipality (2023/044543) [2024] ZAGPJHC 1261 (6 December 2024), the High Court held that a municipality cannot simply assert the correctness of an account without providing verifiable underlying data, including meter readings and applicable tariff schedules. The court further confirmed that valid Section 102 disputes prohibit the municipality from allocating payments to disputed charges.`;
 
-export const GLOFURN_CITATION = `Per Glofurn (Pty) Ltd v Johannesburg City Power [2021] ZASCA 20, the Supreme Court of Appeal confirmed that disconnection of services while a bona fide dispute is pending constitutes unlawful administrative action. The municipality must resolve the dispute before taking enforcement action.`;
+// Source: https://www.saflii.org/za/cases/ZASCA/2024/101.html
+// Relevance: Under s 102(2) of Systems Act, municipality cannot disconnect services while bona fide dispute is unresolved
+// Verified: 2026-05-14
+export const GLOFURN_CITATION = `Per City of Tshwane Metropolitan Municipality v Glofurn (Pty) Ltd (136/2023) [2024] ZASCA 101 (19 June 2024), the Supreme Court of Appeal confirmed that disconnection of services while a bona fide dispute is pending constitutes unlawful administrative action. The municipality must resolve the dispute before taking enforcement action.`;
 
 // ── Undisputed Charges Warning ──────────────────────────────────────────────
 

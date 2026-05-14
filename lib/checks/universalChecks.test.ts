@@ -116,9 +116,10 @@ describe('universalChecks — tier arithmetic', () => {
       expect(tierFindings).toHaveLength(0);
     });
 
-    it('flags single-tier line with genuine overcharge (delta > R1)', () => {
-      // Single tier: 0.334 kl × R43.44 = R14.51
-      // Billed: R251.72 (major overcharge)
+    it('SKIPS single tier (3) line — incomplete data, lower tiers missing', () => {
+      // Single tier 3: 0.334 kl × R43.44 = R14.51
+      // Billed: R251.72 (total includes Tier 1 + Tier 2 not in description)
+      // Guard: tier > 1 with only 1 match → incomplete data → skip
       const bill = makeMinimalBill({
         waterTierCharges: [{
           parse_status: 'OK',
@@ -131,9 +132,42 @@ describe('universalChecks — tier arithmetic', () => {
 
       const findings = runUniversalChecks(bill);
       const tierFindings = findings.filter(f => f.type === 'TIER_LINE_ARITHMETIC_MISMATCH');
+      expect(tierFindings).toHaveLength(0); // Guard prevents false positive
+    });
+
+    it('SKIPS single tier (2) line — incomplete data, tier 1 missing', () => {
+      // Single tier 2 without tier 1 present
+      const bill = makeMinimalBill({
+        waterTierCharges: [{
+          parse_status: 'OK',
+          serviceType: 'water',
+          description: '(2) 3.2930 kl @ R 29.0600',
+          amount: 237.54,
+          hasVat: true,
+        }],
+      });
+
+      const findings = runUniversalChecks(bill);
+      const tierFindings = findings.filter(f => f.type === 'TIER_LINE_ARITHMETIC_MISMATCH');
+      expect(tierFindings).toHaveLength(0); // Guard prevents false positive
+    });
+
+    it('flags single tier (1) line with genuine overcharge', () => {
+      // Tier 1 alone IS the full charge for that tier — safe to validate
+      const bill = makeMinimalBill({
+        waterTierCharges: [{
+          parse_status: 'OK',
+          serviceType: 'water',
+          description: '(1) 6.7070 kl @ R 21.1500',
+          amount: 200.00, // expected R141.85, overcharge R58.15
+          hasVat: true,
+        }],
+      });
+
+      const findings = runUniversalChecks(bill);
+      const tierFindings = findings.filter(f => f.type === 'TIER_LINE_ARITHMETIC_MISMATCH');
       expect(tierFindings).toHaveLength(1);
-      // Expected = 14.51
-      expect(tierFindings[0].expectedAmount).toBeCloseTo(14.51, 1);
+      expect(tierFindings[0].expectedAmount).toBeCloseTo(141.85, 1);
     });
 
     it('handles 3-tier lines correctly', () => {

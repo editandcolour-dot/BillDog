@@ -101,11 +101,13 @@ describe('Letter Template Snapshot Tests', () => {
       expect(letter).toContain('R95.20');
       expect(letter).toContain('R25.30');
 
-      // Must contain all 4 legal citations
+      // Must contain all 3 SAFLII-verified case law citations
       expect(letter).toContain('Section 102(1)(a)');
-      expect(letter).toContain('Mkontwana v Nelson Mandela Metropolitan Municipality');
-      expect(letter).toContain('Tarica v City of Johannesburg');
-      expect(letter).toContain('Glofurn');
+      expect(letter).toContain('Mkontwana v Nelson Mandela Metropolitan Municipality 2005 (1) SA 530 (CC)');
+      expect(letter).toContain('Tarica and Another v City of Johannesburg Metropolitan Municipality');
+      expect(letter).toContain('[2024] ZAGPJHC 1261');
+      expect(letter).toContain('City of Tshwane Metropolitan Municipality v Glofurn');
+      expect(letter).toContain('[2024] ZASCA 101');
 
       // Must contain account details
       expect(letter).toContain('20123456789');

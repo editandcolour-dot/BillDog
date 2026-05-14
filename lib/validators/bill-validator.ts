@@ -142,15 +142,19 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
         (-(seg.rateableValue * seg.annualRate / seg.daysInYear * seg.billingDays)).toFixed(2)
       );
       if (Math.abs(seg.billedAmount - expectedRebate) > 0.05) {
+        // Rebates are negative amounts — if billed rebate is LESS negative than expected,
+        // the consumer got less discount = overcharge. If MORE negative, consumer benefited.
+        const isOvercharge = seg.billedAmount > expectedRebate; // less negative = overcharge
         findings.push({
           type: 'REBATE_CALC_ERROR',
           description: `Rebate arithmetic error. Expected R${expectedRebate}, applied R${seg.billedAmount}`,
           billedAmount: seg.billedAmount,
           expectedAmount: expectedRebate,
-          overchargeZar: parseFloat(Math.abs(seg.billedAmount - expectedRebate).toFixed(2)),
+          overchargeZar: isOvercharge ? parseFloat((seg.billedAmount - expectedRebate).toFixed(2)) : 0,
           lineReference: `Rebate from ${seg.fromDate}: R${seg.rateableValue} @ ${seg.annualRate}`,
           invoiceNumber: bill.invoiceNumber,
           billingDate: bill.billingDate,
+          recoverable: isOvercharge,
         });
       }
     }
@@ -179,8 +183,10 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
           });
         } else if (verification.result === 'FAIL' && tier === 1) {
           const baseDelta = Math.abs(verification.delta || 0);
+          // Direction guard: if billed < approved, municipality under-charged — not recoverable
+          const isOvercharge = huc.amount > (verification.approved_amount || 0);
           // HUC is a taxable service — include 15% VAT cascade in recoverable amount
-          const cascadedOvercharge = parseFloat((baseDelta * 1.15).toFixed(2));
+          const cascadedOvercharge = isOvercharge ? parseFloat((baseDelta * 1.15).toFixed(2)) : 0;
           findings.push({
             type: 'HUC_AMOUNT_WRONG',
             description: `Discrepancy in Electricity HU Charge. Expected approx R${verification.approved_amount}, billed R${huc.amount}`,
@@ -192,7 +198,8 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
             billingDate: bill.billingDate,
             legalBasis: undefined,
             sourceUrl: verification.source_url,
-            verificationConfidence: verification.confidence
+            verificationConfidence: verification.confidence,
+            recoverable: isOvercharge
           });
         }
       }
@@ -237,18 +244,23 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
              recoverable: false
            });
          } else if (verification.result === 'FAIL' && tier === 1) {
+           // Direction guard: if billed < expected, municipality under-charged
+           const expectedTotal = (verification.approved_amount || 0) * wc.multiplier;
+           const isOvercharge = wc.totalCharged > expectedTotal;
+           const baseDelta = Math.abs(wc.totalCharged - expectedTotal);
            findings.push({
               type: 'WATER_FIXED_CHARGE_WRONG',
               description: `Discrepancy in Water Fixed Charge. Expected unit rate approx R${verification.approved_amount}, billed unit rate R${wc.unitRate}`,
               billedAmount: wc.totalCharged,
-              expectedAmount: (verification.approved_amount || 0) * wc.multiplier,
-              overchargeZar: parseFloat((Math.abs((wc.unitRate * wc.multiplier) - ((verification.approved_amount || 0) * wc.multiplier)) * 1.15).toFixed(2)),
+              expectedAmount: expectedTotal,
+              overchargeZar: isOvercharge ? parseFloat((baseDelta * 1.15).toFixed(2)) : 0,
               lineReference: wc.raw_line || `Water Fixed Basic ${wc.meterSize}`,
               invoiceNumber: bill.invoiceNumber,
               billingDate: bill.billingDate,
               legalBasis: undefined,
               sourceUrl: verification.source_url,
-              verificationConfidence: verification.confidence
+              verificationConfidence: verification.confidence,
+              recoverable: isOvercharge
            });
          }
        }
@@ -508,15 +520,20 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
        if (trueVatAnomaly <= 0.50) {
          console.log(`[VAT] Discrepancy explained by underlying tariff errors (gap R${vatGap.toFixed(2)}, explained R${explainedVatDiscrepancy.toFixed(2)}). Suppressing secondary VAT anomaly.`);
        } else {
+         // Direction guard: if billed VAT < expected, municipality under-collected — not an overcharge
+         const isVatOvercharge = bill.vatAmount > expectedVat;
          findings.push({
             type: 'VAT_MISMATCH',
-            description: `VAT calculation mismatch. 15% of VAT-able charges (R${vatBase.toFixed(2)}) is R${expectedVat.toFixed(2)}, printed VAT is R${bill.vatAmount.toFixed(2)}.`,
+            description: isVatOvercharge
+              ? `VAT calculation mismatch. 15% of VAT-able charges (R${vatBase.toFixed(2)}) is R${expectedVat.toFixed(2)}, printed VAT is R${bill.vatAmount.toFixed(2)}.`
+              : `VAT under-applied by municipality. 15% of VAT-able charges (R${vatBase.toFixed(2)}) is R${expectedVat.toFixed(2)}, printed VAT is R${bill.vatAmount.toFixed(2)}. This benefits the consumer.`,
             billedAmount: bill.vatAmount,
             expectedAmount: expectedVat,
-            overchargeZar: Math.abs(expectedVat - bill.vatAmount),
+            overchargeZar: isVatOvercharge ? parseFloat((bill.vatAmount - expectedVat).toFixed(2)) : 0,
             lineReference: 'Add 15% VAT',
             invoiceNumber: bill.invoiceNumber,
             billingDate: bill.billingDate,
+            recoverable: isVatOvercharge,
          });
        }
      }

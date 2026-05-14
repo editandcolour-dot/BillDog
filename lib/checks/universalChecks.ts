@@ -90,15 +90,17 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
           ((seg.rateableValue * seg.annualRate) / seg.daysInYear * seg.billingDays).toFixed(2)
         );
         if (Math.abs(seg.billedAmount - expectedMath) > 0.02) {
+          const isOvercharge = seg.billedAmount > expectedMath;
           findings.push({
             type: 'RATES_CALC_ERROR',
             description: `Rates mathematical consistency error. Subtotal expected R${expectedMath}, billed R${seg.billedAmount}`,
             billedAmount: seg.billedAmount,
             expectedAmount: expectedMath,
-            overchargeZar: parseFloat(Math.abs(seg.billedAmount - expectedMath).toFixed(2)),
+            overchargeZar: isOvercharge ? parseFloat((seg.billedAmount - expectedMath).toFixed(2)) : 0,
             lineReference: `Rates segment from ${seg.fromDate}`,
             invoiceNumber: bill.invoiceNumber,
             billingDate: bill.billingDate,
+            recoverable: isOvercharge,
           });
         }
       }
@@ -113,16 +115,25 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
     if (!charges) return;
     for (const c of charges) {
       // Extract ALL tier matches from description
-      const tierMatches = [...c.description.matchAll(/\(?\d+\)?\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/gi)];
+      const tierMatches = [...c.description.matchAll(/\((\d+)\)\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/gi)];
       if (tierMatches.length === 0) continue;
+
+      // Guard: if only one tier extracted and its tier number > 1, the parser
+      // is missing lower tiers (e.g. "(3) 0.334 kl @ R 43.44" without Tier 1+2).
+      // The billed amount covers ALL tiers, so comparing a single higher tier
+      // against the total would produce a false positive. Skip entirely.
+      if (tierMatches.length === 1) {
+        const tierNum = parseInt(tierMatches[0][1], 10);
+        if (tierNum > 1) continue;
+      }
 
       let sumExpected = 0;
       const tierDetails: string[] = [];
       let allValid = true;
 
       for (const match of tierMatches) {
-        const qty = parseFloat(match[1]);
-        const rate = parseFloat(match[2]);
+        const qty = parseFloat(match[2]);
+        const rate = parseFloat(match[3]);
         if (isNaN(qty) || isNaN(rate) || qty === 0) { allValid = false; break; }
         const tierExpected = parseFloat((qty * rate).toFixed(2));
         sumExpected += tierExpected;
