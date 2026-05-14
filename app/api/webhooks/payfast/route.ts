@@ -6,20 +6,23 @@ import { logSecurityEvent } from '@/lib/payfast/security-log';
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
-    // Parse ITN body
+    // Parse ITN body — preserve key order for signature validation
     const bodyText = await request.text();
-    const params = Object.fromEntries(new URLSearchParams(bodyText));
+    const urlParams = new URLSearchParams(bodyText);
+    const orderedKeys = [...urlParams.keys()]; // Preserve POST body order
+    const params = Object.fromEntries(urlParams);
 
     // ──────────────────────────────────────────────
-    // CHECK 1: Signature validation
+    // CHECK 1: Signature validation (uses received order, not sorted)
     // ──────────────────────────────────────────────
-    if (!validateSignature(params, process.env.PAYFAST_PASSPHRASE!)) {
+    if (!validateSignature(params, process.env.PAYFAST_PASSPHRASE!, orderedKeys)) {
       await logSecurityEvent('invalid_signature', {
         m_payment_id: params.m_payment_id,
         ip: getRequestIp(request),
       });
       return new NextResponse('Invalid signature', { status: 400 });
     }
+
 
     // ──────────────────────────────────────────────
     // CHECK 2: IP address validation

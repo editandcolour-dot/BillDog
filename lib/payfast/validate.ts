@@ -1,21 +1,43 @@
 import crypto from 'crypto';
 
+/**
+ * Validate PayFast ITN signature.
+ * 
+ * CRITICAL: PayFast signs ITN using the RECEIVED ORDER of parameters
+ * (NOT alphabetical sort). The PHP example iterates $_POST in order 
+ * and breaks at 'signature'. We must replicate this exactly.
+ * 
+ * @param orderedKeys - Keys in the exact order they appeared in the POST body
+ * @param params - Full set of ITN parameters
+ * @param passphrase - Merchant passphrase
+ */
 export function validateSignature(
   params: Record<string, string>,
   passphrase: string,
+  orderedKeys?: string[],
 ): boolean {
   const receivedSignature = params.signature;
   if (!receivedSignature) return false;
 
-  // Build parameter string: sorted, URL-encoded, excluding 'signature'
-  const paramString = Object.keys(params)
-    .filter(key => key !== 'signature')
-    .sort()
-    .map(key => `${key}=${encodeURIComponent(params[key].trim()).replace(/%20/g, '+')}`)
-    .join('&');
+  // Use the ordered keys if provided, otherwise fall back to Object.keys
+  // (which preserves insertion order in modern JS — matching URLSearchParams order)
+  const keys = orderedKeys ?? Object.keys(params);
 
-  // Append passphrase
-  const withPassphrase = `${paramString}&passphrase=${encodeURIComponent(passphrase.trim())}`;
+  // Build parameter string in RECEIVED ORDER, stopping at 'signature'
+  const pairs: string[] = [];
+  for (const key of keys) {
+    if (key === 'signature') break; // PayFast PHP example: break at signature
+    const val = params[key];
+    if (val !== undefined && val !== '') {
+      pairs.push(`${key}=${encodeURIComponent(val.trim()).replace(/%20/g, '+')}`);
+    }
+  }
+  const paramString = pairs.join('&');
+
+  // Append passphrase (URL-encoded, matching PHP's urlencode())
+  const withPassphrase = passphrase
+    ? `${paramString}&passphrase=${encodeURIComponent(passphrase.trim())}`
+    : paramString;
 
   // MD5 hash
   const expectedSignature = crypto
@@ -26,7 +48,18 @@ export function validateSignature(
   return expectedSignature === receivedSignature;
 }
 
+/**
+ * PayFast Production IP addresses.
+ * 
+ * Updated 2026-05-14:
+ * - Legacy range: 41.74.179.194-201
+ * - New ranges (AWS migration 2025): 102.216.36.0/28, 102.216.36.128/28
+ * 
+ * Source: https://developers.payfast.co.za/docs#ports-ips
+ * Check periodically for updates.
+ */
 const PAYFAST_PRODUCTION_IPS = new Set([
+  // Legacy range
   '41.74.179.194',
   '41.74.179.195',
   '41.74.179.196',
@@ -35,6 +68,40 @@ const PAYFAST_PRODUCTION_IPS = new Set([
   '41.74.179.199',
   '41.74.179.200',
   '41.74.179.201',
+  // New range: 102.216.36.0/28 (0-15)
+  '102.216.36.0',
+  '102.216.36.1',
+  '102.216.36.2',
+  '102.216.36.3',
+  '102.216.36.4',
+  '102.216.36.5',
+  '102.216.36.6',
+  '102.216.36.7',
+  '102.216.36.8',
+  '102.216.36.9',
+  '102.216.36.10',
+  '102.216.36.11',
+  '102.216.36.12',
+  '102.216.36.13',
+  '102.216.36.14',
+  '102.216.36.15',
+  // New range: 102.216.36.128/28 (128-143)
+  '102.216.36.128',
+  '102.216.36.129',
+  '102.216.36.130',
+  '102.216.36.131',
+  '102.216.36.132',
+  '102.216.36.133',
+  '102.216.36.134',
+  '102.216.36.135',
+  '102.216.36.136',
+  '102.216.36.137',
+  '102.216.36.138',
+  '102.216.36.139',
+  '102.216.36.140',
+  '102.216.36.141',
+  '102.216.36.142',
+  '102.216.36.143',
 ]);
 
 const PAYFAST_SANDBOX_IPS = new Set([
@@ -73,7 +140,6 @@ export async function validateWithPayFast(
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body,
-      // Need this dummy user agent to pass Railway sometimes if PayFast strictly checks it, but it should be fine.
     });
 
     const result = await response.text();
