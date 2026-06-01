@@ -257,7 +257,7 @@ export function AutoFetchForm({ metros, otherOption, userId }: AutoFetchFormProp
             </div>
           )}
 
-          {/* Consent checkbox */}
+          {/* Consent checkbox — POPIA-compliant disclosure of credential storage and ongoing use. */}
           <label className="flex items-start gap-3 mt-2 min-h-[44px] cursor-pointer">
             <input
               type="checkbox"
@@ -265,14 +265,19 @@ export function AutoFetchForm({ metros, otherOption, userId }: AutoFetchFormProp
               onChange={(e) => setConsentChecked(e.target.checked)}
               className="mt-1 min-w-4 min-h-4"
             />
-            <span className="text-sm text-white/70">
-              I authorise Billdog to access my municipal account to retrieve my bills, in line with the{' '}
+            <span className="text-sm text-white/70 leading-relaxed">
+              I authorise Billdog to <strong className="text-white">securely store my municipal portal login</strong>
+              {' '}(encrypted with AES-256-GCM) and use it on an ongoing basis to fetch
+              my bills each month, so Billdog can keep checking that my municipality
+              isn&apos;t overbilling me. I understand I can disconnect or delete my
+              account at any time from the Account page — a right preserved under the
+              Protection of Personal Information Act (POPIA). Full detail in our{' '}
               <a href="/privacy" className="text-orange underline" target="_blank" rel="noopener noreferrer">
                 Privacy Policy
               </a>{' '}
               and{' '}
               <a href="/popia" className="text-orange underline" target="_blank" rel="noopener noreferrer">
-                POPIA cross-border data handling notice
+                POPIA notice
               </a>.
             </span>
           </label>

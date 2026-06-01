@@ -22,7 +22,9 @@ import { decryptCredentials } from '@/lib/crypto/credentials';
 
 export const maxDuration = 300; // 5 minutes for discovery
 
-const ADMIN_EMAIL = 'editandcolour@gmail.com';
+// Sourced from env (audit S-C1). Used only for failure-notification emails;
+// if unset, failure emails are skipped (not a request-blocker).
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const COST_CAP_USD = 5;
 
 export async function POST(request: NextRequest) {
@@ -215,6 +217,13 @@ async function emailAdmin(
   userId: string,
   errorMessage: string,
 ): Promise<void> {
+  // ADMIN_EMAIL is env-sourced (audit S-C1). Skip silently if unset \u2014
+  // discovery worker must not fail because the alert recipient is missing.
+  if (!ADMIN_EMAIL) {
+    console.error('[discovery] ADMIN_EMAIL env var is not set \u2014 admin alert skipped.');
+    return;
+  }
+
   try {
     const { getResendClient } = await import('@/lib/resend/client');
     const resend = getResendClient();

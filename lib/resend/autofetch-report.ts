@@ -1,6 +1,5 @@
-import { Resend } from 'resend';
+import { getResendClient } from './client';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za';
 
 export interface AutofetchReportData {
@@ -61,7 +60,7 @@ export async function sendAutofetchReportEmail(data: AutofetchReportData): Promi
   `;
 
   try {
-    const result = await resend.emails.send({
+    const result = await getResendClient().emails.send({
       from: `Billdog <${FROM_EMAIL}>`,
       to: userEmail,
       subject: 'Your 3-Year Bill Audit is Complete',

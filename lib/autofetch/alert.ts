@@ -1,9 +1,10 @@
-import { Resend } from 'resend';
+import { getResendClient } from '@/lib/resend/client';
 import { createAdminClient } from '@/lib/supabase/admin';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za';
-const ADMIN_EMAIL = 'editandcolour@gmail.com'; // as per prompt spec
+// ADMIN_EMAIL is sourced from env (audit S-C1). If unset we skip the alert
+// rather than silently emailing nobody — log and bail.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 
 export async function evaluateFailureRateAndAlert(): Promise<{ total: number; failed: number; sentAlert: boolean }> {
   const supabaseAdmin = createAdminClient();
@@ -31,7 +32,12 @@ export async function evaluateFailureRateAndAlert(): Promise<{ total: number; fa
 
   if (total > 0 && failureRate === 1) {
     console.log('[autofetch/alert] 100% failure rate detected. Sending admin alert.');
-    
+
+    if (!ADMIN_EMAIL) {
+      console.error('[autofetch/alert] ADMIN_EMAIL env var is not set — cannot send alert.');
+      return { total, failed, sentAlert: false };
+    }
+
     const html = `
       <div style="font-family: Arial, sans-serif;">
         <h2 style="color: #EF4444;">🚨 Billdog Autofetch Alert</h2>
@@ -48,7 +54,7 @@ export async function evaluateFailureRateAndAlert(): Promise<{ total: number; fa
     `;
 
     try {
-      await resend.emails.send({
+      await getResendClient().emails.send({
         from: `Billdog System <${FROM_EMAIL}>`,
         to: ADMIN_EMAIL,
         subject: `[ALERT] Municipal Auto-fetch 100% Failure Rate`,

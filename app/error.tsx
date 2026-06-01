@@ -11,7 +11,14 @@ export default function GlobalError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Error Boundary]', error);
+    // Audit S-M2 \u2014 don't log the full Error object (stack frames can carry PII
+    // from query strings / API payloads). Name + message + digest is enough to
+    // correlate with server-side logs.
+    console.error('[Error Boundary]', {
+      name: error.name,
+      message: error.message,
+      digest: error.digest,
+    });
   }, [error]);
 
   return (

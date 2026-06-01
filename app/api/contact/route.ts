@@ -1,12 +1,10 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { getResendClient } from '@/lib/resend/client';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
 
 const contactLimiter = getRateLimiter(10, '1 h');
 
 export const dynamic = 'force-dynamic';
-
-const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface ContactRequest {
   name: string;
@@ -59,7 +57,7 @@ export async function POST(request: Request) {
     }
 
     // Send via Resend to support inbox
-    await resend.emails.send({
+    await getResendClient().emails.send({
       from: process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za',
       to: 'support@billdog.co.za',
       replyTo: email,

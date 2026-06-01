@@ -340,6 +340,7 @@ export default function LetterPreviewPage() {
                   className="w-full min-h-[600px] p-8 pb-12 bg-transparent border-0 font-mono text-base font-medium text-slate-900 leading-relaxed resize-y focus:outline-none focus:ring-0 relative z-10"
                   style={{ fontFamily: "'Courier New', Courier, monospace" }}
                   spellCheck
+                  readOnly={!!caseData?.status && ['sent','acknowledged','escalating','escalated','resolved','closed'].includes(caseData.status)}
                   disabled={isSending}
                 />
                 <div 
@@ -357,7 +358,7 @@ export default function LetterPreviewPage() {
                 <span className="text-slate-400 text-xs font-medium">{wordCount} words</span>
                 <button
                   onClick={handleSave}
-                  disabled={isSaving || isSending}
+                  disabled={isSaving || isSending || (!!caseData?.status && ['sent','acknowledged','escalating','escalated','resolved','closed'].includes(caseData.status))}
                   className="text-slate-500 text-xs font-medium hover:text-navy transition-colors disabled:opacity-50 flex items-center gap-1.5"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -386,7 +387,34 @@ export default function LetterPreviewPage() {
             )}
 
             <div className="mt-10 mb-6 flex flex-col items-center">
-              {hasCard ? (
+              {(() => {
+                const alreadySentStatuses = ['sent', 'acknowledged', 'escalating', 'escalated', 'resolved', 'closed'];
+                const alreadySent = caseData?.status && alreadySentStatuses.includes(caseData.status);
+
+                if (alreadySent) {
+                  return (
+                    <div className="bg-white border border-light-grey rounded-2xl p-6 md:p-8 text-center shadow-sm w-full max-w-md">
+                      <div className="w-12 h-12 bg-success/10 text-success rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <h3 className="font-display text-2xl text-navy uppercase tracking-wide mb-3">Letter already sent</h3>
+                      <p className="text-slate-500 font-medium text-sm leading-relaxed mb-6">
+                        This dispute has been delivered to your municipality. We&apos;re now monitoring for a response — typical window is 30 days. You&apos;ll be notified when there&apos;s an update.
+                      </p>
+                      <Button
+                        variant="outline-dark"
+                        onClick={() => router.push(`/case/${caseId}`)}
+                        className="w-full h-12 text-sm font-bold uppercase tracking-wider"
+                      >
+                        Back to Case
+                      </Button>
+                    </div>
+                  );
+                }
+
+                return hasCard ? (
                 <>
                   <Button
                     variant="primary"
@@ -427,7 +455,8 @@ export default function LetterPreviewPage() {
                     💳 Processed securely by PayFast. Your card details never touch Billdog servers.
                   </p>
                 </div>
-              )}
+              );
+              })()}
             </div>
           </div>
 

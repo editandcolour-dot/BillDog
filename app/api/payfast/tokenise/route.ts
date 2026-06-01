@@ -40,16 +40,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: `Payment gateway not configured. Missing: ${missing.join(', ')}` }, { status: 503 });
     }
 
-    const isSandbox = String(process.env['PAYFAST_SANDBOX']).trim();
-    console.log('[payfast/tokenise] === DIAGNOSTIC START ===');
-    console.log('[payfast/tokenise] PAYFAST_SANDBOX env value:', JSON.stringify(isSandbox));
-    console.log('[payfast/tokenise] Merchant ID (last 4):', merchantId?.slice(-4));
-    console.log('[payfast/tokenise] Merchant Key (last 4):', merchantKey?.slice(-4));
-    console.log('[payfast/tokenise] Passphrase length:', passphrase?.length);
-    console.log('[payfast/tokenise] NEXT_PUBLIC_APP_URL:', process.env['NEXT_PUBLIC_APP_URL']);
-    console.log('[payfast/tokenise] PAYFAST_ITN_URL:', process.env['PAYFAST_ITN_URL']);
-    console.log('[payfast/tokenise] Return caseId:', caseId || '(none — account page flow)');
-
+    // Diagnostic logging removed (audit S-H3) — previously leaked merchant
+    // key/passphrase length and trailing characters to cloud logs.
+    // Gate behind DEBUG_PAYFAST=1 if needed during local development only.
     const formData = generateTokeniseFormData({
       userId: user.id,
       userEmail: user.email ?? '',
@@ -57,13 +50,9 @@ export async function POST(request: NextRequest) {
       returnCaseId: caseId,
     });
 
-    // Log the outgoing payload (mask signature)
-    const debugFields = { ...formData.fields };
-    if (debugFields.signature) debugFields.signature = debugFields.signature.slice(0, 6) + '...';
-    if (debugFields.email_address) debugFields.email_address = '***@***';
-    console.log('[payfast/tokenise] Action URL:', formData.action);
-    console.log('[payfast/tokenise] Fields:', JSON.stringify(debugFields, null, 2));
-    console.log('[payfast/tokenise] === DIAGNOSTIC END ===');
+    if (process.env.DEBUG_PAYFAST === '1') {
+      console.log('[payfast/tokenise] action:', formData.action, 'caseId:', caseId || 'none');
+    }
 
     return NextResponse.json(formData);
   } catch (error) {

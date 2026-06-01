@@ -226,7 +226,7 @@ export default function AccountPage() {
         )}
 
         {/* AUTO-FETCH STATUS SECTION */}
-        <section className="bg-white rounded-2xl border border-light-grey shadow-sm p-6 md:p-8 mb-8">
+        <section id="auto-fetch" className="bg-white rounded-2xl border border-light-grey shadow-sm p-6 md:p-8 mb-8 scroll-mt-24">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-navy">Auto-Fetch</h2>
             {!autofetchStatus?.credential && (
@@ -271,30 +271,40 @@ export default function AccountPage() {
                     </p>
                   </div>
                 </div>
-                <Button
-                  onClick={async () => {
-                    setRevokingCreds(true);
-                    try {
-                      const res = await fetch(`/api/autofetch/credentials/${autofetchStatus.credential.id}`, { method: 'DELETE' });
-                      if (res.ok) {
-                        setAutofetchStatus({ ...autofetchStatus, credential: null });
-                        setMessage({ text: 'Municipal credentials revoked. No further bills will be fetched.', type: 'success' });
-                      } else {
-                        setMessage({ text: 'Failed to revoke credentials.', type: 'error' });
+                <div className="flex flex-col sm:flex-row gap-2">
+                  {autofetchStatus.credential.status === 'failed' && (
+                    <Link
+                      href="/onboarding/auto-fetch"
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-orange text-white font-bold text-sm uppercase tracking-wider hover:bg-orange-light transition-colors"
+                    >
+                      Reconnect
+                    </Link>
+                  )}
+                  <Button
+                    onClick={async () => {
+                      setRevokingCreds(true);
+                      try {
+                        const res = await fetch(`/api/autofetch/credentials/${autofetchStatus.credential.id}`, { method: 'DELETE' });
+                        if (res.ok) {
+                          setAutofetchStatus({ ...autofetchStatus, credential: null });
+                          setMessage({ text: 'Municipal credentials revoked. No further bills will be fetched.', type: 'success' });
+                        } else {
+                          setMessage({ text: 'Failed to revoke credentials.', type: 'error' });
+                        }
+                      } catch {
+                        setMessage({ text: 'Network error revoking credentials.', type: 'error' });
+                      } finally {
+                        setRevokingCreds(false);
+                        setTimeout(() => setMessage(null), 4000);
                       }
-                    } catch {
-                      setMessage({ text: 'Network error revoking credentials.', type: 'error' });
-                    } finally {
-                      setRevokingCreds(false);
-                      setTimeout(() => setMessage(null), 4000);
-                    }
-                  }}
-                  variant="outline-dark"
-                  className="text-error border-error/30 hover:bg-error hover:text-white hover:border-error"
-                  disabled={revokingCreds}
-                >
-                  {revokingCreds ? 'Revoking...' : 'Revoke'}
-                </Button>
+                    }}
+                    variant="outline-dark"
+                    className="text-error border-error/30 hover:bg-error hover:text-white hover:border-error"
+                    disabled={revokingCreds}
+                  >
+                    {revokingCreds ? 'Revoking...' : 'Revoke'}
+                  </Button>
+                </div>
               </div>
 
               {/* Latest bill summary */}

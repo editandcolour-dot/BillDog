@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyQStashSignature } from '@/lib/qstash/verify';
 import { decryptCredentials } from '@/lib/crypto/credentials';
@@ -9,7 +9,11 @@ import { analyseCrossBill } from '@/lib/claude/analyse-cross-bill';
 import { checkPrescription } from '@/lib/validators/prescription';
 import type { ServiceType } from '@/types';
 import { sendAutofetchReportEmail } from '@/lib/resend/autofetch-report';
-import { revokeCredential } from '@/lib/autofetch/revocation';
+import {
+  extractIssueDate,
+  estimateExpectedDay,
+  computeNextCheckAt,
+} from '@/lib/autofetch/cycleEstimator';
 
 export const maxDuration = 300; // Allow maximum Vercel function duration for backfill
 
@@ -143,17 +147,19 @@ export async function POST(request: NextRequest) {
 
       // Handle Failure Classifications
       if (result.errorCode === 'INVALID_CREDENTIALS' || result.errorCode === 'MFA_REQUIRED') {
-        const { sendAutofetchRevokedEmail } = await import('@/lib/resend/autofetch-revoked');
-        await revokeCredential(supabaseAdmin, credential.id, credential.user_id, result.errorCode.toLowerCase());
-        
+        // DO NOT revoke. Keep the saved login row, flag stale via
+        // `last_login_error`, send transactional notice. See fetch-latest
+        // for the same logic + rationale.
+        const { sendAutofetchStaleEmail } = await import('@/lib/resend/autofetch-stale');
+
         if (profile?.email) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-          await sendAutofetchRevokedEmail({
+          await sendAutofetchStaleEmail({
             userEmail: profile.email,
             userName: profile.full_name || 'User',
             municipalityName: municipality.name,
-            reason: result.errorCode.toLowerCase(),
-            settingsUrl: `${appUrl}/account`
+            reason: result.errorCode === 'MFA_REQUIRED' ? 'mfa_required' : 'invalid_credentials',
+            reconnectUrl: `${appUrl}/account`
           });
         }
         await markJobFailed(supabaseAdmin, jobId, result.error || 'Scrape failed');
@@ -216,6 +222,10 @@ export async function POST(request: NextRequest) {
     let totalRecoverable = 0;
     const allFindings: { period: string; amount: number; issue: string }[] = [];
     const crossAnalysisInputs = [];
+    // Issue dates pulled out of each bill PDF â€” used after the loop to seed
+    // the credential's cycle estimate (expected_issue_day, confidence,
+    // next_check_at). See [lib/autofetch/cycleEstimator.ts].
+    const observedIssueDates: Date[] = [];
 
     // Pre-fetch existing case bills for dedup
     const { data: existingCaseBills } = await supabaseAdmin
@@ -271,7 +281,12 @@ export async function POST(request: NextRequest) {
       // Parse and Analyse
       try {
         const extractedText = await parseBillFile(bill.pdfBuffer, 'application/pdf');
-        
+
+        // Mine an issue date out of the PDF text for cycle estimation. Falls
+        // through silently if no recognisable date label is present.
+        const issueDate = extractIssueDate(extractedText);
+        if (issueDate) observedIssueDates.push(issueDate);
+
         await supabaseAdmin.from('case_bills').update({
           parse_status: 'parsed',
           bill_text: extractedText
@@ -367,11 +382,51 @@ export async function POST(request: NextRequest) {
         caseSummary.cross_analysis = crossResults;
       } catch (crossErr) {
         console.error('[autofetch/backfill] Cross-bill analysis failed:', crossErr);
-        // Continue without cross-analysis — individual results still valid
+        // Continue without cross-analysis â€” individual results still valid
       }
     }
 
     await supabaseAdmin.from('cases').update(caseSummary).eq('id', caseId);
+
+    // 8b. Seed cycle estimate on the credential row.
+    //
+    // After backfilling up to 36 months of bills, we usually have enough
+    // observations to compute a reliable expected_issue_day. The daily
+    // dispatcher uses this to skip credentials whose next bill isn't due yet.
+    //
+    // We always update last_known_period (= latest bill_period we just
+    // pulled) and next_check_at, even when the sample is too small for a
+    // confident day estimate â€” the dispatcher needs *some* schedule to act on.
+    try {
+      const estimate = estimateExpectedDay(observedIssueDates);
+      const updatePayload: Record<string, unknown> = {
+        last_known_period: dateRangeEnd,
+        cycle_confidence: estimate.confidence,
+        updated_at: new Date().toISOString(),
+      };
+      if (estimate.day !== null) {
+        updatePayload.expected_issue_day = estimate.day;
+        // We just successfully fetched this month's bill (backfill includes
+        // current period) â€” schedule next check for next billing cycle.
+        updatePayload.next_check_at = computeNextCheckAt({
+          expectedDay: estimate.day,
+          confidence: estimate.confidence,
+          fromDate: new Date(),
+          justFoundBill: true,
+        }).toISOString();
+      } else {
+        // No usable observations â€” let the daily dispatcher pick it up tomorrow
+        // and we'll learn the cycle from successful fetch-latest runs.
+        updatePayload.next_check_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+      }
+      await supabaseAdmin
+        .from('municipal_credentials')
+        .update(updatePayload)
+        .eq('id', credential.id);
+    } catch (cycleErr) {
+      console.error('[autofetch/backfill] Cycle estimate update failed:', cycleErr);
+      // Non-fatal â€” fetch-latest will still run on the default daily cadence.
+    }
 
     // 9. Send Summary Email
     if (profile?.email && billsAnalysed > 0) {

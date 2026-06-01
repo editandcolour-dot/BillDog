@@ -8,7 +8,8 @@ import {
   AlertTriangle, 
   CheckCircle,
   CreditCard,
-  CircleDot
+  CircleDot,
+  Clock
 } from 'lucide-react';
 
 export function CaseTimeline({ events }: { events: CaseEvent[] }) {
@@ -17,6 +18,23 @@ export function CaseTimeline({ events }: { events: CaseEvent[] }) {
   const sortedEvents = [...events].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
   );
+
+  // If the most recent real event is `letter_sent` (and the case hasn't yet
+  // received a response or been resolved), append a synthetic "awaiting response"
+  // step so the sent letter renders as completed and the active/pulsing node
+  // shifts to the next stage in the journey.
+  const lastEvent = sortedEvents[sortedEvents.length - 1];
+  if (lastEvent?.event_type === 'letter_sent') {
+    const sentAt = new Date(lastEvent.created_at);
+    sortedEvents.push({
+      id: `${lastEvent.id}__awaiting`,
+      case_id: lastEvent.case_id,
+      event_type: 'awaiting_response',
+      note: 'Waiting for the municipality to acknowledge or respond. Allowed response window is 30 days.',
+      metadata: null,
+      created_at: sentAt.toISOString(),
+    } as CaseEvent);
+  }
 
   return (
     <div className="relative pl-6 md:pl-8 space-y-6">
@@ -81,6 +99,10 @@ function TimelineIcon({ eventType, isLast }: { eventType: string; isLast: boolea
       Icon = Send;
       colorClass = 'bg-blue text-white border-blue';
       break;
+    case 'awaiting_response':
+      Icon = Clock;
+      colorClass = 'bg-orange/10 text-orange border-orange/30';
+      break;
     case 'municipality_responded':
     case 'response_received':
       Icon = Mail;
@@ -107,13 +129,13 @@ function TimelineIcon({ eventType, isLast }: { eventType: string; isLast: boolea
       absolute -left-9 sm:-left-[44px] top-1 
       w-[26px] h-[26px] rounded-full border-2 
       flex items-center justify-center
-      z-10 bg-white
+      z-10
       ${colorClass}
     `}>
       {isPulsing && (
         <span className="absolute inline-flex h-full w-full rounded-full bg-current opacity-20 animate-ping"></span>
       )}
-      <Icon className="w-3.5 h-3.5" />
+      <Icon className="w-3.5 h-3.5 relative z-10" />
     </div>
   );
 }
@@ -134,6 +156,15 @@ function MetadataBadge({ metadata, eventType }: { metadata: { recipient_type?: s
       <div className="mt-3 p-3 bg-orange/5 border border-orange/10 rounded-md">
         <p className="text-xs uppercase tracking-wide font-bold text-orange mb-1">Response Snippet</p>
         <p className="text-sm font-body text-navy/80 italic line-clamp-3">&quot;{metadata.preview}&quot;</p>
+      </div>
+    );
+  }
+
+  if (eventType === 'awaiting_response') {
+    return (
+      <div className="mt-3 inline-flex items-center gap-2 bg-orange/10 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide text-orange">
+        <Clock className="w-3 h-3" />
+        In Progress
       </div>
     );
   }

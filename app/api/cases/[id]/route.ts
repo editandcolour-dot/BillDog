@@ -69,111 +69,41 @@ export async function GET(
   }
 }
 
-import { processSuccessFee } from '@/lib/payfast/charge';
+import { processSuccessFee as _processSuccessFee } from '@/lib/payfast/charge';
 
+void _processSuccessFee; // retained import for downstream reference / future operator-override route
+
+/**
+ * User-initiated case resolution is deprecated.
+ *
+ * Resolution + success-fee charge is now fully automated by the Resend inbound
+ * webhook ([app/api/webhooks/resend-inbound/route.ts]) which:
+ *   1. Receives the municipality's reply
+ *   2. Uses Claude to extract the credited amount
+ *   3. Marks the case `resolved` and calls `processSuccessFee()` against the
+ *      saved PayFast token
+ *
+ * The UI no longer surfaces a manual "Confirm Resolution" form, and this
+ * endpoint is locked so the API cannot be poked directly to short-circuit
+ * the audit trail. Idempotency in `processSuccessFee` already prevents
+ * double-charging, but we don't want random clients minting `resolved`
+ * events either.
+ *
+ * If you need to force-resolve a case (e.g. operator override), do it
+ * server-side with the service role key, not via this user-scoped route.
+ */
 export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params: _params }: { params: Promise<{ id: string }> }
 ) {
-  try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const resolvedParams = await params;
-    const caseId = resolvedParams.id;
-    const body = await request.json();
-
-    const { status, amount_recovered } = body;
-
-    if (status === 'resolved' && amount_recovered !== undefined) {
-      const recoveredAmount = Number(amount_recovered);
-
-      if (isNaN(recoveredAmount) || recoveredAmount <= 0) {
-        return NextResponse.json({ error: 'Invalid recovery amount.' }, { status: 400 });
-      }
-
-      // Fetch case to get estimated recovery for validation
-      const { data: caseRecord, error: caseError } = await supabase
-        .from('cases')
-        .select('recoverable, user_id')
-        .eq('id', caseId)
-        .eq('user_id', user.id)
-        .single();
-
-      if (caseError || !caseRecord) {
-        return NextResponse.json({ error: 'Case not found' }, { status: 404 });
-      }
-
-      const estimated = Number(caseRecord.recoverable) || 0;
-
-      // --- VALIDATION RULE 1: Suspiciously low (< 30% of estimated) ---
-      // Block and require Bill 2 upload as proof
-      if (estimated > 0 && recoveredAmount < estimated * 0.3) {
-        return NextResponse.json({
-          error: 'recovery_too_low',
-          message: `The reported amount (R${recoveredAmount.toFixed(2)}) is significantly lower than our estimate (R${estimated.toFixed(2)}). Please upload your latest bill to verify the correction.`,
-          requires_bill_2: true,
-        }, { status: 422 });
-      }
-
-      // --- VALIDATION RULE 2: Suspiciously high (> 200% of estimated) ---
-      // Flag for manual review — do NOT auto-charge
-      if (estimated > 0 && recoveredAmount > estimated * 2.0) {
-        await supabase
-          .from('cases')
-          .update({
-            status: 'resolved',
-            amount_recovered: recoveredAmount,
-            resolved_at: new Date().toISOString(),
-            needs_manual_review: true,
-          })
-          .eq('id', caseId)
-          .eq('user_id', user.id);
-
-        await supabase.from('case_events').insert({
-          case_id: caseId,
-          event_type: 'resolved',
-          note: `User reported R${recoveredAmount.toFixed(2)} recovered (estimated: R${estimated.toFixed(2)}). Flagged for manual review — amount > 200% of estimate.`,
-        });
-
-        return NextResponse.json({
-          success: true,
-          status: 'resolved',
-          needs_manual_review: true,
-          message: 'Resolution recorded. The recovery amount is under review before billing.',
-        });
-      }
-
-      // --- NORMAL PATH: Amount within acceptable bounds ---
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('payfast_token')
-        .eq('id', user.id)
-        .single();
-      
-      if (!profile?.payfast_token) {
-        return NextResponse.json({ error: 'No payment method saved.' }, { status: 400 });
-      }
-
-      await supabase
-        .from('cases')
-        .update({ status: 'resolved', amount_recovered: recoveredAmount, resolved_at: new Date().toISOString() })
-        .eq('id', caseId)
-        .eq('user_id', user.id);
-
-      // Process success fee
-      await processSuccessFee(caseId, recoveredAmount, profile.payfast_token);
-
-      return NextResponse.json({ success: true, status: 'resolved' });
-    }
-
-    return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
-
-  } catch (err: unknown) {
-    console.error('[Cases PATCH Error]', err);
-    return NextResponse.json({ error: err instanceof Error ? err.message : 'Unknown error' }, { status: 500 });
-  }
+  return NextResponse.json(
+    {
+      error: 'manual_resolution_disabled',
+      message:
+        'Case resolution is automated. Billdog will mark the case resolved and charge the success fee when the municipality confirms a credit.',
+    },
+    { status: 410 }
+  );
 }
 
 export async function DELETE(

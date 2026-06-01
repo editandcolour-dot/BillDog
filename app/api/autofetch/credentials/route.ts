@@ -1,4 +1,4 @@
-/**
+﻿/**
  * POST /api/autofetch/credentials
  *
  * Submit and verify municipal portal credentials.
@@ -19,7 +19,7 @@
  * - Plaintext credentials exist only in-memory during this request.
  * - Encrypted via AES-256-GCM before storage.
  *
- * Source of truth: implementation_plan v3 §2b.
+ * Source of truth: implementation_plan v3 Â§2b.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -110,12 +110,16 @@ export async function POST(request: NextRequest) {
     // 6. Check for existing active credential (one per user per municipality)
     const { data: existingCred } = await supabaseAdmin
       .from('municipal_credentials')
-      .select('id, revoked_at')
+      .select('id, revoked_at, last_login_error')
       .eq('user_id', user.id)
       .eq('municipality_id', municipality.id)
       .single();
 
-    if (existingCred && !existingCred.revoked_at) {
+    // Block POST only when there's a *healthy* active credential. A credential
+    // that's active but marked stale (last_login_error set â€” e.g. user changed
+    // their CoCT password) MUST be overwritable, otherwise the user has no way
+    // to reconnect without first revoking + losing the row.
+    if (existingCred && !existingCred.revoked_at && !existingCred.last_login_error) {
       return NextResponse.json(
         { error: 'Active credentials already exist for this municipality. Revoke existing credentials first.' },
         { status: 409 }
@@ -198,7 +202,7 @@ export async function POST(request: NextRequest) {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
     if (!qstashToken || !appUrl) {
-      // Roll back the credential — dead state without QStash
+      // Roll back the credential â€” dead state without QStash
       // For re-activated creds: re-revoke. For new creds: delete.
       if (existingCred) {
         await supabaseAdmin.from('municipal_credentials').update({ revoked_at: new Date().toISOString() }).eq('id', targetCredId);
@@ -207,7 +211,7 @@ export async function POST(request: NextRequest) {
       }
       console.error(`[autofetch/credentials] QSTASH_TOKEN or NEXT_PUBLIC_APP_URL not set. Credential ${targetCredId} rolled back.`);
       await sendAdminAlert(
-        `QStash not configured — credential rolled back`,
+        `QStash not configured â€” credential rolled back`,
         `User ${user.id} submitted credentials for ${municipality.name} but QSTASH_TOKEN=${qstashToken ? 'set' : 'MISSING'}, NEXT_PUBLIC_APP_URL=${appUrl || 'MISSING'}. Credential ${targetCredId} was rolled back.`,
       );
       return NextResponse.json(
@@ -216,13 +220,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 11. Enqueue job via QStash — backfill for live, discovery for pending
+    // 11. Enqueue job via QStash â€” backfill for live, discovery for pending
 
     try {
       const { getQstashClient } = await import('@/lib/qstash/client');
       const qstash = getQstashClient();
       if (isLive) {
-        // Live municipality — enqueue backfill
+        // Live municipality â€” enqueue backfill
         await qstash.publish({
           url: `${appUrl}/api/autofetch/worker/backfill`,
           body: JSON.stringify({ credential_id: targetCredId }),
@@ -230,7 +234,7 @@ export async function POST(request: NextRequest) {
         });
         console.log(`[autofetch/credentials] Enqueued backfill job for credential ${targetCredId}`);
       } else if (isDiscoveryPending) {
-        // Discovery pending — enqueue Model B discovery
+        // Discovery pending â€” enqueue Model B discovery
         await qstash.publish({
           url: `${appUrl}/api/autofetch/worker/discovery`,
           body: JSON.stringify({
@@ -243,7 +247,7 @@ export async function POST(request: NextRequest) {
         console.log(`[autofetch/credentials] Enqueued Model B discovery for ${municipality.name} (credential ${targetCredId})`);
       }
     } catch (qstashErr) {
-      // QStash publish failed — roll back credential to avoid dead state
+      // QStash publish failed â€” roll back credential to avoid dead state
       if (existingCred) {
         await supabaseAdmin.from('municipal_credentials').update({ revoked_at: new Date().toISOString() }).eq('id', targetCredId);
       } else {
@@ -252,7 +256,7 @@ export async function POST(request: NextRequest) {
       const errMsg = qstashErr instanceof Error ? qstashErr.message : String(qstashErr);
       console.error(`[autofetch/credentials] QStash publish failed. Credential ${targetCredId} rolled back. Error:`, errMsg);
       await sendAdminAlert(
-        `QStash publish failed — credential rolled back`,
+        `QStash publish failed â€” credential rolled back`,
         `User ${user.id} verified credentials for ${municipality.name} but QStash publish failed.\nCredential ${targetCredId} was rolled back.\nError: ${errMsg}\nApp URL: ${appUrl}`,
       );
       return NextResponse.json(
@@ -261,7 +265,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 12. Send "standby" email — only AFTER successful QStash enqueue
+    // 12. Send "standby" email â€” only AFTER successful QStash enqueue
     try {
       const { sendAutofetchStandbyEmail } = await import('@/lib/resend/autofetch-standby');
       const { data: userProfile } = await supabaseAdmin
@@ -280,7 +284,7 @@ export async function POST(request: NextRequest) {
         console.log(`[autofetch/credentials] Standby email sent to ${userProfile.email}`);
       }
     } catch (emailErr) {
-      // Standby email is non-blocking — QStash job is already enqueued
+      // Standby email is non-blocking â€” QStash job is already enqueued
       console.error('[autofetch/credentials] Standby email failed (non-blocking):', emailErr);
     }
 
@@ -294,7 +298,7 @@ export async function POST(request: NextRequest) {
 
 /**
  * Send admin alert email when credential submission fails.
- * Non-blocking — catch and log any email errors.
+ * Non-blocking â€” catch and log any email errors.
  */
 async function sendAdminAlert(subject: string, detail: string): Promise<void> {
   try {
@@ -305,7 +309,7 @@ async function sendAdminAlert(subject: string, detail: string): Promise<void> {
     await resend.emails.send({
       from: `Billdog Alerts <${fromEmail}>`,
       to: ['editandcolour@gmail.com'],
-      subject: `⚠️ ${subject}`,
+      subject: `âš ï¸ ${subject}`,
       html: `<h2>${subject}</h2><pre>${detail}</pre><p>Time: ${new Date().toISOString()}</p>`,
     });
   } catch (alertErr) {

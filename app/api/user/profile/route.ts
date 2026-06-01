@@ -34,7 +34,9 @@ export async function PATCH(request: NextRequest) {
       .eq('id', user.id);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      // Don't leak DB error details to the client (audit S-H4).
+      console.error('[api/user/profile] update failed', error);
+      return NextResponse.json({ error: 'Unable to update profile' }, { status: 500 });
     }
     
     return NextResponse.json({ success: true });

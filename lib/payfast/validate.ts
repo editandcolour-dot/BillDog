@@ -77,21 +77,12 @@ export function validateSignature(
 
   const match = [s1, s2, s3, s4, s5, s6].findIndex(s => s === receivedSignature);
 
-  // DIAGNOSTIC LOGGING — temporary, remove after fix confirmed
-  console.error('[payfast/validate] === SIGNATURE DIAGNOSTIC ===');
-  console.error('[payfast/validate] Received sig:', receivedSignature);
-  console.error('[payfast/validate] Key order (first 5):', keys.slice(0, 5).join(', '));
-  console.error('[payfast/validate] S1 (ordered+break+encPP):', s1, s1 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] S2 (ordered+break+rawPP):', s2, s2 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] S3 (ordered+skip+encPP):', s3, s3 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] S4 (ordered+skip+rawPP):', s4, s4 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] S5 (sorted+encPP):', s5, s5 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] S6 (sorted+rawPP):', s6, s6 === receivedSignature ? '✅' : '❌');
-  console.error('[payfast/validate] Match strategy:', match >= 0 ? `S${match + 1}` : 'NONE');
-  // Log the hash input for strategy 1 (mask sensitive values)
-  const maskedStr = s1str.replace(/merchant_key=[^&]+/, 'merchant_key=***').replace(/email_address=[^&]+/, 'email_address=***');
-  console.error('[payfast/validate] S1 hash input (masked):', maskedStr.substring(0, 300));
-  console.error('[payfast/validate] === END DIAGNOSTIC ===');
+  // Diagnostic logging is gated behind DEBUG_PAYFAST=1 (audit S-H2) — never
+  // enable in production. The previous unconditional console.error block
+  // leaked signature material and hash strategy ordering to cloud logs.
+  if (process.env.DEBUG_PAYFAST === '1') {
+    console.error('[payfast/validate] match strategy:', match >= 0 ? `S${match + 1}` : 'NONE');
+  }
 
   if (match >= 0) return true;
   return false;

@@ -35,28 +35,47 @@ function getStatusClasses(status: CaseStatus): string {
   return map[status] || 'bg-light-grey text-navy';
 }
 
+// Deterministic ZAR formatter — Intl.NumberFormat('en-ZA') yields different
+// glyphs in Node ICU vs browser ICU (e.g. "R 128 500,34" vs "R 128,500.34"),
+// which causes React hydration mismatches. We format by hand so SSR === CSR.
 function formatCurrency(amount: number | null): string {
-  if (amount === null) return 'R0.00';
-  return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(amount);
+  if (amount === null) return 'R 0.00';
+  const negative = amount < 0;
+  const abs = Math.abs(amount);
+  const [whole, fraction = '00'] = abs.toFixed(2).split('.');
+  const withSeparators = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return `${negative ? '-' : ''}R ${withSeparators}.${fraction}`;
 }
 
+// Deterministic short-date formatter — same reasoning as formatCurrency.
+const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Render dates in Africa/Johannesburg (SAST = UTC+2, no DST) deterministically
+// on both server and client. Shift the timestamp by +2h then read UTC fields —
+// avoids Intl/toLocaleString drift between Node ICU and browser ICU.
+const SAST_OFFSET_MS = 2 * 60 * 60 * 1000;
 function formatRegisteredDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('en-ZA', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
+  const d = new Date(dateStr);
+  if (Number.isNaN(d.getTime())) return '';
+  const sast = new Date(d.getTime() + SAST_OFFSET_MS);
+  return `${sast.getUTCDate()} ${MONTHS_SHORT[sast.getUTCMonth()]} ${sast.getUTCFullYear()}`;
 }
 
-// Progress stepper — maps case status to a linear stage
-const STAGES = ['Upload', 'Analysis', 'Letter', 'Sent', 'Response', 'Resolved'] as const;
+// Progress stepper — maps case status to a linear stage.
+// "Awaiting" replaces the ambiguous "Response" — it's the active state after
+// the letter is sent and before the municipality responds.
+// Stage 6 uses a two-line label "Letter / Resolved" both to read more
+// naturally ("their letter is resolved") and to stop "Resolved" crashing into
+// "Awaiting" in narrow cards.
+const STAGES = ['Upload', 'Analysis', 'Letter', 'Sent', 'Awaiting', 'Letter\nResolved'] as const;
 
 function getStageIndex(status: CaseStatus): number {
   const map: Record<CaseStatus, number> = {
     uploading: 0,
     analysing: 1,
     letter_ready: 2,
-    sent: 3,
+    // `sent` means the letter has shipped — Sent is COMPLETE and we are now
+    // actively awaiting a response. So the current stage is 4, not 3.
+    sent: 4,
     acknowledged: 4,
     escalating: 4,
     escalated: 4,
@@ -107,7 +126,7 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
 
       {/* Progress stepper */}
       <div className="mb-4 pt-3 border-t border-light-grey">
-        <div className="flex items-center justify-between gap-0.5">
+        <div className="flex items-start justify-between gap-1.5">
           {STAGES.map((stage, i) => {
             const isCompleted = i < currentStage;
             const isCurrent = i === currentStage;
@@ -122,7 +141,7 @@ export function CaseCard({ caseRecord }: { caseRecord: Case }) {
                 }`}>
                   {isCompleted ? '✓' : (i + 1)}
                 </div>
-                <span className={`mt-1 text-[9px] font-bold uppercase tracking-wide leading-tight text-center ${
+                <span className={`mt-1 text-[9px] font-bold uppercase tracking-wide leading-tight text-center whitespace-pre-line ${
                   isCompleted ? 'text-success' : isCurrent ? 'text-orange' : 'text-slate-300'
                 }`}>
                   {stage}

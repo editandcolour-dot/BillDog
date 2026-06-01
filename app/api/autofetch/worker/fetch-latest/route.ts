@@ -1,4 +1,4 @@
-/**
+﻿/**
  * POST /api/autofetch/worker/fetch-latest
  *
  * Worker route for single-bill fetch. In Phase 2, manually triggerable via auth.
@@ -9,7 +9,7 @@
  * 2. Load credential row, decrypt
  * 3. Resolve scraper from registry
  * 4. Call scraper.fetchLatestBill()
- * 5. On success: dedup check → upload PDF → find/create case → insert rows → update job
+ * 5. On success: dedup check â†’ upload PDF â†’ find/create case â†’ insert rows â†’ update job
  * 6. On failure: update job status to 'failed'
  *
  * SECURITY:
@@ -24,7 +24,13 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { decryptCredentials } from '@/lib/crypto/credentials';
 import { getScraper } from '@/lib/scrapers/registry';
 import { verifyQStashSignature } from '@/lib/qstash/verify';
-import { revokeCredential } from '@/lib/autofetch/revocation';
+import { parseBillFile } from '@/lib/pdf/parse';
+import {
+  extractIssueDate,
+  rollEstimate,
+  computeNextCheckAt,
+  type CycleConfidence,
+} from '@/lib/autofetch/cycleEstimator';
 
 export const maxDuration = 120; // 2 minutes for single scrape
 
@@ -53,7 +59,7 @@ export async function POST(request: NextRequest) {
     // 3. Load credential row and verify ownership + active status
     const { data: credential, error: credError } = await supabaseAdmin
       .from('municipal_credentials')
-      .select('id, user_id, municipality_id, encrypted_credentials, encryption_iv, revoked_at')
+      .select('id, user_id, municipality_id, encrypted_credentials, encryption_iv, revoked_at, expected_issue_day, cycle_confidence, last_known_period')
       .eq('id', credential_id)
       .single();
 
@@ -154,18 +160,22 @@ export async function POST(request: NextRequest) {
       await markJobFailed(supabaseAdmin, jobId, result.error || 'Scrape failed');
 
       if (result.errorCode === 'INVALID_CREDENTIALS' || result.errorCode === 'MFA_REQUIRED') {
-        const { sendAutofetchRevokedEmail } = await import('@/lib/resend/autofetch-revoked');
-        await revokeCredential(supabaseAdmin, credential.id, credential.user_id, result.errorCode.toLowerCase());
-        
+        // DO NOT revoke. The user's wishes (and POPIA-aware design) say: keep
+        // the saved login row, flag it stale via `last_login_error`, and email
+        // a transactional notice so the user can come back and re-enter the
+        // current password. The encrypted password stays put — if the user
+        // never reconnects, account deletion (in /account) clears it.
+        const { sendAutofetchStaleEmail } = await import('@/lib/resend/autofetch-stale');
+
         const { data: profile } = await supabaseAdmin.from('profiles').select('email, full_name').eq('id', credential.user_id).single();
         if (profile?.email) {
           const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-          await sendAutofetchRevokedEmail({
+          await sendAutofetchStaleEmail({
             userEmail: profile.email,
             userName: profile.full_name || 'User',
             municipalityName: municipality.name,
-            reason: result.errorCode.toLowerCase(),
-            settingsUrl: `${appUrl}/account`
+            reason: result.errorCode === 'MFA_REQUIRED' ? 'mfa_required' : 'invalid_credentials',
+            reconnectUrl: `${appUrl}/account`
           });
         }
         return NextResponse.json({ success: false, error: result.error, errorCode: result.errorCode }, { status: 200 });
@@ -176,7 +186,12 @@ export async function POST(request: NextRequest) {
 
     // 8. No bill found (empty result but not an error)
     if (!result.data) {
-      console.log('[autofetch/worker] No bill available — completing job');
+      console.log('[autofetch/worker] No bill available â€” completing job');
+
+      // Still chasing â€” push next_check_at out 24h, capped at expected+14.
+      // See [lib/autofetch/cycleEstimator.ts#computeNextCheckAt].
+      await updateCycleAfterMiss(supabaseAdmin, credential);
+
       await supabaseAdmin
         .from('scrape_jobs')
         .update({
@@ -207,7 +222,7 @@ export async function POST(request: NextRequest) {
 
     const bill = result.data;
 
-    // 9. Dedup check — does this user already have a case_bill for this period?
+    // 9. Dedup check â€” does this user already have a case_bill for this period?
     // First get the user's case IDs, then check for matching bill periods
     const { data: userCases } = await supabaseAdmin
       .from('cases')
@@ -239,6 +254,10 @@ export async function POST(request: NextRequest) {
     if (isDuplicate) {
       console.log(`[autofetch/worker] Dedup: bill for period "${bill.period}" already exists`);
 
+      // We already have this period â€” advance to next billing cycle so we
+      // don't re-poll daily for the rest of the month.
+      await updateCycleAfterFound(supabaseAdmin, credential, null);
+
       // Record as skipped
       await supabaseAdmin
         .from('scraped_bills')
@@ -263,7 +282,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         job_id: jobId,
         success: true,
-        message: `Bill for period "${bill.period}" already exists — skipped`,
+        message: `Bill for period "${bill.period}" already exists â€” skipped`,
         bill_downloaded: false,
         skipped: true,
       });
@@ -309,7 +328,7 @@ export async function POST(request: NextRequest) {
         .insert({
           user_id: credential.user_id,
           municipality: municipality.name,
-          account_number: 'auto-fetch',  // Placeholder — will be updated after analysis
+          account_number: 'auto-fetch',  // Placeholder â€” will be updated after analysis
           status: 'analysing',
         })
         .select('id')
@@ -371,7 +390,27 @@ export async function POST(request: NextRequest) {
       })
       .eq('id', jobId);
 
-    console.log(`[autofetch/worker] Job ${jobId} completed — bill "${bill.period}" downloaded and stored`);
+    console.log(`[autofetch/worker] Job ${jobId} completed â€” bill "${bill.period}" downloaded and stored`);
+
+    // 14b. Roll the cycle estimate forward and schedule the next check.
+    // Best-effort â€” the bill is already stored, so cycle bookkeeping must not
+    // fail the response. We parse the PDF here (light, ~1s) to mine an issue
+    // date; falls back to today if extraction fails.
+    try {
+      let issueDate: Date | null = null;
+      try {
+        const text = await parseBillFile(bill.pdfBuffer, 'application/pdf');
+        issueDate = extractIssueDate(text);
+      } catch (parseErr) {
+        console.warn('[autofetch/worker] PDF parse for issue date failed:', parseErr);
+      }
+      await updateCycleAfterFound(supabaseAdmin, credential, {
+        issueDate: issueDate ?? new Date(),
+        billPeriod: bill.period,
+      });
+    } catch (cycleErr) {
+      console.error('[autofetch/worker] Cycle update failed:', cycleErr);
+    }
 
     // 15. Schedule recovery detection
     // After the bill is analysed (in a subsequent pipeline step), recovery detection
@@ -404,7 +443,7 @@ export async function POST(request: NextRequest) {
         const supabaseAdmin = createAdminClient();
         await markJobFailed(supabaseAdmin, jobId, 'Unexpected server error');
       } catch {
-        // Best-effort — don't mask the original error
+        // Best-effort â€” don't mask the original error
       }
     }
 
@@ -430,4 +469,120 @@ async function markJobFailed(
       updated_at: new Date().toISOString(),
     })
     .eq('id', jobId);
+}
+
+/**
+ * Cycle row shape we read off `municipal_credentials` in this route.
+ */
+type CycleCredentialRow = {
+  id: string;
+  expected_issue_day: number | null;
+  cycle_confidence: CycleConfidence | null;
+  last_known_period: string | null;
+};
+
+/**
+ * Called after a successful fetch (or dedup-skip): roll the cycle estimate
+ * forward by one observation and schedule next_check_at for the next billing
+ * cycle. Pass `null` for found when we're just acking an existing bill â€” in
+ * that case we keep the estimate as-is but still advance next_check_at.
+ */
+async function updateCycleAfterFound(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  cred: CycleCredentialRow,
+  found: { issueDate: Date; billPeriod: string } | null
+): Promise<void> {
+  const currentDay = cred.expected_issue_day;
+  const currentConf: CycleConfidence = cred.cycle_confidence ?? 'unknown';
+
+  let nextDay = currentDay;
+  let nextConf = currentConf;
+
+  if (found && currentDay !== null) {
+    const rolled = rollEstimate(
+      { day: currentDay, confidence: currentConf, sampleSize: currentConf === 'unknown' ? 1 : 4 },
+      found.issueDate
+    );
+    nextDay = rolled.day;
+    nextConf = rolled.confidence;
+  } else if (found && currentDay === null) {
+    // Seed estimate from the very first observation.
+    nextDay = found.issueDate.getUTCDate();
+    nextConf = 'unknown';
+  }
+
+  const payload: Record<string, unknown> = {
+    cycle_confidence: nextConf,
+    updated_at: new Date().toISOString(),
+  };
+  if (nextDay !== null) {
+    payload.expected_issue_day = nextDay;
+    payload.next_check_at = computeNextCheckAt({
+      expectedDay: nextDay,
+      confidence: nextConf,
+      fromDate: new Date(),
+      justFoundBill: true,
+    }).toISOString();
+  } else {
+    // No estimate yet â€” re-check tomorrow.
+    payload.next_check_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  }
+  if (found) {
+    payload.last_known_period = found.billPeriod;
+  }
+
+  await supabaseAdmin
+    .from('municipal_credentials')
+    .update(payload)
+    .eq('id', cred.id);
+}
+
+/**
+ * Called when the scraper found no new bill. Schedule a re-check for tomorrow
+ * (weekend-skipped), capped at expected_issue_day + 14 â€” past that we let the
+ * dispatcher fall back to next month and the failure-rate alerter takes over.
+ */
+async function updateCycleAfterMiss(
+  supabaseAdmin: ReturnType<typeof createAdminClient>,
+  cred: CycleCredentialRow
+): Promise<void> {
+  if (cred.expected_issue_day === null) {
+    // No estimate yet â€” just re-poll tomorrow.
+    await supabaseAdmin
+      .from('municipal_credentials')
+      .update({
+        next_check_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', cred.id);
+    return;
+  }
+
+  // chasingSince = this month's expected issue day (or last month's, if we're
+  // before this month's day). Used by computeNextCheckAt to enforce the +14 cap.
+  const now = new Date();
+  const thisMonthExpected = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    Math.min(cred.expected_issue_day, 28)
+  ));
+  const chasingSince = thisMonthExpected <= now
+    ? thisMonthExpected
+    : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, Math.min(cred.expected_issue_day, 28)));
+
+  const nextCheck = computeNextCheckAt({
+    expectedDay: cred.expected_issue_day,
+    confidence: cred.cycle_confidence ?? 'unknown',
+    fromDate: now,
+    justFoundBill: false,
+    chasingSince,
+  });
+
+  await supabaseAdmin
+    .from('municipal_credentials')
+    .update({
+      next_check_at: nextCheck.toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', cred.id);
 }

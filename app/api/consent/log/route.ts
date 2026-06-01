@@ -49,7 +49,11 @@ export async function POST(request: NextRequest) {
   }));
 
   const { error } = await supabase.from('consent_events').insert(rows);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    // Don't leak DB error details to the client (audit S-H4).
+    console.error('[api/consent/log] insert failed', error);
+    return NextResponse.json({ error: 'Unable to record consent event' }, { status: 400 });
+  }
 
   return NextResponse.json({ ok: true, count: rows.length });
 }

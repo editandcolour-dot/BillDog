@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+﻿import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { CasesList } from '@/components/dashboard/CasesList';
 import { ProcessingBanner } from '@/components/dashboard/ProcessingBanner';
@@ -26,14 +26,32 @@ export default async function DashboardPage() {
     .eq('id', user.id)
     .single();
 
-  // Check if user has connected a municipality for autofetch
+  // Check if user has connected a municipality for autofetch.
+  // Three states matter to the UI:
+  //   - no row / revoked            â†’ "Connect Municipality" CTA
+  //   - active + last_login_error   â†’ "Reconnect â€” your saved CoCT password no
+  //                                    longer works" stale banner
+  //   - active + no error           â†’ silent (no card needed)
   const { data: credential } = await supabase
     .from('municipal_credentials')
-    .select('id, municipality_id, verified_at, revoked_at')
+    .select('id, municipality_id, verified_at, revoked_at, last_login_error')
     .eq('user_id', user.id)
+    .is('revoked_at', null)
     .maybeSingle();
 
   const hasAutofetch = !!(credential?.verified_at && !credential?.revoked_at);
+  const autofetchStale = hasAutofetch && !!credential?.last_login_error;
+
+  // Resolve municipality name for the stale banner copy.
+  let staleMunicipalityName: string | null = null;
+  if (autofetchStale && credential?.municipality_id) {
+    const { data: muni } = await supabase
+      .from('municipalities')
+      .select('name')
+      .eq('id', credential.municipality_id)
+      .single();
+    staleMunicipalityName = muni?.name ?? null;
+  }
 
   // Fetch non-deleted cases for this user
   const { data: casesData, error } = await supabase
@@ -74,10 +92,14 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* Action cards — Connect Municipality + Upload Manually */}
-        <DashboardActionCards hasAutofetch={hasAutofetch} />
+        {/* Action cards â€” Connect Municipality + Upload Manually */}
+        <DashboardActionCards
+          hasAutofetch={hasAutofetch}
+          autofetchStale={autofetchStale}
+          staleMunicipalityName={staleMunicipalityName}
+        />
 
-        {/* Processing banner — shows when a scrape job is running */}
+        {/* Processing banner â€” shows when a scrape job is running */}
         <ProcessingBanner />
 
         {/* Cases list with multi-select + bulk delete */}

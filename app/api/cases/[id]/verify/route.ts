@@ -114,7 +114,8 @@ export async function POST(
     }
 
   } catch (error) {
+    // Log full error server-side, return a generic message (audit S-H4).
     console.error('[API/Verify] Unexpected error:', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Unknown error' }, { status: 500 });
+    return NextResponse.json({ error: 'Verification failed. Please try again later.' }, { status: 500 });
   }
 }

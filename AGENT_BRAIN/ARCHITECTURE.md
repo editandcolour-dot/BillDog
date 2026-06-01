@@ -461,6 +461,7 @@ NODE_ENV=
 | Escalation cron | complete | api/cron/escalate/ lib/escalation/ | 7-stage automated follow-up engine, Railway cron |
 | Promo codes     | complete | api/cases/[id]/promo/ | FIRSTTEN logic, bypasses standard fee |
 | Tariff Cache v2 | complete | lib/tariff/tariff-cache-v2.ts, lib/tariff/tariff-calculator.ts, lib/tariff/types-v2.ts, lib/tariff/tariff-resolver.ts, execution/seed-tariff-cache.ts, app/api/cron/tariff-refresh/, supabase/migrations/027_tariff_cache_v2.sql | Validity-window-based tariff cache. Supports mid-year rate changes (NERSA redeterminations). Dual-read resolver (JSON → DB → gazette). Monthly prune cron. Seed script for Railway. |
+| Cycle-aware autofetch polling | complete | lib/autofetch/cycleEstimator.ts, app/api/autofetch/worker/daily/, app/api/autofetch/worker/backfill/, app/api/autofetch/worker/fetch-latest/, supabase/migrations/037_autofetch_cycle.sql | Daily dispatcher (renamed from `monthly`) skips credentials whose `next_check_at` is in the future. Backfill mines issue dates from PDF text via regex, computes median + IQR (`tight`/`loose`/`unknown` confidence) and seeds `expected_issue_day`. Fetch-latest rolls the estimate forward on success and back-off-with-cap (+14 days) on miss. Weekend-skipped. |
 | Commercial v2 | future | — | Not in scope for v1 |
 | Class action module | future | — | Community complaint aggregation |
 | WhatsApp sharing | future | — | Viral loop feature |

@@ -21,7 +21,11 @@ export async function POST(request: NextRequest) {
     })
     .eq('id', user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    // Don't leak DB error details to the client (audit S-H4).
+    console.error('[api/user/mandate] POST update failed', error);
+    return NextResponse.json({ error: 'Unable to record mandate' }, { status: 400 });
+  }
 
   // Append-only audit log (best-effort; failure does not roll back the profile change)
   try {
@@ -51,7 +55,11 @@ export async function DELETE(request: NextRequest) {
     .update({ mandate_revoked_at: revokedAt })
     .eq('id', user.id);
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    // Don't leak DB error details to the client (audit S-H4).
+    console.error('[api/user/mandate] DELETE update failed', error);
+    return NextResponse.json({ error: 'Unable to revoke mandate' }, { status: 400 });
+  }
 
   // Append-only audit log (best-effort)
   try {

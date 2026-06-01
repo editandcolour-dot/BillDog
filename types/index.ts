@@ -77,7 +77,10 @@ export type CaseEventType =
   | 'escalation_speaker'
   | 'case_closed_unresolved'
   | 'resolved'
-  | 'payment_charged';
+  | 'payment_charged'
+  /** UI-synthetic event injected by CaseTimeline after `letter_sent` to render
+   *  the "waiting for municipality" stage. Not persisted to `case_events`. */
+  | 'awaiting_response';
 
 // ---------------------------------------------------------------------------
 // Database row types

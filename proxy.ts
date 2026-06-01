@@ -1,7 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function middleware(request: NextRequest) {
+// Next.js 16 renamed `middleware.ts` to `proxy.ts` and the exported function
+// from `middleware` to `proxy`. The proxy runtime is always Node (Edge is not
+// supported here) — fine for us because the Supabase SSR helper + DB call
+// below benefit from Node primitives.
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request: {
       headers: request.headers,
@@ -56,7 +60,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user && isAdminRoute) {
-    if (user.email !== process.env.ADMIN_EMAIL) {
+    // Case-insensitive email comparison (per RFC 5321 local-part case rules
+    // we treat as case-insensitive for admin gating). ADMIN_EMAIL must be set
+    // in the environment — fail closed (deny) if it isn't.
+    const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase()
+    if (!adminEmail || user.email?.toLowerCase() !== adminEmail) {
       const url = new URL('/dashboard', request.url)
       return NextResponse.redirect(url)
     }
