@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
           Privacy Policy
         </h1>
         <p className="mt-3 text-grey text-sm font-medium">
-          Version 1.0 &mdash; 30 March 2026 &nbsp;|&nbsp; Effective immediately
+          Version 1.1 &mdash; 1 June 2026 &nbsp;|&nbsp; Effective immediately
         </p>
 
         <div className="mt-10 space-y-12 max-w-3xl text-grey leading-relaxed">
@@ -128,11 +128,11 @@ export default function PrivacyPolicyPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-light-grey">
-                  <tr><td className="px-4 py-3">Anthropic (Claude AI)</td><td className="px-4 py-3">Bill text, account number, municipality</td><td className="px-4 py-3">Bill analysis &amp; letter generation</td></tr>
+                  <tr><td className="px-4 py-3">Anthropic (Claude AI)</td><td className="px-4 py-3">Bill text, municipality name</td><td className="px-4 py-3">Bill analysis &amp; letter generation</td></tr>
                   <tr><td className="px-4 py-3">Supabase</td><td className="px-4 py-3">All user data &amp; files</td><td className="px-4 py-3">Database &amp; file storage</td></tr>
                   <tr><td className="px-4 py-3">Resend</td><td className="px-4 py-3">Email address, user name</td><td className="px-4 py-3">Email delivery</td></tr>
                   <tr><td className="px-4 py-3">PayFast</td><td className="px-4 py-3">Payment card token, amounts</td><td className="px-4 py-3">Payment processing</td></tr>
-                  <tr><td className="px-4 py-3">Voyage AI</td><td className="px-4 py-3">Anonymised bill text chunks</td><td className="px-4 py-3">Legislation search</td></tr>
+                  <tr><td className="px-4 py-3">Voyage AI</td><td className="px-4 py-3">Anonymised bill text chunks (only when the legislation search feature is active)</td><td className="px-4 py-3">Legislation search</td></tr>
                   <tr><td className="px-4 py-3">Railway</td><td className="px-4 py-3">Application hosting</td><td className="px-4 py-3">Infrastructure</td></tr>
                   <tr><td className="px-4 py-3">Cloudflare</td><td className="px-4 py-3">DNS queries, IP addresses</td><td className="px-4 py-3">DNS &amp; security</td></tr>
                 </tbody>
@@ -171,12 +171,12 @@ export default function PrivacyPolicyPage() {
                 </thead>
                 <tbody className="divide-y divide-light-grey">
                   <tr><td className="px-4 py-3">Active cases</td><td className="px-4 py-3">While your account is active</td></tr>
-                  <tr><td className="px-4 py-3">Resolved cases</td><td className="px-4 py-3">5 years after resolution</td></tr>
-                  <tr><td className="px-4 py-3">Bill documents</td><td className="px-4 py-3">Deleted after case closes</td></tr>
+                  <tr><td className="px-4 py-3">Resolved cases</td><td className="px-4 py-3">Retained until you request deletion or close your account</td></tr>
+                  <tr><td className="px-4 py-3">Bill documents</td><td className="px-4 py-3">Automatically removed 90 days after the case is resolved or closed</td></tr>
                   <tr><td className="px-4 py-3">Profile data</td><td className="px-4 py-3">Deleted on account deletion</td></tr>
                   <tr><td className="px-4 py-3">Payment tokens</td><td className="px-4 py-3">Deleted on account deletion</td></tr>
                   <tr><td className="px-4 py-3">Transaction records</td><td className="px-4 py-3">7 years (SARS tax requirement, PII stripped)</td></tr>
-                  <tr><td className="px-4 py-3">Security logs</td><td className="px-4 py-3">12 months (rolling)</td></tr>
+                  <tr><td className="px-4 py-3">Security &amp; access logs</td><td className="px-4 py-3">Retained for incident-response purposes; never used for marketing or profiling</td></tr>
                 </tbody>
               </table>
             </div>
@@ -271,6 +271,40 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
 
+          {/* 11.1 — cross-border transfers */}
+          <section>
+            <h2 className="font-display text-2xl text-navy tracking-wide uppercase mb-4">
+              11.1 Cross-border Data Transfers
+            </h2>
+            <p>
+              Several of the processors listed in Section 4 (Anthropic, Resend, Voyage AI,
+              Railway, Cloudflare) operate infrastructure outside of South Africa,
+              primarily in the United States and European Union. Supabase data may be
+              stored in the region you select when your account is created.
+            </p>
+            <p className="mt-3">
+              Where personal information is transferred outside South Africa, we rely on the
+              recipient providing an adequate level of protection through their terms of
+              service and security practices, and on your consent to such transfer as a
+              necessary part of providing the Billdog service to you, in accordance with
+              section 72 of POPIA.
+            </p>
+          </section>
+
+          {/* 11.2 — children */}
+          <section>
+            <h2 className="font-display text-2xl text-navy tracking-wide uppercase mb-4">
+              11.2 Children
+            </h2>
+            <p>
+              Billdog is intended for users aged 18 and over who are the account holder for
+              the municipal services in question. We do not knowingly collect or process
+              personal information of children. If you believe a child has provided us with
+              personal information, please contact our Information Officer immediately so we
+              can delete it.
+            </p>
+          </section>
+
           {/* 11a — Consents */}
           <section>
             <h2 className="font-display text-2xl text-navy tracking-wide uppercase mb-4">
@@ -333,7 +367,7 @@ export default function PrivacyPolicyPage() {
 
           {/* Footer version */}
           <p className="pt-8 border-t border-light-grey text-sm text-grey/60">
-            Privacy Policy v1.0 &mdash; 30 March 2026
+            Privacy Policy v1.1 &mdash; 1 June 2026
           </p>
         </div>
       </div>
