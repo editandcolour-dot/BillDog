@@ -1,15 +1,16 @@
 // app/api/cron/escalation/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { runEscalationEngine } from '@/lib/escalation/escalationEngine';
+import { verifyQStashSignature } from '@/lib/qstash/verify';
 
-export async function GET(request: Request) {
-  // Verify cron secret
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    console.warn('[cron/escalation] Unauthorized request attempt');
-    return new NextResponse('Unauthorized', { status: 401 });
+export async function POST(request: NextRequest) {
+  // Verify QStash signature
+  const isValid = await verifyQStashSignature(request);
+  if (!isValid) {
+    console.warn('[cron/escalation] Invalid QStash signature');
+    return NextResponse.json({ error: 'Invalid QStash signature' }, { status: 401 });
   }
-  
+
   try {
     await runEscalationEngine();
     return NextResponse.json({ success: true });
