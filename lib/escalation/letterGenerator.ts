@@ -9,7 +9,7 @@ export interface EscalationLetter {
 }
 
 export interface EscalationLetterInput {
-  step: 1 | 2 | 3 | 4;
+  step: 1 | 2 | 3 | 4 | '2_notice';
   caseId: string;
   accountNumber: string;
   propertyAddress: string;
@@ -146,13 +146,37 @@ Yours faithfully,
 Billdog (Pty) Ltd
 disputes@billdog.co.za`;
       break;
+
+    case '2_notice': {
+      const priorStep1 = input.priorLetters.find(pl => pl.step === 1);
+      const originalDate = priorStep1
+        ? ` on ${new Date(priorStep1.sentAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}`
+        : '';
+      subject = `Notice of Escalation — Account ${input.accountNumber} — ${input.municipalityName}`;
+      body = `To: The Billing Department, ${input.municipalityName}
+Date: ${dateFormatted}
+Reference: ${reference}
+
+This serves as formal notice that the billing dispute lodged${originalDate} (Ref: ${reference}) in respect of Account Number ${input.accountNumber} has, owing to the absence of a substantive response within the statutory period, been escalated to the ${input.municipalityName} Municipal Manager / Independent Ombudsman.
+
+We remain available to resolve this matter directly. Kindly note that, in terms of Section 102 of the Local Government: Municipal Systems Act 32 of 2000, services may not be discontinued in respect of amounts that are the subject of a bona fide dispute.
+
+Yours faithfully,
+Billdog (Pty) Ltd
+disputes@billdog.co.za`;
+      break;
+    }
   }
 
-  const verifiedBody = buildVerificationBlock(input.verification) + '\n\n' + body;
+  // The '2_notice' billing letter omits the verification/ID block (POPIA — the
+  // billing dept already holds the original verified dispute).
+  const finalBody = input.step === '2_notice'
+    ? body
+    : buildVerificationBlock(input.verification) + '\n\n' + body;
 
   return {
     subject,
-    body: verifiedBody,
+    body: finalBody,
     recipientEmail: '', // Populated by Engine
     recipientName: '',  // Populated by Engine
     ccEmails

@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { getMunicipalityContacts, getPublicProtectorContacts } from './contactLookup';
 import { lookupWardCouncillor } from './wardCouncillorLookup';
 import { generateLetter, EscalationLetter } from './letterGenerator';
@@ -13,7 +13,9 @@ const STEP_LABELS: Record<number, string> = {
 };
 
 export async function runEscalationEngine(): Promise<void> {
-  const supabase = await createClient();
+  // Service-role client: this runs in a cron with no user session, so an
+  // RLS-bound client would read/write nothing. Admin client bypasses RLS.
+  const supabase = createAdminClient();
   const resend = getResendClient();
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -242,9 +244,66 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
     return;
   }
 
+  // Log an 'escalated' event to the case timeline (steps 2+; step 1 is the
+  // initial dispute, not an escalation). Best-effort — never abort the flow.
+  if (step >= 2) {
+    const { error: evtErr } = await supabase.from('case_events').insert({
+      case_id: caseObj.id,
+      event_type: 'escalated',
+      note: `Step ${step} (${STEP_LABELS[step] || 'Manual'}) dispute letter sent to ${recipientName} <${recipientEmail}>.`,
+      metadata: { step, step_label: STEP_LABELS[step] || 'Manual', recipient_email: recipientEmail },
+    });
+    if (evtErr) {
+      console.error(`[escalationEngine] case_events log failed for ${caseObj.id}:`, evtErr);
+    }
+  }
+
   // Update case status
   await supabase.from('cases').update({
     escalation_step: step,
     last_escalation_at: new Date().toISOString()
   }).eq('id', caseObj.id);
+
+  // Step 2 only: send a short notice to the billing department informing them
+  // the dispute has been escalated to the ombudsman / municipal manager.
+  // Best-effort — failure here must not affect the primary escalation.
+  if (step === 2 && contacts.billingEmail) {
+    try {
+      const noticeLetter = generateLetter({
+        step: '2_notice',
+        caseId: caseObj.id,
+        accountNumber: caseObj.account_number || 'Unknown',
+        propertyAddress,
+        municipalityName: contacts.name,
+        municipalityCode: contacts.code,
+        findings: caseObj.findings,
+        priorLetters,
+        wardCouncillor,
+        verification,
+      });
+
+      let noticeMessageId: string | null = null;
+      if (isProd) {
+        const resp = await resend.emails.send({
+          from: 'Billdog Disputes <disputes@billdog.co.za>',
+          to: contacts.billingEmail,
+          subject: noticeLetter.subject,
+          html: `<p style="white-space: pre-wrap; font-family: sans-serif;">${noticeLetter.body}</p>`,
+        });
+        noticeMessageId = resp.data?.id || null;
+      } else {
+        console.log(`[escalationEngine] DEV MOCK NOTICE SEND to ${contacts.billingEmail} (Step 2 notice)`);
+        noticeMessageId = `mock-id-${Date.now()}`;
+      }
+
+      await supabase.from('case_events').insert({
+        case_id: caseObj.id,
+        event_type: 'escalation_notice_sent',
+        note: `Notice of escalation to ombudsman sent to billing department <${contacts.billingEmail}>.`,
+        metadata: { step: 2, recipient_email: contacts.billingEmail, resend_message_id: noticeMessageId },
+      });
+    } catch (e) {
+      console.error('[escalationEngine] Step-2 billing notice failed:', e);
+    }
+  }
 }
