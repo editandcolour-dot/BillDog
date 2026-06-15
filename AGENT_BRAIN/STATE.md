@@ -2,8 +2,18 @@
 
 # STATE.md — Live Session State
 
-> **Last Updated:** 2026-06-02 (session: build review + audit reconciliation)
+> **Last Updated:** 2026-06-15 (session: escalation engine fix + CSP nonce + QStash)
 > **🚨 If this file's date does not match today's date, discard all values and treat every field as empty.**
+
+## Session 2026-06-15
+- **QStash signing keys were stale** — fixed; autofetch worker now delivers 200.
+- **Escalation engine was using the RLS user client in a no-session cron** — switched to the service-role admin client (DD-008). This was a root cause of it never writing a row.
+- **Escalation engine had no QStash schedule** — created, tested, confirmed 200.
+- **vercel.json** — removed the dead GET cron entry for `/api/cron/escalation` (route is now POST + QStash signature).
+- **CSP nonce implementation shipped (S-M1 CLOSED)** — `unsafe-eval` and `unsafe-inline` removed from `script-src`; per-request base64 nonce + `strict-dynamic` via `proxy.ts`; CSP moved out of `next.config.mjs`.
+- **Escalation engine enhanced** — `escalated` case_events for steps ≥2; step-2 billing-dept notice letter (`2_notice` type, POPIA-minimal, no ID block) + `escalation_notice_sent` case_event.
+- **Live case `e11943dd`** manually seeded to `escalation_step=1`, `last_escalation_at=2026-05-14 18:48:00` — will trigger the engine tomorrow at 06:00.
+- **Restore point:** git tag `restore-point-bfe81472` → commit `c4e9324`, pushed to remote.
 
 ## Currently In Progress
 - None (review-only session; no code changed).
@@ -26,8 +36,8 @@
 4. **Snapshot test fix** — `lib/letters/letter-templates.test.ts` (~lines 149, 192, +1): swap `expect(letter).toMatchSnapshot()` for `expect(letter).toEqual(expect.stringContaining(...))` so the 4 tests stop drifting daily.
 5. **Doc hygiene** — delete obsolete `build.log` / `build-error.log` / `build-log.txt`; update `TECH_DEBT.md` (Next 14→16 upgrade is DONE — package on next ^16.2.2, middleware→proxy.ts migrated); note in AUDIT that D1–D4 are now resolved.
 
-### Batch B — CSP nonce (S-M1), SEPARATE session, needs a Planning Brief
-- `next.config.mjs:21` still ships `script-src 'self' 'unsafe-inline' 'unsafe-eval'` — voids CSP's XSS mitigation. Move to nonce-based CSP (Next 16 native). Touches next.config + likely layout; can break inline scripts if rushed → produce Planning Brief per `directives/planning.md` first.
+### Batch B — CSP nonce (S-M1) ✅ DONE 2026-06-15
+- Shipped: nonce-based CSP via `proxy.ts` (per-request base64 nonce + `strict-dynamic`); `unsafe-inline`/`unsafe-eval` removed from `script-src`; CSP removed from `next.config.mjs`. See Session 2026-06-15.
 
 ### Batch C — backlog
 - **S-L2** — crypto key versioning: add `key_version` column on `municipal_credentials`, document re-encryption job (`docs/credential-key-rotation.md`).
