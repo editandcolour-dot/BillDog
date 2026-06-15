@@ -458,7 +458,7 @@ NODE_ENV=
 | Success page | complete | app/(app)/success/ | |
 | Settings page | planned | app/(app)/settings/ | |
 | PayFast webhook | complete | api/webhooks/payfast/ | ITN handler with signature validation |
-| Escalation cron | complete | api/cron/escalate/ lib/escalation/ | 7-stage automated follow-up engine, Railway cron |
+| Escalation cron | complete (enhanced 2026-06-15) | api/cron/escalation/ lib/escalation/ | 4-step automated follow-up engine (QStash cron). Enhanced, not rebuilt (2026-06-15): now uses the service-role admin client (see DD-008 in Section 11); emits `escalated` case_events for steps ≥2; at step 2 also sends a POPIA-minimal billing-dept notice (`2_notice` letter type, no ID/verification block) and logs an `escalation_notice_sent` case_event. |
 | Promo codes     | complete | api/cases/[id]/promo/ | FIRSTTEN logic, bypasses standard fee |
 | Tariff Cache v2 | complete | lib/tariff/tariff-cache-v2.ts, lib/tariff/tariff-calculator.ts, lib/tariff/types-v2.ts, lib/tariff/tariff-resolver.ts, execution/seed-tariff-cache.ts, app/api/cron/tariff-refresh/, supabase/migrations/027_tariff_cache_v2.sql | Validity-window-based tariff cache. Supports mid-year rate changes (NERSA redeterminations). Dual-read resolver (JSON → DB → gazette). Monthly prune cron. Seed script for Railway. |
 | Cycle-aware autofetch polling | complete | lib/autofetch/cycleEstimator.ts, app/api/autofetch/worker/daily/, app/api/autofetch/worker/backfill/, app/api/autofetch/worker/fetch-latest/, supabase/migrations/037_autofetch_cycle.sql | Daily dispatcher (renamed from `monthly`) skips credentials whose `next_check_at` is in the future. Backfill mines issue dates from PDF text via regex, computes median + IQR (`tight`/`loose`/`unknown` confidence) and seeds `expected_issue_day`. Fetch-latest rolls the estimate forward on success and back-off-with-cap (+14 days) on miss. Weekend-skipped. |
@@ -630,150 +630,126 @@ NODE_ENV=
 
 ---
 
+---
+
 ## AUTO-SCANNED FILESYSTEM SNAPSHOT
 
-> Last scanned: 2026-05-12T09:11:16.194631+00:00
-> Project root: `E:\BillDog`
+> Last scanned: 2026-06-15T11:40:16.040557+00:00
+> Project root: `c:\00_SaaS_Home\BillDog`
 
 ### Directory Inventory
 
 ```
 📁 (root)/
-  📄 .env  (0.1 KB)
-  📄 .env.local  (1.6 KB)
+  📄 .env.local  (2.2 KB)
   📄 .env.local.example  (0.9 KB)
   📄 .eslintrc.json  (0.1 KB)
-  📄 .gitignore  (0.4 KB)
+  📄 .gitignore  (0.8 KB)
   📄 .prettierrc  (0.2 KB)
-  📄 2425.txt  (22.3 KB)
-  📄 2425_water.pdf  (1460.5 KB)
-  📄 2526_water.pdf  (1465.0 KB)
-  📄 AGENTS.md  (7.6 KB)
-  📄 CLAUDE.md  (7.7 KB)
+  📄 AGENTS.md  (7.8 KB)
+  📄 CLAUDE.md  (7.9 KB)
   📄 TECH_DEBT.md  (0.3 KB)
   📄 build-error.log  (2.4 KB)
-  📄 build-log.txt  (1.6 KB)
   📄 build.log  (1.9 KB)
-  📄 corpus-test-summary.md  (177.1 KB)
-  📄 e2e_phase2_test.mjs  (17.2 KB)
-  📄 middleware.ts  (2.9 KB)
-  📄 mismatch.json  (13.1 KB)
-  📄 mock-server.js  (0.2 KB)
   📄 next-env.d.ts  (0.2 KB)
-  📄 next.config.mjs  (1.6 KB)
-  📄 nixpacks.toml  (0.4 KB)
-  📄 out.log  (428.8 KB)
+  📄 next.config.mjs  (1.5 KB)
+  📄 nixpacks.toml  (0.7 KB)
   📄 package-lock.json  (316.0 KB)
   📄 package.json  (1.5 KB)
-  📄 payfast_response.html  (12.6 KB)
   📄 postcss.config.mjs  (0.1 KB)
+  📄 proxy.ts  (5.1 KB)
   📄 railway.toml  (0.1 KB)
-  📄 railway_test.js  (1.2 KB)
-  📄 scrape.js  (0.4 KB)
-  📄 scrape2.js  (0.4 KB)
-  📄 scratch.js  (1.8 KB)
-  📄 setup_test_data.js  (2.0 KB)
-  📄 tailwind.config.ts  (1.0 KB)
-  📄 test-parser.ts  (0.1 KB)
-  📄 test-results.txt  (8.2 KB)
-  📄 testRegex.js  (0.2 KB)
+  📄 tailwind.config.ts  (1.1 KB)
   📄 test_bill.pdf  (0.6 KB)
-  📄 test_payfast_dryrun.js  (2.7 KB)
-  📄 test_payfast_no_passphrase.js  (2.4 KB)
-  📄 test_payfast_order.js  (2.5 KB)
-  📄 test_payfast_permutations.js  (2.3 KB)
-  📄 test_payfast_prod.js  (2.3 KB)
-  📄 test_pf.html  (12.7 KB)
-  📄 test_pf.js  (1.8 KB)
-  📄 test_seed.js  (1.6 KB)
   📄 tsconfig.json  (0.8 KB)
-  📄 tsconfig.tsbuildinfo  (259.0 KB)
-  📄 vercel.json  (0.1 KB)
-  📄 vitest.config.ts  (0.6 KB)
+  📄 tsconfig.tsbuildinfo  (267.1 KB)
+  📄 vercel.json  (0.0 KB)
+  📄 vitest.config.ts  (0.7 KB)
 📁 .agents/
   📁 .agents\skills/
     📁 .agents\skills\accessibility/
-      📄 SKILL.md  (16.4 KB)
+      📄 SKILL.md  (16.9 KB)
     📁 .agents\skills\antigravity/
-      📄 SKILL.md  (14.6 KB)
+      📄 SKILL.md  (15.0 KB)
     📁 .agents\skills\brand-scraper/
       📄 SKILL.md  (9.7 KB)
     📁 .agents\skills\claude-api/
-      📄 SKILL.md  (15.5 KB)
+      📄 SKILL.md  (16.0 KB)
     📁 .agents\skills\coding-standards/
-      📄 SKILL.md  (12.7 KB)
+      📄 SKILL.md  (13.1 KB)
     📁 .agents\skills\error-handling/
-      📄 SKILL.md  (16.3 KB)
+      📄 SKILL.md  (16.9 KB)
     📁 .agents\skills\fault-logger/
-      📄 SKILL.md  (1.7 KB)
+      📄 SKILL.md  (1.8 KB)
     📁 .agents\skills\github/
-      📄 SKILL.md  (9.6 KB)
+      📄 SKILL.md  (9.9 KB)
     📁 .agents\skills\legal/
-      📄 SKILL.md  (9.8 KB)
+      📄 SKILL.md  (10.0 KB)
     📁 .agents\skills\memory-writer/
       📄 SKILL.md  (1.5 KB)
     📁 .agents\skills\mobile-responsive/
-      📄 SKILL.md  (15.2 KB)
+      📄 SKILL.md  (15.7 KB)
     📁 .agents\skills\municipal-law/
-      📄 SKILL.md  (12.9 KB)
-    📁 .agents\skills\nextjs/
-      📄 SKILL.md  (15.9 KB)
-    📁 .agents\skills\nextjs-auth-middleware/
-      📄 SKILL.md  (16.4 KB)
-    📁 .agents\skills\payfast/
-      📄 SKILL.md  (14.5 KB)
-    📁 .agents\skills\payfast-security/
-      📄 SKILL.md  (15.2 KB)
-    📁 .agents\skills\pdf-parse/
-      📄 SKILL.md  (12.1 KB)
-    📁 .agents\skills\popia/
-      📄 SKILL.md  (14.7 KB)
-    📁 .agents\skills\rag-pgvector/
-      📄 SKILL.md  (12.1 KB)
-    📁 .agents\skills\railway/
-      📄 SKILL.md  (10.8 KB)
-    📁 .agents\skills\resend/
       📄 SKILL.md  (13.2 KB)
-    📁 .agents\skills\sa-prescription/
+    📁 .agents\skills\nextjs/
+      📄 SKILL.md  (16.4 KB)
+    📁 .agents\skills\nextjs-auth-middleware/
+      📄 SKILL.md  (16.9 KB)
+    📁 .agents\skills\payfast/
+      📄 SKILL.md  (15.0 KB)
+    📁 .agents\skills\payfast-security/
+      📄 SKILL.md  (15.7 KB)
+    📁 .agents\skills\pdf-parse/
+      📄 SKILL.md  (12.6 KB)
+    📁 .agents\skills\popia/
+      📄 SKILL.md  (15.0 KB)
+    📁 .agents\skills\rag-pgvector/
       📄 SKILL.md  (12.5 KB)
+    📁 .agents\skills\railway/
+      📄 SKILL.md  (11.1 KB)
+    📁 .agents\skills\resend/
+      📄 SKILL.md  (13.6 KB)
+    📁 .agents\skills\sa-prescription/
+      📄 SKILL.md  (12.8 KB)
     📁 .agents\skills\security/
-      📄 SKILL.md  (15.5 KB)
+      📄 SKILL.md  (16.0 KB)
     📁 .agents\skills\security-preflight/
-      📄 SKILL.md  (1.9 KB)
+      📄 SKILL.md  (2.0 KB)
     📁 .agents\skills\skill-creator/
-      📄 SKILL.md  (21.5 KB)
+      📄 SKILL.md  (22.1 KB)
     📁 .agents\skills\supabase/
-      📄 SKILL.md  (17.8 KB)
+      📄 SKILL.md  (18.5 KB)
     📁 .agents\skills\supabase-rls/
-      📄 SKILL.md  (12.9 KB)
+      📄 SKILL.md  (13.3 KB)
     📁 .agents\skills\tailwind/
-      📄 SKILL.md  (13.5 KB)
+      📄 SKILL.md  (14.1 KB)
     📁 .agents\skills\testing/
-      📄 SKILL.md  (18.6 KB)
+      📄 SKILL.md  (19.3 KB)
     📁 .agents\skills\ui-design-system/
-      📄 SKILL.md  (16.7 KB)
+      📄 SKILL.md  (17.2 KB)
   📁 .agents\workflows/
     📄 pause.md  (0.8 KB)
-    📄 project-init.md  (3.0 KB)
-    📄 start.md  (2.7 KB)
+    📄 project-init.md  (3.1 KB)
+    📄 start.md  (2.8 KB)
 📁 .claude/
   📄 settings.local.json  (1.7 KB)
 📁 AGENT_BRAIN/
-  📄 ARCHITECTURE.md  (67.0 KB)
+  📄 ARCHITECTURE.md  (68.8 KB)
+  📄 AUDIT_2026-06-01.md  (11.9 KB)
   📄 FAULT_LOG.md  (5.1 KB)
   📄 MEMORY_INDEX.md  (0.8 KB)
-  📄 PROJECT_MEMORY.md  (2.9 KB)
-  📄 STATE.md  (0.9 KB)
+  📄 PROJECT_MEMORY.md  (3.1 KB)
+  📄 STATE.md  (4.6 KB)
   📄 TECH_STACK.md  (0.1 KB)
-  📄 payfast-diagnostic-memory.md  (4.1 KB)
+  📄 payfast-diagnostic-memory.md  (4.2 KB)
   📁 AGENT_BRAIN\sessions/
     📄 .gitkeep  (0.0 KB)
     📄 2026-03-26.md  (0.9 KB)
-    📄 2026-03-27.md  (0.6 KB)
-    📄 2026-03-28.md  (7.2 KB)
+    📄 2026-03-27.md  (0.7 KB)
+    📄 2026-03-28.md  (7.4 KB)
     📄 2026-03-29.md  (0.3 KB)
     📄 2026-03-30.md  (1.1 KB)
-    📄 2026-03-31.md  (3.7 KB)
+    📄 2026-03-31.md  (3.8 KB)
     📄 2026-04-01.md  (1.2 KB)
     📄 2026-04-02.md  (1.5 KB)
     📄 2026-04-03.md  (3.7 KB)
@@ -781,75 +757,76 @@ NODE_ENV=
     📄 2026-04-05.md  (0.7 KB)
     📄 2026-04-06.md  (0.2 KB)
     📄 2026-04-15.md  (1.4 KB)
-    📄 2026-04-16.md  (1.8 KB)
-    📄 2026-04-18.md  (1.7 KB)
+    📄 2026-04-16.md  (1.9 KB)
+    📄 2026-04-18.md  (1.8 KB)
     📄 2026-04-20.md  (1.7 KB)
     📄 2026-04-21.md  (0.6 KB)
     📄 2026-04-22.md  (0.4 KB)
     📄 2026-04-23.md  (0.3 KB)
     📄 2026-04-24.md  (1.3 KB)
+    📄 2026-05-14.md  (3.2 KB)
 📁 app/
-  📄 error.tsx  (0.7 KB)
+  📄 error.tsx  (1.0 KB)
   📄 favicon.ico  (25.3 KB)
-  📄 globals.css  (2.5 KB)
-  📄 layout.tsx  (1.8 KB)
+  📄 globals.css  (2.6 KB)
+  📄 layout.tsx  (1.9 KB)
   📄 not-found.tsx  (0.5 KB)
   📄 robots.ts  (0.4 KB)
   📄 sitemap.ts  (1.5 KB)
   📁 app\(app)/
     📄 .gitkeep  (0.0 KB)
-    📄 error.tsx  (0.7 KB)
-    📄 layout.tsx  (0.9 KB)
+    📄 error.tsx  (0.8 KB)
+    📄 layout.tsx  (1.0 KB)
     📁 app\(app)\account/
-      📄 page.tsx  (29.0 KB)
+      📄 page.tsx  (29.7 KB)
     📁 app\(app)\analysis/
       📁 app\(app)\analysis\[id]/
-        📄 page.tsx  (18.0 KB)
+        📄 page.tsx  (18.4 KB)
     📁 app\(app)\case/
       📁 app\(app)\case\[id]/
-        📄 page.tsx  (11.1 KB)
+        📄 page.tsx  (14.4 KB)
         📁 app\(app)\case\[id]\verify/
-          📄 page.tsx  (3.3 KB)
+          📄 page.tsx  (3.4 KB)
     📁 app\(app)\dashboard/
-      📄 page.tsx  (2.5 KB)
+      📄 page.tsx  (4.1 KB)
     📁 app\(app)\letter/
       📁 app\(app)\letter\[id]/
-        📄 page.tsx  (20.3 KB)
+        📄 page.tsx  (23.8 KB)
     📁 app\(app)\onboarding/
-      📄 page.tsx  (1.9 KB)
+      📄 page.tsx  (2.0 KB)
       📁 app\(app)\onboarding\auto-fetch/
         📄 page.tsx  (2.0 KB)
     📁 app\(app)\settings/
       📄 page.tsx  (0.2 KB)
     📁 app\(app)\success/
-      📄 page.tsx  (5.4 KB)
+      📄 page.tsx  (5.5 KB)
     📁 app\(app)\upload/
-      📄 page.tsx  (1.3 KB)
+      📄 page.tsx  (1.4 KB)
   📁 app\(auth)/
     📄 .gitkeep  (0.0 KB)
-    📄 layout.tsx  (0.8 KB)
+    📄 layout.tsx  (0.9 KB)
     📁 app\(auth)\login/
       📄 page.tsx  (0.8 KB)
     📁 app\(auth)\signup/
       📄 page.tsx  (0.9 KB)
     📁 app\(auth)\verify-email/
-      📄 page.tsx  (1.3 KB)
+      📄 page.tsx  (1.4 KB)
   📁 app\(public)/
     📄 .gitkeep  (0.0 KB)
-    📄 error.tsx  (0.6 KB)
+    📄 error.tsx  (0.7 KB)
     📄 layout.tsx  (0.4 KB)
     📄 page.tsx  (1.6 KB)
     📁 app\(public)\about/
-      📄 page.tsx  (8.3 KB)
+      📄 page.tsx  (8.4 KB)
     📁 app\(public)\blog/
       📁 app\(public)\blog\estimated-readings-south-africa/
         📄 page.tsx  (2.2 KB)
       📁 app\(public)\blog\how-to-dispute-municipal-bill-south-africa/
-        📄 page.tsx  (7.8 KB)
+        📄 page.tsx  (7.9 KB)
       📁 app\(public)\blog\how-to-read-municipal-bill/
-        📄 page.tsx  (2.1 KB)
+        📄 page.tsx  (2.2 KB)
       📁 app\(public)\blog\municipal-billing-errors-south-africa/
-        📄 page.tsx  (2.0 KB)
+        📄 page.tsx  (2.1 KB)
       📁 app\(public)\blog\municipality-complaint-not-resolved/
         📄 page.tsx  (2.1 KB)
       📁 app\(public)\blog\municipality-disconnection-rights/
@@ -859,27 +836,27 @@ NODE_ENV=
       📁 app\(public)\blog\section-102-municipal-systems-act/
         📄 page.tsx  (2.3 KB)
       📁 app\(public)\blog\water-bill-overcharge-south-africa/
-        📄 page.tsx  (2.0 KB)
+        📄 page.tsx  (2.1 KB)
     📁 app\(public)\contact/
       📄 layout.tsx  (0.4 KB)
-      📄 page.tsx  (9.7 KB)
+      📄 page.tsx  (9.8 KB)
     📁 app\(public)\disputes/
       📁 app\(public)\disputes\[municipality]/
-        📄 page.tsx  (8.9 KB)
+        📄 page.tsx  (9.1 KB)
     📁 app\(public)\faq/
-      📄 page.tsx  (9.9 KB)
+      📄 page.tsx  (10.1 KB)
     📁 app\(public)\how-it-works/
-      📄 page.tsx  (8.8 KB)
+      📄 page.tsx  (9.0 KB)
     📁 app\(public)\popia/
-      📄 page.tsx  (12.0 KB)
+      📄 page.tsx  (12.2 KB)
     📁 app\(public)\pricing/
-      📄 page.tsx  (10.2 KB)
+      📄 page.tsx  (10.4 KB)
     📁 app\(public)\privacy/
-      📄 page.tsx  (18.3 KB)
+      📄 page.tsx  (20.1 KB)
     📁 app\(public)\real-cases/
-      📄 page.tsx  (7.3 KB)
+      📄 page.tsx  (7.4 KB)
     📁 app\(public)\terms/
-      📄 page.tsx  (11.0 KB)
+      📄 page.tsx  (11.3 KB)
   📁 app\actions/
     📄 auth.ts  (1.1 KB)
   📁 app\api/
@@ -890,104 +867,96 @@ NODE_ENV=
       📄 route.ts  (12.9 KB)
     📁 app\api\autofetch/
       📁 app\api\autofetch\consent/
-        📄 route.ts  (2.9 KB)
+        📄 route.ts  (3.0 KB)
       📁 app\api\autofetch\credentials/
-        📄 route.ts  (12.4 KB)
+        📄 route.ts  (12.8 KB)
         📁 app\api\autofetch\credentials\[id]/
-          📄 route.ts  (2.9 KB)
+          📄 route.ts  (3.0 KB)
       📁 app\api\autofetch\jobs/
-        📄 route.ts  (1.8 KB)
+        📄 route.ts  (1.9 KB)
         📁 app\api\autofetch\jobs\[id]/
           📁 app\api\autofetch\jobs\[id]\retry/
-            📄 route.ts  (3.8 KB)
+            📄 route.ts  (3.9 KB)
         📁 app\api\autofetch\jobs\status/
-          📄 route.ts  (1.7 KB)
+          📄 route.ts  (1.8 KB)
       📁 app\api\autofetch\status/
         📄 route.ts  (3.2 KB)
       📁 app\api\autofetch\worker/
         📁 app\api\autofetch\worker\backfill/
-          📄 route.ts  (15.3 KB)
+          📄 route.ts  (17.9 KB)
+        📁 app\api\autofetch\worker\daily/
+          📄 route.ts  (4.1 KB)
         📁 app\api\autofetch\worker\discovery/
-          📄 route.ts  (9.7 KB)
+          📄 route.ts  (10.1 KB)
         📁 app\api\autofetch\worker\fetch-latest/
-          📄 route.ts  (14.9 KB)
-        📁 app\api\autofetch\worker\monthly/
-          📄 route.ts  (3.0 KB)
+          📄 route.ts  (20.4 KB)
         📁 app\api\autofetch\worker\monthly-alert/
-          📄 route.ts  (0.7 KB)
+          📄 route.ts  (0.8 KB)
     📁 app\api\cases/
       📁 app\api\cases\[id]/
-        📄 route.ts  (9.0 KB)
+        📄 route.ts  (6.5 KB)
         📁 app\api\cases\[id]\capture-id/
-          📄 route.ts  (1.8 KB)
+          📄 route.ts  (3.1 KB)
         📁 app\api\cases\[id]\letter/
-          📄 route.ts  (2.0 KB)
+          📄 route.ts  (2.1 KB)
         📁 app\api\cases\[id]\verify/
-          📄 route.ts  (4.2 KB)
+          📄 route.ts  (4.4 KB)
       📁 app\api\cases\bulk-delete/
-        📄 route.ts  (3.2 KB)
+        📄 route.ts  (3.3 KB)
       📁 app\api\cases\create-from-vision/
-        📄 route.ts  (3.4 KB)
+        📄 route.ts  (3.5 KB)
       📁 app\api\cases\submit-id/
         📄 route.ts  (2.3 KB)
     📁 app\api\consent/
       📁 app\api\consent\log/
-        📄 route.ts  (1.7 KB)
+        📄 route.ts  (1.9 KB)
     📁 app\api\contact/
       📄 route.ts  (2.6 KB)
     📁 app\api\cron/
-      📁 app\api\cron\bill-2-reminder/
-        📄 route.ts  (2.1 KB)
-      📁 app\api\cron\delete-ids/
-        📄 route.ts  (1.2 KB)
-      📁 app\api\cron\disclosure-request/
-        📄 route.ts  (3.3 KB)
-      📁 app\api\cron\escalate/
-        📄 route.ts  (2.2 KB)
+      📁 app\api\cron\cleanup-storage/
+        📄 route.ts  (3.9 KB)
       📁 app\api\cron\escalation/
         📄 route.ts  (0.8 KB)
-      📁 app\api\cron\seo-report/
-        📄 route.ts  (2.9 KB)
-      📁 app\api\cron\social-monitor/
-        📄 route.ts  (0.4 KB)
       📁 app\api\cron\tariff-refresh/
-        📄 route.ts  (3.3 KB)
-      📁 app\api\cron\tariff-reminder/
-        📄 route.ts  (1.1 KB)
+        📄 route.ts  (5.1 KB)
+      📁 app\api\cron\tariff-research-retry/
+        📄 route.ts  (4.6 KB)
+      📁 app\api\cron\wipe-ids/
+        📄 route.ts  (1.6 KB)
     📁 app\api\extract-vision/
-      📄 route.ts  (3.0 KB)
+      📄 route.ts  (3.1 KB)
     📁 app\api\generate-letter/
-      📄 route.ts  (7.2 KB)
+      📄 route.ts  (8.4 KB)
     📁 app\api\payfast/
       📁 app\api\payfast\test-form/
-        📄 route.ts  (7.3 KB)
+        📄 route.ts  (7.5 KB)
       📁 app\api\payfast\tokenise/
-        📄 route.ts  (2.7 KB)
+        📄 route.ts  (2.4 KB)
     📁 app\api\send-letter/
-      📄 route.ts  (7.7 KB)
+      📄 route.ts  (8.1 KB)
     📁 app\api\upload/
-      📄 route.ts  (3.7 KB)
+      📄 route.ts  (3.8 KB)
     📁 app\api\upload-multi/
-      📄 route.ts  (4.3 KB)
+      📄 route.ts  (4.5 KB)
     📁 app\api\user/
       📁 app\api\user\delete/
-        📄 route.ts  (11.0 KB)
+        📄 route.ts  (11.3 KB)
       📁 app\api\user\export/
-        📄 route.ts  (1.9 KB)
+        📄 route.ts  (2.0 KB)
       📁 app\api\user\mandate/
-        📄 route.ts  (3.0 KB)
+        📄 route.ts  (3.3 KB)
       📁 app\api\user\profile/
-        📄 route.ts  (1.1 KB)
+        📄 route.ts  (1.3 KB)
     📁 app\api\webhooks/
       📁 app\api\webhooks\payfast/
-        📄 route.ts  (6.9 KB)
+        📄 route.ts  (8.3 KB)
       📁 app\api\webhooks\resend-inbound/
-        📄 route.ts  (6.2 KB)
+        📄 route.ts  (6.4 KB)
   📁 app\auth/
     📁 app\auth\callback/
-      📄 route.ts  (0.8 KB)
+      📄 route.ts  (0.9 KB)
   📁 app\coverage/
-    📄 page.tsx  (3.4 KB)
+    📄 page.tsx  (3.5 KB)
   📁 app\fonts/
     📄 GeistMonoVF.woff  (66.3 KB)
     📄 GeistVF.woff  (64.7 KB)
@@ -997,79 +966,64 @@ NODE_ENV=
 📁 bin/
   📄 discover.ts  (1.6 KB)
 📁 components/
-  📁 components\analysis/
-    📄 .gitkeep  (0.0 KB)
   📁 components\blog/
     📄 BlogLayout.tsx  (2.4 KB)
   📁 components\cases/
     📄 .gitkeep  (0.0 KB)
     📄 CaptureIdModal.tsx  (3.0 KB)
-    📄 ConfirmResolution.tsx  (4.0 KB)
     📄 DeleteCaseButton.tsx  (2.9 KB)
     📄 DisputeGateBanner.tsx  (2.1 KB)
-    📄 EscalationTimeline.tsx  (6.0 KB)
-    📄 PublicProtectorModal.tsx  (5.7 KB)
+    📄 EscalationTimeline.tsx  (6.2 KB)
+    📄 PublicProtectorModal.tsx  (5.8 KB)
   📁 components\dashboard/
-    📄 CaseCard.tsx  (3.8 KB)
-    📄 CaseTimeline.tsx  (4.6 KB)
-    📄 CasesList.tsx  (6.2 KB)
-    📄 ProcessingBanner.tsx  (4.6 KB)
+    📄 CaseCard.tsx  (7.2 KB)
+    📄 CaseTimeline.tsx  (6.0 KB)
+    📄 CasesList.tsx  (6.4 KB)
+    📄 DashboardActionCards.tsx  (6.8 KB)
+    📄 ProcessingBanner.tsx  (4.8 KB)
   📁 components\forms/
     📄 .gitkeep  (0.0 KB)
-    📄 AutoFetchForm.tsx  (11.4 KB)
-    📄 CameraCapture.tsx  (11.0 KB)
-    📄 LoginForm.tsx  (2.9 KB)
-    📄 MultiFileUploader.tsx  (12.4 KB)
-    📄 OnboardingForm.tsx  (4.1 KB)
-    📄 SignupForm.tsx  (10.3 KB)
-    📄 UploadFlow.tsx  (2.9 KB)
-    📄 UploadForm.tsx  (3.1 KB)
+    📄 AutoFetchForm.tsx  (11.9 KB)
+    📄 CameraCapture.tsx  (11.2 KB)
+    📄 LoginForm.tsx  (3.8 KB)
+    📄 MultiFileUploader.tsx  (12.8 KB)
+    📄 OnboardingForm.tsx  (4.3 KB)
+    📄 SignupForm.tsx  (10.4 KB)
+    📄 UploadFlow.tsx  (3.0 KB)
+    📄 UploadForm.tsx  (3.2 KB)
   📁 components\landing/
     📄 CtaSection.tsx  (2.0 KB)
     📄 FaqSection.tsx  (2.9 KB)
     📄 HeroCTA.tsx  (1.8 KB)
     📄 HeroSection.tsx  (4.4 KB)
     📄 HowItWorksSection.tsx  (3.0 KB)
-    📄 RealCasesSection.tsx  (3.9 KB)
+    📄 RealCasesSection.tsx  (4.0 KB)
     📄 StatsSection.tsx  (2.2 KB)
-    📄 TrustBar.tsx  (3.0 KB)
+    📄 TrustBar.tsx  (3.1 KB)
     📄 index.ts  (0.3 KB)
   📁 components\layout/
     📄 .gitkeep  (0.0 KB)
     📄 AppNav.tsx  (1.9 KB)
-    📄 CookieBanner.tsx  (1.7 KB)
-    📄 Footer.tsx  (2.4 KB)
-    📄 Nav.tsx  (2.8 KB)
+    📄 CookieBanner.tsx  (1.8 KB)
+    📄 Footer.tsx  (2.5 KB)
+    📄 Nav.tsx  (2.9 KB)
     📄 SkipLink.tsx  (0.4 KB)
     📄 index.ts  (0.1 KB)
   📁 components\reports/
-    📄 BillTimeline.tsx  (2.8 KB)
-    📄 CrossAnalysisReport.tsx  (3.0 KB)
+    📄 BillTimeline.tsx  (2.9 KB)
   📁 components\ui/
     📄 .gitkeep  (0.0 KB)
-    📄 Button.tsx  (3.4 KB)
-    📄 ErrorCard.tsx  (1.7 KB)
+    📄 Button.tsx  (3.5 KB)
+    📄 ErrorCard.tsx  (1.8 KB)
     📄 FaqAccordion.tsx  (2.3 KB)
-    📄 FileDropZone.tsx  (5.5 KB)
-    📄 ScrollReveal.tsx  (1.0 KB)
+    📄 FileDropZone.tsx  (5.7 KB)
+    📄 ScrollReveal.tsx  (1.1 KB)
     📄 index.ts  (0.1 KB)
-📁 coverage/
-  📄 lcov.info  (2.0 KB)
-  📁 coverage\lcov-report/
-    📄 base.css  (5.3 KB)
-    📄 block-navigation.js  (2.6 KB)
-    📄 favicon.png  (0.4 KB)
-    📄 index.html  (4.3 KB)
-    📄 prescription.ts.html  (41.9 KB)
-    📄 prettify.css  (0.7 KB)
-    📄 prettify.js  (17.2 KB)
-    📄 sort-arrow-sprite.png  (0.1 KB)
-    📄 sorter.js  (6.6 KB)
 📁 data/
   📁 data\contacts/
     📄 00_README.md  (1.8 KB)
-    📄 06_ward_councillor_lookup_instructions.md  (1.9 KB)
-    📄 municipalities_master.csv  (19.9 KB)
+    📄 06_ward_councillor_lookup_instructions.md  (2.0 KB)
+    📄 municipalities_master.csv  (20.1 KB)
     📄 public_protector_contacts.csv  (1.5 KB)
     📄 ward_councillors_BCM.csv  (3.7 KB)
     📄 ward_councillors_KSD.csv  (0.4 KB)
@@ -1077,126 +1031,131 @@ NODE_ENV=
 📁 directives/
   📄 architecture_sync.md  (2.7 KB)
   📄 best_practices.md  (1.3 KB)
-  📄 error_fix.md  (4.2 KB)
+  📄 error_fix.md  (4.3 KB)
   📄 example_directive.md  (0.5 KB)
   📄 phase_3_security_hardening.md  (1.3 KB)
-  📄 planning.md  (5.2 KB)
+  📄 planning.md  (5.4 KB)
   📄 self_annealing.md  (1.2 KB)
   📄 semantic_search.md  (0.5 KB)
   📄 seo_automation.md  (0.5 KB)
   📄 standard_directive_template.md  (0.7 KB)
 📁 docs/
   📄 credential-key-rotation.md  (3.2 KB)
-  📄 v5-reconciliation-rules.md  (6.1 KB)
+  📄 incident-response.md  (7.7 KB)
+  📄 information-officer-registration-packet.md  (7.0 KB)
+  📄 paia-popia-manual.md  (8.9 KB)
+  📄 v5-reconciliation-rules.md  (6.2 KB)
 📁 execution/
-  📄 example_script.py  (0.6 KB)
-  📄 index_codebase.py  (2.6 KB)
+  📄 apply-027-and-seed.ts  (17.3 KB)
+  📄 index_codebase.py  (2.7 KB)
   📄 requirements.txt  (0.0 KB)
-  📄 scan_architecture.py  (12.7 KB)
+  📄 scan_architecture.py  (13.1 KB)
   📄 scrape_brand_firecrawl.py  (3.2 KB)
-  📄 script_boiler_plate.py  (1.5 KB)
-  📄 seed-tariff-cache.ts  (20.0 KB)
-  📄 semantic_search.py  (1.4 KB)
-  📄 seo_optimizer.py  (1.3 KB)
+  📄 seed-tariff-cache.ts  (22.0 KB)
+  📄 semantic_search.py  (1.5 KB)
 📁 hooks/
-  📄 use-scroll-reveal.ts  (0.8 KB)
+  📄 use-scroll-reveal.ts  (0.9 KB)
 📁 lib/
-  📄 env.ts  (0.4 KB)
-  📄 rate-limit.ts  (1.2 KB)
-  📄 social-monitor.ts  (4.9 KB)
+  📄 rate-limit.ts  (1.8 KB)
   📁 lib\autofetch/
-    📄 alert.ts  (2.4 KB)
-    📄 revocation.ts  (1.2 KB)
+    📄 alert.ts  (2.7 KB)
+    📄 cycleEstimator.ts  (8.7 KB)
+    📄 revocation.ts  (1.3 KB)
   📁 lib\checks/
-    📄 universalChecks.ts  (6.3 KB)
+    📄 universalChecks.test.ts  (8.1 KB)
+    📄 universalChecks.ts  (7.7 KB)
   📁 lib\claude/
     📄 .gitkeep  (0.0 KB)
-    📄 analyse-bill.ts  (12.4 KB)
-    📄 analyse-cross-bill.ts  (4.6 KB)
-    📄 analyse-vision.ts  (3.4 KB)
-    📄 client.ts  (0.3 KB)
+    📄 analyse-bill.ts  (14.4 KB)
+    📄 analyse-cross-bill.ts  (4.7 KB)
+    📄 analyse-vision.ts  (3.5 KB)
+    📄 client.ts  (0.4 KB)
     📄 compare-bills.ts  (2.6 KB)
-    📄 generate-letter.ts  (6.2 KB)
-    📄 grounded-prompt.ts  (3.0 KB)
-    📄 parse-municipality-response.ts  (2.1 KB)
-    📄 production-pipeline-e2e.test.ts  (4.9 KB)
+    📄 generate-letter.ts  (10.2 KB)
+    📄 grounded-prompt.ts  (3.1 KB)
+    📄 parse-municipality-response.ts  (2.2 KB)
+    📄 production-pipeline-e2e.test.ts  (5.0 KB)
     📄 vision.ts  (1.2 KB)
   📁 lib\constants/
     📄 fees.test.ts  (0.8 KB)
     📄 fees.ts  (0.7 KB)
   📁 lib\crypto/
-    📄 credentials.test.ts  (4.6 KB)
-    📄 credentials.ts  (3.1 KB)
+    📄 credentials.test.ts  (4.8 KB)
+    📄 credentials.ts  (3.2 KB)
   📁 lib\data/
     📄 seo-municipalities.ts  (12.0 KB)
   📁 lib\discovery/
-    📄 agent.ts  (32.7 KB)
-    📄 dom-utils.ts  (2.9 KB)
-    📄 prompt.ts  (3.6 KB)
+    📄 agent.ts  (33.5 KB)
+    📄 dom-utils.ts  (3.0 KB)
+    📄 prompt.ts  (3.7 KB)
+  📁 lib\disputes/
+    📄 classify-channel.ts  (2.6 KB)
   📁 lib\escalation/
-    📄 contactLookup.ts  (2.7 KB)
-    📄 escalate-dispute.ts  (17.3 KB)
-    📄 escalationEngine.ts  (8.4 KB)
-    📄 letterGenerator.ts  (5.9 KB)
-    📄 stage-config.ts  (12.7 KB)
-    📄 wardCouncillorLookup.ts  (3.4 KB)
+    📄 contactLookup.ts  (2.8 KB)
+    📄 escalationEngine.ts  (11.5 KB)
+    📄 letterGenerator.ts  (7.4 KB)
+    📄 stage-config.ts  (13.0 KB)
+    📄 wardCouncillorLookup.ts  (3.5 KB)
   📁 lib\letters/
+    📄 citations.ts  (6.0 KB)
+    📄 letter-templates.test.ts  (8.4 KB)
+    📄 section-102-template.ts  (7.6 KB)
+    📄 section-50-template.ts  (2.4 KB)
+    📄 section-62-appeal-template.ts  (5.7 KB)
     📄 verification-block.ts  (1.2 KB)
+    📁 lib\letters\__snapshots__/
+      📄 letter-templates.test.ts.snap  (12.0 KB)
   📁 lib\municipalities/
     📄 .gitkeep  (0.0 KB)
     📄 sa-metros.json  (2.1 KB)
     📄 sa-metros.test.ts  (2.3 KB)
     📄 sa-metros.ts  (1.7 KB)
   📁 lib\parsers/
-    📄 coct-bill-parser-balance.test.ts  (3.8 KB)
-    📄 coct-bill-parser-line-balance.test.ts  (6.0 KB)
-    📄 coct-bill-parser.test.ts  (4.6 KB)
+    📄 coct-bill-parser-balance.test.ts  (3.9 KB)
+    📄 coct-bill-parser-line-balance.test.ts  (6.1 KB)
+    📄 coct-bill-parser.test.ts  (4.8 KB)
+    📄 extract-address.ts  (2.4 KB)
     📄 generic.ts  (16.5 KB)
     📄 registry.ts  (0.4 KB)
-    📄 types.ts  (2.3 KB)
+    📄 types.ts  (2.4 KB)
     📄 unknown-tariff-proof.test.ts  (3.2 KB)
     📁 lib\parsers\_archive/
-      📄 coct-bill-parser-v4.ts  (19.4 KB)
+      📄 coct-bill-parser-v4.ts  (19.9 KB)
     📁 lib\parsers\configs/
       📄 city-of-cape-town.json  (5.6 KB)
   📁 lib\payfast/
     📄 .gitkeep  (0.0 KB)
     📄 charge.ts  (4.0 KB)
-    📄 idempotency.ts  (0.3 KB)
+    📄 idempotency.ts  (0.4 KB)
     📄 security-log.ts  (0.6 KB)
-    📄 tokenise.ts  (4.0 KB)
-    📄 validate.ts  (3.0 KB)
+    📄 tokenise.ts  (4.1 KB)
+    📄 validate.ts  (6.6 KB)
   📁 lib\pdf/
     📄 .gitkeep  (0.0 KB)
     📄 parse.ts  (1.9 KB)
   📁 lib\popia/
-    📄 consent.ts  (1.1 KB)
+    📄 consent.ts  (1.2 KB)
     📄 luhn.ts  (0.5 KB)
   📁 lib\qstash/
     📄 client.ts  (1.0 KB)
     📄 verify.ts  (1.2 KB)
   📁 lib\rag/
     📄 legislation.ts  (2.2 KB)
-  📁 lib\recovery/
-    📄 charge.ts  (6.6 KB)
-    📄 detect.test.ts  (3.7 KB)
-    📄 detect.ts  (4.7 KB)
   📁 lib\resend/
     📄 .gitkeep  (0.0 KB)
-    📄 autofetch-report.ts  (2.9 KB)
-    📄 autofetch-revoked.ts  (2.9 KB)
-    📄 autofetch-standby.ts  (2.9 KB)
-    📄 bill2-reminder.ts  (0.8 KB)
+    📄 autofetch-report.ts  (3.0 KB)
+    📄 autofetch-stale.ts  (4.1 KB)
+    📄 autofetch-standby.ts  (3.0 KB)
     📄 client.ts  (0.3 KB)
-    📄 inbound.ts  (1.6 KB)
+    📄 inbound.ts  (1.7 KB)
     📄 notifications.ts  (1.5 KB)
     📄 send-dispute.ts  (1.3 KB)
   📁 lib\scrapers/
-    📄 generic.ts  (13.0 KB)
-    📄 registry.ts  (1.2 KB)
-    📄 types.ts  (2.7 KB)
+    📄 generic.ts  (13.3 KB)
+    📄 registry.ts  (1.3 KB)
+    📄 types.ts  (2.8 KB)
     📁 lib\scrapers\configs/
-      📄 city-of-cape-town.json  (2.6 KB)
+      📄 city-of-cape-town.json  (2.7 KB)
     📁 lib\scrapers\discovery/
       📄 index.ts  (1.5 KB)
   📁 lib\supabase/
@@ -1205,54 +1164,52 @@ NODE_ENV=
     📄 client.ts  (0.2 KB)
     📄 server.ts  (0.7 KB)
   📁 lib\tariff/
-    📄 gazette-fetcher.ts  (0.8 KB)
-    📄 gazette-parser.ts  (0.3 KB)
+    📄 gazette-fetcher.ts  (15.8 KB)
     📄 generic-store.test.ts  (10.1 KB)
     📄 generic-store.ts  (0.6 KB)
     📄 registry.ts  (0.7 KB)
-    📄 tariff-cache-v2.ts  (8.8 KB)
-    📄 tariff-calculator.ts  (6.4 KB)
-    📄 tariff-resolver.ts  (7.1 KB)
-    📄 tariffLookup.ts  (4.3 KB)
-    📄 types-v2.ts  (5.2 KB)
+    📄 tariff-cache-v2.ts  (9.1 KB)
+    📄 tariff-resolver.ts  (7.5 KB)
+    📄 tariffLookup.ts  (4.4 KB)
+    📄 types-v2.ts  (5.3 KB)
     📄 types.ts  (0.5 KB)
     📁 lib\tariff\_archive/
       📄 coct-tariff-lookup-v5.ts  (6.5 KB)
     📁 lib\tariff\configs/
       📄 city-of-cape-town.json  (14.4 KB)
     📁 lib\tariff\data/
-      📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
+      📄 AG_FETCH_INSTRUCTIONS.md  (2.3 KB)
       📄 CRITICAL_LEGAL_NOTE.md  (1.9 KB)
-      📄 MUNICIPALITY_INDEX.json  (10.1 KB)
+      📄 MUNICIPALITY_INDEX.json  (10.4 KB)
       📁 lib\tariff\data\CoCT/
-        📄 CoCT_2022-23.json  (3.0 KB)
-        📄 CoCT_2023-24.json  (3.0 KB)
+        📄 CoCT_2022-23.json  (3.1 KB)
+        📄 CoCT_2023-24.json  (3.1 KB)
         📄 CoCT_2024-25.json  (3.0 KB)
-        📄 CoCT_2025-26.json  (4.4 KB)
+        📄 CoCT_2025-26.json  (4.5 KB)
       📁 lib\tariff\data\billdog_all_munis/
-        📄 AG_FETCH_INSTRUCTIONS.md  (2.2 KB)
-        📄 BILLDOG_ANTI_HALLUCINATION_PROMPT.md  (8.4 KB)
+        📄 AG_FETCH_INSTRUCTIONS.md  (2.3 KB)
+        📄 BILLDOG_ANTI_HALLUCINATION_PROMPT.md  (8.6 KB)
         📄 CRITICAL_LEGAL_NOTE.md  (1.9 KB)
         📄 ESKOM_TARIFFS_2025-26.json  (1.3 KB)
-        📄 MUNICIPALITY_INDEX.json  (10.1 KB)
+        📄 MUNICIPALITY_INDEX.json  (10.4 KB)
         📄 SNAPTRACK_SOURCE_INDEX.md  (1.6 KB)
         📁 lib\tariff\data\billdog_all_munis\BCM/
-          📄 BCM_2025-26.json  (2.3 KB)
+          📄 BCM_2025-26.json  (2.4 KB)
         📁 lib\tariff\data\billdog_all_munis\CoJ/
-          📄 CoJ_2025-26.json  (2.5 KB)
+          📄 CoJ_2025-26.json  (2.6 KB)
           📄 CoJ_LEGAL_ALERT.json  (0.8 KB)
         📁 lib\tariff\data\billdog_all_munis\CoT/
           📄 CoT_2025-26.json  (2.5 KB)
         📁 lib\tariff\data\billdog_all_munis\Eastern_Cape/
           📄 amahlathi_2025_26.json  (0.8 KB)
-          📄 blue-crane-route_2025_26.json  (0.8 KB)
+          📄 blue-crane-route_2025_26.json  (0.9 KB)
           📄 dr-beyers-naude_2025_26.json  (0.8 KB)
           📄 elundini_2025_26.json  (0.8 KB)
           📄 emalahleni-ec_2025_26.json  (0.8 KB)
           📄 enoch-mgijima_2025_26.json  (0.8 KB)
           📄 great-kei_2025_26.json  (0.8 KB)
           📄 inxuba-yethemba_2025_26.json  (0.8 KB)
-          📄 king-sabata-dalindyebo_2025_26.json  (0.8 KB)
+          📄 king-sabata-dalindyebo_2025_26.json  (0.9 KB)
           📄 kou-kamma_2025_26.json  (0.8 KB)
           📄 kouga_2025_26.json  (0.8 KB)
           📄 makana_2025_26.json  (0.8 KB)
@@ -1266,7 +1223,7 @@ NODE_ENV=
           📄 umsobomvu_2025_26.json  (0.8 KB)
           📄 walter-sisulu_2025_26.json  (0.8 KB)
         📁 lib\tariff\data\billdog_all_munis\Ekurhuleni/
-          📄 Ekurhuleni_2025-26.json  (2.4 KB)
+          📄 Ekurhuleni_2025-26.json  (2.5 KB)
           📄 Ekurhuleni_LEGAL_ALERT.json  (0.8 KB)
         📁 lib\tariff\data\billdog_all_munis\Free_State/
           📄 centlec-mangaung_2025_26.json  (0.9 KB)
@@ -1305,11 +1262,11 @@ NODE_ENV=
           📄 greater-tzaneen_2025_26.json  (0.8 KB)
           📄 lephalale_2025_26.json  (0.8 KB)
           📄 makhado_2025_26.json  (0.8 KB)
-          📄 modimolle-mookgophong_2025_26.json  (0.8 KB)
+          📄 modimolle-mookgophong_2025_26.json  (0.9 KB)
           📄 mogalakwena_2025_26.json  (0.8 KB)
           📄 molemole_2025_26.json  (0.8 KB)
           📄 musina_2025_26.json  (0.8 KB)
-          📄 polokwane_2025_26.json  (0.8 KB)
+          📄 polokwane_2025_26.json  (0.9 KB)
           📄 thabazimbi_2025_26.json  (0.8 KB)
         📁 lib\tariff\data\billdog_all_munis\Mangaung/
           📄 Mangaung_2023-24.json  (2.0 KB)
@@ -1317,7 +1274,7 @@ NODE_ENV=
         📁 lib\tariff\data\billdog_all_munis\Mpumalanga/
           📄 Mbombela_2025-26.json  (1.5 KB)
         📁 lib\tariff\data\billdog_all_munis\Msunduzi/
-          📄 Msunduzi_2024-25.json  (1.0 KB)
+          📄 Msunduzi_2024-25.json  (1.1 KB)
           📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
         📁 lib\tariff\data\billdog_all_munis\NMBM/
           📄 NMBM_2024-25.json  (1.9 KB)
@@ -1328,7 +1285,7 @@ NODE_ENV=
           📄 jb-marks_2025_26.json  (0.8 KB)
           📄 kgetleng-rivier_2025_26.json  (0.8 KB)
           📄 lekwa-teemane_2025_26.json  (0.8 KB)
-          📄 madibeng_2025_26.json  (0.9 KB)
+          📄 madibeng_2025_26.json  (1.0 KB)
           📄 mamusa_2025_26.json  (0.8 KB)
           📄 maquassi-hills_2025_26.json  (0.8 KB)
           📄 naledi-nw_2025_26.json  (0.8 KB)
@@ -1336,7 +1293,7 @@ NODE_ENV=
           📄 rustenburg_2025_26.json  (0.8 KB)
           📄 tswaing_2025_26.json  (0.8 KB)
           📁 lib\tariff\data\billdog_all_munis\North_West\Madibeng/
-            📄 Madibeng_LEGAL_ALERT.json  (0.6 KB)
+            📄 Madibeng_LEGAL_ALERT.json  (0.7 KB)
         📁 lib\tariff\data\billdog_all_munis\Northern_Cape/
           📄 dawid-kruiper_2025_26.json  (0.8 KB)
           📄 dikgatlong_2025_26.json  (0.8 KB)
@@ -1382,26 +1339,26 @@ NODE_ENV=
           📄 overstrand_2025_26.json  (0.8 KB)
           📄 prince-albert_2025_26.json  (0.8 KB)
           📄 saldanha-bay_2025_26.json  (0.8 KB)
-          📄 stellenbosch_2025_26.json  (1.1 KB)
+          📄 stellenbosch_2025_26.json  (1.2 KB)
           📄 swartland_2025_26.json  (0.8 KB)
           📄 swellendam_2025_26.json  (0.8 KB)
           📄 theewaterskloof_2025_26.json  (0.8 KB)
           📄 witzenberg_2025_26.json  (0.8 KB)
         📁 lib\tariff\data\billdog_all_munis\eThekwini/
           📄 eThekwini_2024-25.json  (2.1 KB)
-          📄 eThekwini_2025-26.json  (1.8 KB)
+          📄 eThekwini_2025-26.json  (1.9 KB)
       📁 lib\tariff\data\eskom_supply/
         📄 ESKOM_TARIFFS_2025-26.json  (1.3 KB)
       📁 lib\tariff\data\metros/
         📁 lib\tariff\data\metros\BCM/
-          📄 BCM_2025-26.json  (2.3 KB)
+          📄 BCM_2025-26.json  (2.4 KB)
         📁 lib\tariff\data\metros\CoJ/
-          📄 CoJ_2025-26.json  (2.5 KB)
+          📄 CoJ_2025-26.json  (2.6 KB)
           📄 CoJ_LEGAL_ALERT.json  (0.8 KB)
         📁 lib\tariff\data\metros\CoT/
           📄 CoT_2025-26.json  (2.5 KB)
         📁 lib\tariff\data\metros\Ekurhuleni/
-          📄 Ekurhuleni_2025-26.json  (2.4 KB)
+          📄 Ekurhuleni_2025-26.json  (2.5 KB)
           📄 Ekurhuleni_LEGAL_ALERT.json  (0.8 KB)
         📁 lib\tariff\data\metros\Mangaung/
           📄 Mangaung_2023-24.json  (2.0 KB)
@@ -1410,103 +1367,122 @@ NODE_ENV=
           📄 NMBM_2024-25.json  (1.9 KB)
         📁 lib\tariff\data\metros\eThekwini/
           📄 eThekwini_2024-25.json  (2.1 KB)
-          📄 eThekwini_2025-26.json  (1.8 KB)
+          📄 eThekwini_2025-26.json  (1.9 KB)
       📁 lib\tariff\data\secondary/
         📁 lib\tariff\data\secondary\Madibeng/
-          📄 Madibeng_LEGAL_ALERT.json  (0.6 KB)
+          📄 Madibeng_LEGAL_ALERT.json  (0.7 KB)
         📁 lib\tariff\data\secondary\Mbombela/
           📄 Mbombela_2025-26.json  (1.5 KB)
         📁 lib\tariff\data\secondary\Msunduzi/
-          📄 Msunduzi_2024-25.json  (1.0 KB)
+          📄 Msunduzi_2024-25.json  (1.1 KB)
           📄 Msunduzi_LEGAL_ALERT.json  (1.1 KB)
+    📁 lib\tariff\vericite/
+      📄 stage1-research.ts  (7.3 KB)
+      📄 stage2-verify.ts  (6.7 KB)
+      📄 stage3-refine.test.ts  (4.6 KB)
+      📄 stage3-refine.ts  (5.5 KB)
+      📄 types.ts  (4.6 KB)
     📁 lib\tariff\verifiers/
       📄 electricityHUCharge.ts  (2.4 KB)
-      📄 ratesCharge.ts  (2.8 KB)
+      📄 ratesCharge.ts  (3.4 KB)
       📄 refuseCharge.ts  (2.0 KB)
-      📄 waterFixedCharge.ts  (3.3 KB)
+      📄 waterFixedCharge.ts  (3.7 KB)
       📄 waterTierRate.ts  (1.5 KB)
   📁 lib\tiers/
-    📄 disclosureRequest.ts  (1.5 KB)
+    📄 disclosureRequest.ts  (1.6 KB)
     📄 tier2Analysis.ts  (2.2 KB)
-    📄 tier3Report.ts  (1.7 KB)
-    📄 tierClassifier.ts  (1.9 KB)
+    📄 tier3Report.ts  (1.8 KB)
+    📄 tierClassifier.ts  (2.0 KB)
   📁 lib\utils/
     📄 get-client-ip.ts  (0.8 KB)
   📁 lib\validators/
     📄 .gitkeep  (0.0 KB)
     📄 bill-validator.test.ts  (20.6 KB)
-    📄 bill-validator.ts  (27.0 KB)
+    📄 bill-validator.ts  (28.3 KB)
     📄 fallback-chain.test.ts  (2.7 KB)
-    📄 prescription.test.ts  (13.4 KB)
-    📄 prescription.ts  (9.8 KB)
-    📄 sa-id.ts  (1.5 KB)
+    📄 prescription.test.ts  (13.8 KB)
+    📄 prescription.ts  (10.1 KB)
+    📄 sa-id.ts  (1.6 KB)
 📁 public/
   📄 .gitkeep  (0.0 KB)
   📄 bulldog-mascot.png  (576.2 KB)
-  📄 logo.svg  (2.9 KB)
+  📄 logo.svg  (3.0 KB)
   📄 og-image.jpg  (72.5 KB)
 📁 scripts/
   📄 answer-key.json  (1.4 KB)
   📄 corpus-matcher.test.ts  (5.6 KB)
-  📄 corpus-test-results.json  (1.6 KB)
   📄 corpus-test-runner.ts  (7.3 KB)
   📄 corpus_t1_results.md  (166.3 KB)
   📄 debug-parse-bill.ts  (3.1 KB)
-  📄 extract-sample-bill.ts  (0.6 KB)
-  📄 generate_test_bill.py  (10.9 KB)
+  📄 extract-sample-bill.ts  (0.7 KB)
+  📄 generate_test_bill.py  (11.2 KB)
   📄 query-tariffs.ts  (1.1 KB)
-  📄 regression.ts  (7.6 KB)
+  📄 regression.ts  (7.8 KB)
   📄 run-test.js  (0.8 KB)
-  📄 scorecard.ts  (4.4 KB)
-  📄 seed-tariff-cache.ts  (3.1 KB)
+  📄 scorecard.ts  (4.5 KB)
   📄 setup-tariff-bucket.ts  (12.0 KB)
-  📄 social-monitor.ts  (0.2 KB)
-  📄 test-bill.pdf  (4.4 KB)
+  📄 test-bill.pdf  (4.5 KB)
   📄 tier2-blind-runner.ts  (7.4 KB)
-  📄 tier2-raw-output.json  (25.3 KB)
   📄 tier3-blind-runner.ts  (6.5 KB)
-  📄 tier3-raw-output.json  (11.0 KB)
+  📁 scripts\e2e/
+    📄 e2e_phase2_test.mjs  (17.6 KB)
+  📁 scripts\payfast/
+    📄 payfast_response.html  (13.0 KB)
+    📄 test_payfast_dryrun.js  (2.8 KB)
+    📄 test_payfast_no_passphrase.js  (2.4 KB)
+    📄 test_payfast_order.js  (2.6 KB)
+    📄 test_payfast_permutations.js  (2.3 KB)
+    📄 test_payfast_prod.js  (2.3 KB)
+    📄 test_pf.html  (13.0 KB)
+    📄 test_pf.js  (1.8 KB)
+  📁 scripts\smoke/
+    📄 railway_test.js  (1.2 KB)
+    📄 setup_test_data.js  (2.1 KB)
+    📄 test_seed.js  (1.6 KB)
 📁 supabase/
   📁 supabase\.temp/
     📄 cli-latest  (0.0 KB)
-    📄 gotrue-version  (0.0 KB)
-    📄 linked-project.json  (0.1 KB)
-    📄 pooler-url  (0.1 KB)
-    📄 postgres-version  (0.0 KB)
-    📄 project-ref  (0.0 KB)
-    📄 rest-version  (0.0 KB)
-    📄 storage-migration  (0.0 KB)
-    📄 storage-version  (0.0 KB)
   📁 supabase\migrations/
     📄 .gitkeep  (0.0 KB)
-    📄 001_initial_schema.sql  (3.3 KB)
-    📄 002_storage_bucket.sql  (1.0 KB)
+    📄 001_initial_schema.sql  (3.4 KB)
+    📄 002_storage_bucket.sql  (1.1 KB)
     📄 003_case_events.sql  (0.8 KB)
     📄 004_popia_fields.sql  (0.4 KB)
     📄 005_escalation.sql  (2.6 KB)
-    📄 006_seed_speaker_emails.sql  (1.3 KB)
+    📄 006_seed_speaker_emails.sql  (1.4 KB)
     📄 008_encrypted_id.sql  (2.3 KB)
     📄 009_case_resolution.sql  (0.8 KB)
-    📄 010_fix_poppi_ownership.sql  (0.9 KB)
+    📄 010_fix_poppi_ownership.sql  (1.0 KB)
     📄 011_fix_status_constraint.sql  (0.4 KB)
     📄 012_phase12_seo_pages.sql  (0.8 KB)
-    📄 013_multi_bill.sql  (3.5 KB)
+    📄 013_multi_bill.sql  (3.6 KB)
     📄 014_coverage_tiers.sql  (0.9 KB)
-    📄 015_disclosure_ownership.sql  (0.8 KB)
+    📄 015_disclosure_ownership.sql  (0.9 KB)
     📄 016_escalation_system.sql  (1.1 KB)
     📄 018_tariff_resolver.sql  (1.5 KB)
-    📄 019_enable_rls_escalation_letters.sql  (1.7 KB)
-    📄 020_mandate_consent.sql  (6.4 KB)
-    📄 021_consent_events.sql  (1.7 KB)
-    📄 022_municipal_autofetch.sql  (6.6 KB)
+    📄 019_enable_rls_escalation_letters.sql  (1.8 KB)
+    📄 020_mandate_consent.sql  (6.6 KB)
+    📄 021_consent_events.sql  (1.8 KB)
+    📄 022_municipal_autofetch.sql  (6.7 KB)
     📄 023_profile_id_number.sql  (2.4 KB)
-    📄 024_municipality_slugs.sql  (2.1 KB)
+    📄 024_municipality_slugs.sql  (2.2 KB)
     📄 025_cases_soft_delete.sql  (0.9 KB)
-    📄 026_fix_deletion_cascade.sql  (4.7 KB)
-    📄 027_tariff_cache_v2.sql  (4.6 KB)
+    📄 026_fix_deletion_cascade.sql  (4.8 KB)
+    📄 027_tariff_cache_v2.sql  (4.7 KB)
+    📄 029_tariff_research_audit.sql  (2.6 KB)
+    📄 030_tariff_rejects.sql  (1.3 KB)
+    📄 031_municipalities_dispute_procedure.sql  (5.3 KB)
+    📄 032_disputes_lifecycle.sql  (3.7 KB)
+    📄 033_user_indigent_eligibility.sql  (0.6 KB)
+    📄 034_get_profile_id_decrypted.sql  (3.0 KB)
+    📄 035_create_case_events.sql  (1.6 KB)
+    📄 036_profile_creation_trigger.sql  (1.1 KB)
+    📄 037_autofetch_cycle.sql  (2.3 KB)
+    📄 038_rls_gapfill.sql  (3.8 KB)
     📄 20260401000000_promo_codes.sql  (0.8 KB)
 📁 tests/
-  📄 consent.test.ts  (8.1 KB)
+  📄 consent.test.ts  (8.3 KB)
+  📄 cycleEstimator.test.ts  (5.5 KB)
   📄 setup.ts  (0.9 KB)
   📁 tests\bills/
     📄 ISU100004459317.pdf  (22.9 KB)
@@ -1607,34 +1583,10 @@ NODE_ENV=
           📄 T3-04.pdf  (5.2 KB)
           📄 T3-05.pdf  (5.1 KB)
           📄 T3-06.pdf  (5.1 KB)
-      📁 tests\corpus\v5\billdog-tier2-bills/
-        📄 README.md  (1.9 KB)
-        📁 tests\corpus\v5\billdog-tier2-bills\tier2_series/
-          📄 T2-S01.pdf  (5.0 KB)
-          📄 T2-S02.pdf  (5.0 KB)
-          📄 T2-S03.pdf  (5.0 KB)
-          📄 T2-S04.pdf  (5.0 KB)
-          📄 T2-S05.pdf  (5.0 KB)
-          📄 T2-S06.pdf  (5.0 KB)
-          📄 T2-S07.pdf  (5.0 KB)
-          📄 T2-S08.pdf  (5.0 KB)
-          📄 T2-S09.pdf  (5.0 KB)
-          📄 T2-S10.pdf  (5.0 KB)
-          📄 T2-S11.pdf  (5.0 KB)
-          📄 T2-S12.pdf  (5.0 KB)
-      📁 tests\corpus\v5\billdog-tier3-bills/
-        📄 README.md  (1.6 KB)
-        📁 tests\corpus\v5\billdog-tier3-bills\tier3_edge_cases/
-          📄 T3-01.pdf  (5.0 KB)
-          📄 T3-02.pdf  (5.0 KB)
-          📄 T3-03.pdf  (5.0 KB)
-          📄 T3-04.pdf  (5.1 KB)
-          📄 T3-05.pdf  (5.0 KB)
-          📄 T3-06.pdf  (5.0 KB)
 📁 types/
   📄 .gitkeep  (0.0 KB)
-  📄 analysis.ts  (6.4 KB)
-  📄 index.ts  (10.1 KB)
+  📄 analysis.ts  (6.9 KB)
+  📄 index.ts  (10.6 KB)
 ```
 
 ### Directive Goals
@@ -1656,13 +1608,10 @@ NODE_ENV=
 
 | Script | Purpose |
 |---|---|
-| `example_script.py` | (no docstring found) |
 | `index_codebase.py` | (no docstring found) |
 | `scan_architecture.py` | Architecture Scanner — Deterministic filesystem scanner for BillDog. |
 | `scrape_brand_firecrawl.py` | (no docstring found) |
-| `script_boiler_plate.py` | (no docstring found) |
 | `semantic_search.py` | (no docstring found) |
-| `seo_optimizer.py` | SEO Optimizer — Hive automated SEO scanner and decision maker. |
 
 ## SECTION 11 — DESIGN DECISIONS LOG
 
@@ -1688,6 +1637,9 @@ Rationale: Simpler API, generous free tier, better developer experience, no lega
 
 **DD-007** | 2026-03-27 | Legislation RAG via pgvector
 Rationale: Every dispute letter must cite correct legislation. RAG ensures letters are legally accurate and specific. Same architecture used successfully in prior project (Pinecone/Voyage AI). Using Supabase pgvector keeps stack simpler — one less external service.
+
+**DD-008** | 2026-06-15 | Escalation engine uses service-role admin client (not RLS user client)
+Rationale: The engine runs in a no-session QStash cron, so `auth.uid()` is null and RLS silently denied all writes (and read-filtered the candidate query to empty) — the engine had never persisted a single row. The service-role admin client is the correct choice for server-side cron operations, where there is no user context to enforce RLS against. Reads/writes now bypass RLS by design; access control is the cron's `CRON_SECRET`/QStash-signature gate, not row-level policies.
 
 ---
 
