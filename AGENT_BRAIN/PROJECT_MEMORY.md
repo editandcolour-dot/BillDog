@@ -21,7 +21,7 @@
 
 ## Current Project State
 - E2E dispute pipeline (Upload → Analyse → Letter → Send → Track → Resolve → Charge) is live on `billdog.co.za`.
-- PayFast integration built and pushed — **awaiting PayFast sandbox acceptance** (blocked on their side).
+- PayFast integration is **LIVE in production** on billdog.co.za (confirmed by user 2026-06-15). Mode is env-driven: production whenever `PAYFAST_SANDBOX !== 'true'` (Railway prod has it unset/false). No "sandbox acceptance" gate exists in code — that earlier note was stale.
 - **Tariff Engine Seeded:** 20mm/240L base ground-truth natively pushed to `tariff_cache`.
 - **Phase 12 (Built):** Complete SEO Infrastructure. 8 static municipality landing pages + 9-page Blog Pillar Content Cluster. Dynamic `sitemap.ts`. Dedicated `api/cron/social-monitor` (triggered by Railway cron) scanning Reddit/News to generate AI-drafted responses for lead generation. Weekly SEO pulse report cron. Admin routes secured in middleware.
 - **Security & Compliance:** Implemented comprehensive platform-wide security hardening (Next.js 15 update, Upstash Ratelimiting on critical paths, strict HTTP headers, DB ownership constraints).
