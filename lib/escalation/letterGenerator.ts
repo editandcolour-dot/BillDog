@@ -1,6 +1,7 @@
-import { ValidationFinding } from '@/types/analysis';
+import { ValidationFinding, BillingError } from '@/types/analysis';
 import { WardCouncillor } from './wardCouncillorLookup';
 import { buildVerificationBlock, VerificationBlockInput } from '@/lib/letters/verification-block';
+import { formatRand } from '@/lib/letters/citations';
 
 export interface EscalationLetter {
   step: number;
@@ -34,8 +35,8 @@ export function generateLetter(input: EscalationLetterInput): {
   const reference = `BD-${input.municipalityCode}-${input.caseId.substring(0, 8).toUpperCase()}`;
 
   const formatFindings = () => {
-    return input.findings.map(f => 
-      `- ${f.description} (Error on line: ${f.lineReference})\n  Billed: R${f.billedAmount.toFixed(2)}${f.expectedAmount ? ` | Expected: R${f.expectedAmount.toFixed(2)}` : ''}`
+    return (input.findings as unknown as BillingError[]).map(f =>
+      `- ${f.issue} (Error on line: ${f.line_item})\n  Billed: ${formatRand(f.amount_charged)}${f.expected_amount ? ` | Expected: ${formatRand(f.expected_amount)}` : ''}`
     ).join('\n\n');
   };
 

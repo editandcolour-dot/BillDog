@@ -38,27 +38,43 @@ export async function runEscalationEngine(): Promise<void> {
   }
 
   for (const c of overdueCases as any[]) {
-    // Check timing thresholds
-    const step = c.escalation_step || 0;
-    const lastAt = c.last_escalation_at;
+    try {
+      // Check timing thresholds
+      const step = c.escalation_step || 0;
+      const lastAt = c.last_escalation_at;
 
-    if (step === 1 && new Date(lastAt) >= new Date(thirtyDaysAgo)) continue;
-    if (step === 2 && new Date(lastAt) >= new Date(twentyOneDaysAgo)) continue;
+      if (step === 1 && new Date(lastAt) >= new Date(thirtyDaysAgo)) continue;
+      if (step === 2 && new Date(lastAt) >= new Date(twentyOneDaysAgo)) continue;
 
-    // Check if the case actually has verified FAIL findings
-    const hasFail = c.case_bills.some((cb: any) => cb.errors_found && cb.errors_found.length > 0);
-    if (!hasFail) continue; 
+      // Check if the case actually has verified FAIL findings
+      const hasFail = c.case_bills.some((cb: any) => cb.errors_found && cb.errors_found.length > 0);
+      if (!hasFail) continue;
 
-    // Aggregate findings
-    const allFindings = c.case_bills.flatMap((cb: any) => cb.errors_found || []);
+      // Aggregate findings
+      const allFindings = c.case_bills.flatMap((cb: any) => cb.errors_found || []);
 
-    const nextStep = (step + 1) as 1 | 2 | 3 | 4;
+      const nextStep = (step + 1) as 1 | 2 | 3 | 4;
 
-    await sendEscalationLetter(supabase, resend, {
-      ...c,
-      escalation_step: step,
-      findings: allFindings
-    }, nextStep);
+      await sendEscalationLetter(supabase, resend, {
+        ...c,
+        escalation_step: step,
+        findings: allFindings
+      }, nextStep);
+    } catch (caseErr) {
+      // Isolate per-case failures: log, record an event, and continue the batch
+      // so one bad case can never abort escalation for every other case.
+      const message = caseErr instanceof Error ? caseErr.message : String(caseErr);
+      console.error(`[escalationEngine] Case ${c.id} failed — skipping to next case:`, caseErr);
+      const { error: evtErr } = await supabase.from('case_events').insert({
+        case_id: c.id,
+        event_type: 'escalation_failed',
+        note: `Escalation processing failed and was skipped: ${message}`,
+        metadata: { step: (c.escalation_step || 0) + 1, error: message },
+      });
+      if (evtErr) {
+        console.error(`[escalationEngine] Could not log escalation_failed event for ${c.id}:`, evtErr);
+      }
+    }
   }
 }
 
