@@ -16,6 +16,7 @@ import {
   MKONTWANA_CITATION,
   TARICA_CITATION,
   formatRand,
+  resolveLetterLineAmounts,
 } from './citations';
 
 export interface Section62AppealInput {
@@ -106,12 +107,34 @@ export function buildSection62AppealLetter(input: Section62AppealInput): string 
     `|---|-----------|---------|--------|----------|------------|`,
   );
 
+  // Billed and Expected are shown verbatim from the bill (mirrors the s102 table); the
+  // Overcharge column is the VAT-inclusive recoverable and, on VAT-able lines,
+  // deliberately exceeds Billed − Expected. Net-aggregate rows are flagged with †.
+  const lineAmounts = recoverableErrors.map((e) =>
+    resolveLetterLineAmounts(e.amount_charged, e.expected_amount, e.overchargeZar ?? 0),
+  );
+  const hasNetAggregateRow = lineAmounts.some((a) => a.isNetAggregate);
+
   recoverableErrors.forEach((e, i) => {
+    const amt = lineAmounts[i];
+    const overchargeCell = amt.isNetAggregate
+      ? `${formatRand(amt.overcharge)} †`
+      : formatRand(amt.overcharge);
     sections.push(
-      `| ${i + 1} | ${e.line_item} | ${e.service_type} | ${formatRand(e.amount_charged)} | ${formatRand(e.expected_amount)} | ${formatRand(e.overchargeZar ?? 0)} |`,
+      `| ${i + 1} | ${e.line_item} | ${e.service_type} | ${formatRand(amt.billed)} | ${formatRand(amt.expected)} | ${overchargeCell} |`,
     );
   });
 
+  sections.push(``);
+
+  sections.push(
+    `Note: The Billed and Expected columns are shown exactly as they appear on the municipal account (exclusive of VAT). The Overcharge column is the VAT-inclusive amount recoverable. On VAT-able lines this exceeds Billed minus Expected because the overcharged amount also attracted VAT at 15%.`,
+  );
+  if (hasNetAggregateRow) {
+    sections.push(
+      `† For these line items the overcharge is the net amount recoverable across the related main and rebate charges (inclusive of VAT), and cannot be read directly from the single line's Billed and Expected figures.`,
+    );
+  }
   sections.push(``);
 
   // ── 6. Legal Citations ──────────────────────────────────────────────

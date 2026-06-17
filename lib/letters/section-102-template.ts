@@ -19,6 +19,7 @@ import {
   GLOFURN_CITATION,
   UNDISPUTED_WARNING,
   formatRand,
+  resolveLetterLineAmounts,
 } from './citations';
 
 // ── Types ───────────────────────────────────────────────────────────────────
@@ -106,7 +107,19 @@ export function buildSection102Letter(input: Section102LetterInput): string {
     `|---|-----------|---------|--------|----------|------------|-------------|-------------|`,
   );
 
+  // Resolve every line onto a single VAT-inclusive basis so each row reconciles
+  // (billed − expected === overcharge). Rows whose overcharge is a net aggregate
+  // across related segments cannot be grossed up cleanly and are flagged + footnoted.
+  // Billed and Expected are shown verbatim from the bill. The Overcharge column is the
+  // VAT-inclusive recoverable (overchargeZar) and, on VAT-able lines, deliberately
+  // exceeds Billed − Expected (see footnote). Net-aggregate rows are flagged with †.
+  const lineAmounts = recoverableErrors.map((e) =>
+    resolveLetterLineAmounts(e.amount_charged, e.expected_amount, e.overchargeZar ?? 0),
+  );
+  const hasNetAggregateRow = lineAmounts.some((a) => a.isNetAggregate);
+
   recoverableErrors.forEach((e, i) => {
+    const amt = lineAmounts[i];
     const readingType = e.reading_type ?? 'N/A';
     const prescription =
       e.within_prescription === true
@@ -117,11 +130,28 @@ export function buildSection102Letter(input: Section102LetterInput): string {
             ? 'Review Required'
             : 'N/A';
 
+    const overchargeCell = amt.isNetAggregate
+      ? `${formatRand(amt.overcharge)} †`
+      : formatRand(amt.overcharge);
+
     sections.push(
-      `| ${i + 1} | ${e.line_item} | ${e.service_type} | ${formatRand(e.amount_charged)} | ${formatRand(e.expected_amount)} | ${formatRand(e.overchargeZar ?? 0)} | ${readingType} | ${prescription} |`,
+      `| ${i + 1} | ${e.line_item} | ${e.service_type} | ${formatRand(amt.billed)} | ${formatRand(amt.expected)} | ${overchargeCell} | ${readingType} | ${prescription} |`,
     );
   });
 
+  sections.push(``);
+
+  // Explain the column relationship — Billed/Expected are the bill's own (VAT-exclusive)
+  // figures; Overcharge is the VAT-inclusive recoverable and exceeds Billed − Expected
+  // on VAT-able lines because the overcharged amount also attracted VAT.
+  sections.push(
+    `Note: The Billed and Expected columns are shown exactly as they appear on the municipal account (exclusive of VAT). The Overcharge column is the VAT-inclusive amount recoverable. On VAT-able lines this exceeds Billed minus Expected because the overcharged amount also attracted VAT at 15%.`,
+  );
+  if (hasNetAggregateRow) {
+    sections.push(
+      `† For these line items the overcharge is the net amount recoverable across the related main and rebate charges (inclusive of VAT), and cannot be read directly from the single line's Billed and Expected figures.`,
+    );
+  }
   sections.push(``);
 
   // Non-recoverable findings (informational)
@@ -141,6 +171,9 @@ export function buildSection102Letter(input: Section102LetterInput): string {
     if (e.issue) {
       sections.push(`   Detail: ${e.issue}`);
     }
+    // State the binding per-line dispute figure on the same VAT-inclusive basis as
+    // the table, so the narrative and the table never quote conflicting amounts.
+    sections.push(`   Overcharge claimed (VAT-inclusive): ${formatRand(lineAmounts[i].overcharge)}`);
     sections.push(``);
   });
 

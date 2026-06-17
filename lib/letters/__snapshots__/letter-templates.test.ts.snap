@@ -33,7 +33,7 @@ If you believe the valuation on your account is incorrect, please pursue the Sec
 exports[`Letter Template Snapshot Tests > Section 62 Appeal > produces appeal letter with original errors reproduced 1`] = `
 "SECTION 62 APPEAL — MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/14
+Date: 2026/06/17
 
 To: The Municipal Manager, City of Cape Town
 
@@ -69,6 +69,8 @@ ORIGINAL BILLING ERRORS (REPRODUCED)
 |---|-----------|---------|--------|----------|------------|
 | 1 | Water Tier 1 (0-6kl) | water | R120.50 | R95.20 | R25.30 |
 
+Note: The Billed and Expected columns are shown exactly as they appear on the municipal account (exclusive of VAT). The Overcharge column is the VAT-inclusive amount recoverable. On VAT-able lines this exceeds Billed minus Expected because the overcharged amount also attracted VAT at 15%.
+
 LEGAL AUTHORITY
 
 As held in Mkontwana v Nelson Mandela Metropolitan Municipality 2005 (1) SA 530 (CC); [2004] ZACC 9, the Constitutional Court confirmed that municipalities bear the onus of demonstrating the correctness of their accounts when challenged by a ratepayer.
@@ -95,7 +97,7 @@ Account: 20123456789"
 exports[`Letter Template Snapshot Tests > Section 102 — Multi Error CoCT > produces table with all recoverable errors 1`] = `
 "FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/14
+Date: 2026/06/17
 
 To: The Revenue Manager, City of Cape Town
 
@@ -118,6 +120,8 @@ BILLING ERRORS IDENTIFIED
 | 1 | Water Tier 2 (6-10.5kl) | water | R250.00 | R180.00 | R70.00 | actual | Active |
 | 2 | Refuse Removal | refuse | R450.00 | R380.00 | R70.00 | actual | Active |
 
+Note: The Billed and Expected columns are shown exactly as they appear on the municipal account (exclusive of VAT). The Overcharge column is the VAT-inclusive amount recoverable. On VAT-able lines this exceeds Billed minus Expected because the overcharged amount also attracted VAT at 15%.
+
 ADDITIONAL OBSERVATIONS (Non-recoverable / Informational)
 
 1. Estimated reading is 3x actual historical average
@@ -126,9 +130,11 @@ LEGAL BASIS PER ERROR
 
 1. Water Tier 2 (6-10.5kl): CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
    Detail: Tier 2 rate incorrect
+   Overcharge claimed (VAT-inclusive): R70.00
 
 2. Refuse Removal: CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
    Detail: Refuse tariff incorrect for property category
+   Overcharge claimed (VAT-inclusive): R70.00
 
 TOTAL OVERCHARGE: R140.00
 
@@ -164,7 +170,7 @@ Account: 30987654321"
 exports[`Letter Template Snapshot Tests > Section 102 — Single Error CoCT > produces deterministic output with all required elements 1`] = `
 "FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT
 
-Date: 2026/05/14
+Date: 2026/06/17
 
 To: The Revenue Manager, City of Cape Town
 
@@ -186,10 +192,13 @@ BILLING ERRORS IDENTIFIED
 |---|-----------|---------|--------|----------|------------|-------------|-------------|
 | 1 | Water Tier 1 (0-6kl) | water | R120.50 | R95.20 | R25.30 | actual | Active |
 
+Note: The Billed and Expected columns are shown exactly as they appear on the municipal account (exclusive of VAT). The Overcharge column is the VAT-inclusive amount recoverable. On VAT-able lines this exceeds Billed minus Expected because the overcharged amount also attracted VAT at 15%.
+
 LEGAL BASIS PER ERROR
 
 1. Water Tier 1 (0-6kl): CoCT 2024/25 Approved Tariff Schedule, Water Tier 1
    Detail: Tier 1 unit rate applied at R12.05/kl instead of gazetted rate R9.52/kl
+   Overcharge claimed (VAT-inclusive): R25.30
 
 TOTAL OVERCHARGE: R25.30
 
