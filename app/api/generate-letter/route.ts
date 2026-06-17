@@ -161,7 +161,6 @@ export async function POST(request: NextRequest) {
         idNumber,
         accountNumber: profile?.account_number || caseRecord.account_number || '',
         propertyAddress,
-        email: user.email || profile?.email || '',
         municipalityName,
         caseId: caseRecord.id,
         mandateConsentAt: profile.mandate_consent_at,

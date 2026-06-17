@@ -69,19 +69,17 @@ describe('buildVerificationBlock', () => {
     idNumber: VALID_SA_ID_1,
     accountNumber: 'ACC-123456',
     propertyAddress: '12 Main Road, Cape Town',
-    email: 'jane@example.com',
     municipalityName: 'City of Cape Town',
     caseId: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
     mandateConsentAt: '2026-04-30T10:15:00.000Z',
   };
 
-  it('renders all six required fields', () => {
+  it('renders all five required fields', () => {
     const block = buildVerificationBlock(sample);
     expect(block).toContain('Jane Tester');
     expect(block).toContain(VALID_SA_ID_1);
     expect(block).toContain('ACC-123456');
     expect(block).toContain('12 Main Road, Cape Town');
-    expect(block).toContain('jane@example.com');
     expect(block).toContain('City of Cape Town');
   });
 

@@ -99,7 +99,6 @@ export async function POST(request: NextRequest) {
         idNumber,
         accountNumber: caseRecord.account_number || '',
         propertyAddress,
-        email: profile.email || user.email || '',
         municipalityName: caseRecord.municipality || '',
         caseId: caseRecord.id,
         mandateConsentAt: profile.mandate_consent_at,

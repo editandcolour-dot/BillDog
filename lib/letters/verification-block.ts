@@ -12,7 +12,6 @@ export interface VerificationBlockInput {
   idNumber: string;
   accountNumber: string;
   propertyAddress: string;
-  email: string;
   municipalityName: string;
   caseId: string;
   mandateConsentAt: string;

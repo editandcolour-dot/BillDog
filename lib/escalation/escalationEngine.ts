@@ -133,7 +133,6 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
     idNumber,
     accountNumber: caseObj.account_number || '',
     propertyAddress,
-    email: profile.email,
     municipalityName: contacts.name,
     caseId: caseObj.id,
     mandateConsentAt: profile.mandate_consent_at,
