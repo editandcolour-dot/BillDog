@@ -42,6 +42,7 @@ const SINGLE_ERROR_INPUT = {
   municipalityName: 'City of Cape Town',
   billPeriod: 'March 2025',
   billingDate: '15/03/2025',
+  letterDate: '2026/06/17',
   totalBilled: 3450.00,
   summaryParagraph: 'The bill for March 2025 contains a water tariff overcharge where the incorrect unit rate was applied to Tier 1 consumption.',
   errors: [makeError()],
@@ -56,6 +57,7 @@ const MULTI_ERROR_INPUT = {
   municipalityName: 'City of Cape Town',
   billPeriod: 'February 2025',
   billingDate: '15/02/2025',
+  letterDate: '2026/06/17',
   totalBilled: 5200.00,
   summaryParagraph: 'The February 2025 bill contains multiple errors across water and refuse services.',
   errors: [
@@ -159,6 +161,7 @@ describe('Letter Template Snapshot Tests', () => {
         propertyAddress: '42 Main Road, Rondebosch, 7700',
         municipalityName: 'City of Cape Town',
         billPeriod: 'March 2025',
+        letterDate: '2026/06/17',
         originalReferenceNumber: 'CoCT-2025-03-00123',
         originalDisputeDate: '20/03/2025',
         rejectionDate: '10/04/2025',

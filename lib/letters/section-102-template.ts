@@ -39,6 +39,8 @@ export interface Section102LetterInput {
   billPeriod: string;
   /** Bill date (e.g. "15/03/2025") */
   billingDate: string;
+  /** Date the letter is generated, formatted en-ZA (e.g. "2026/06/17"). Caller-supplied so letters are reproducible. */
+  letterDate: string;
   /** Total billed on the bill */
   totalBilled: number;
   /** Claude-generated summary paragraph (human context only) */
@@ -80,7 +82,7 @@ export function buildSection102Letter(input: Section102LetterInput): string {
   sections.push(
     `FORMAL BILLING DISPUTE — SECTION 102(1)(a) MUNICIPAL SYSTEMS ACT`,
     ``,
-    `Date: ${new Date().toLocaleDateString('en-ZA')}`,
+    `Date: ${input.letterDate}`,
     ``,
     `To: ${input.lodgementAddress || `The Revenue Manager, ${input.municipalityName}`}`,
     ``,

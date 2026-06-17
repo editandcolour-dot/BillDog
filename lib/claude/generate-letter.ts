@@ -152,6 +152,7 @@ async function generateSingleBillLetter(input: LetterInput): Promise<LetterResul
     municipalityName: input.municipality,
     billPeriod: input.billPeriod,
     billingDate: input.billingDate,
+    letterDate: new Date().toLocaleDateString('en-ZA'),
     totalBilled: input.totalBilled,
     summaryParagraph,
     errors: input.errors,

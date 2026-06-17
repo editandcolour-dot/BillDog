@@ -4,6 +4,7 @@ import { lookupWardCouncillor } from './wardCouncillorLookup';
 import { generateLetter, EscalationLetter } from './letterGenerator';
 import { getResendClient } from '@/lib/resend/client';
 import type { VerificationBlockInput } from '@/lib/letters/verification-block';
+import type { BillingError } from '@/types/analysis';
 
 const STEP_LABELS: Record<number, string> = {
   1: 'Initial Dispute',
@@ -151,8 +152,8 @@ async function sendEscalationLetter(supabase: any, resend: any, caseObj: any, st
       recipientEmail = contacts.billingEmail || contacts.municipalManagerEmail;
       
       if (contacts.code === 'CoJ') {
-        const hasElec = caseObj.findings?.some((f: any) => f.type === 'HUC_AMOUNT_WRONG');
-        const hasWater = caseObj.findings?.some((f: any) => f.type === 'WATER_FIXED_CHARGE_WRONG');
+        const hasElec = caseObj.findings?.some((f: BillingError) => f.finding_type === 'HUC_AMOUNT_WRONG');
+        const hasWater = caseObj.findings?.some((f: BillingError) => f.finding_type === 'WATER_FIXED_CHARGE_WRONG');
         
         if (hasElec && !hasWater) recipientEmail = 'customerservice@citypower.co.za';
         else if (hasWater && !hasElec) recipientEmail = 'customerservice@jwater.co.za';

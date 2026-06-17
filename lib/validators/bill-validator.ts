@@ -12,10 +12,6 @@ import { getTariffYearForDate } from '../tariff/tariffLookup';
 export async function validateBill(bill: ParsedBill, municipalityCode: string = 'CoCT'): Promise<ValidationFinding[]> {
   const findings: ValidationFinding[] = [];
 
-  if (bill.invoiceNumber && bill.invoiceNumber.includes('108012156854')) {
-    console.log('[ISU108012156854_RAW_RATES_PARSER]', JSON.stringify(bill.rates, null, 2));
-  }
-
   // Always run universal checks (VAT, math, duplicates) regardless of Tier
   findings.push(...runUniversalChecks(bill));
 
@@ -63,8 +59,6 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
       }
     }
     
-    console.log(`[SEW] waterKl=${bill.canonicalWaterConsumptionKl} sewerageKl=${sewerageKl} ratio=${sewerageKl/bill.canonicalWaterConsumptionKl}`);
-
     const expectedSewerageKl = bill.canonicalWaterConsumptionKl * 0.70;
     if (Math.abs(sewerageKl - expectedSewerageKl) > 0.001) {
        findings.push({
@@ -168,7 +162,6 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
         // HUC carries its own in-line period (e.g. "07.2024") — authoritative for FY lookup.
         const verifyPeriod = huc.period;
         const verification = await verifyElectricityHUCharge(huc.amount, verifyPeriod, municipalityCode);
-        console.log(`[HUC] Struct HUC period="${verifyPeriod}" amount=${huc.amount} expected=${verification.approved_amount}`);
         if (verification.result === 'SKIP') {
           findings.push({
             type: 'UNKNOWN_TARIFF',
@@ -229,8 +222,6 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
          const verifyDate = wc.periodEnd;
          // UnitRate matched via tariff table. Total is just unitRate * multiplier.
          const verification = await verifyWaterFixedCharge(wc.unitRate, wc.meterSize, verifyDate, municipalityCode, bill.valuation?.total);
-         console.log(`[FIXED_BASIC] meterSize="${wc.meterSize}" unitRate=${wc.unitRate} expectedRate=${verification.approved_amount}`);
-         
          if (verification.result === 'SKIP') {
            findings.push({
              type: 'UNKNOWN_TARIFF',
@@ -510,8 +501,11 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
        (bill.refuseCharges || []).reduce((s, c) => s + c.amount, 0) +
        (bill.sewerageCharges || []).reduce((s, c) => s + c.amount, 0) +
        (bill.hucCharges || []).reduce((s, c) => s + c.amount, 0) +
-       (bill.sundryCharges || []).reduce((s, c) => s + c.amount, 0);
-     
+       // Sundries are a mixed section: only '&'-marked (hasVat) lines are VAT-able.
+       // Non-VAT-able sundries (interest, dishonour fees, marked '#') must NOT inflate
+       // the VAT base, or VAT_MISMATCH falsely flags a correct bill.
+       (bill.sundryCharges || []).filter(c => c.hasVat).reduce((s, c) => s + c.amount, 0);
+
      // Other charges from VAT-able sections — only lines that were marked
      // with '&' on the bill count toward the VAT base.
      const vatOther = (bill.otherCharges || [])
@@ -521,8 +515,6 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
      const vatBase = vatClassified + vatOther;
      const expectedVat = parseFloat((vatBase * 0.15).toFixed(2));
      
-     console.log(`[VAT_DEBUG] VAT Base: ${vatBase.toFixed(2)}, Expected: ${expectedVat}, Billed: ${bill.vatAmount}`);
-
      if (Math.abs(expectedVat - bill.vatAmount) > 0.50) {
        // Tariff cascade suppression — don't double-flag VAT when underlying charge is already flagged
        const tariffDiscrepancies = findings.filter(f => 
@@ -543,7 +535,8 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
        const trueVatAnomaly = vatGap - explainedVatDiscrepancy;
 
        if (trueVatAnomaly <= 0.50) {
-         console.log(`[VAT] Discrepancy explained by underlying tariff errors (gap R${vatGap.toFixed(2)}, explained R${explainedVatDiscrepancy.toFixed(2)}). Suppressing secondary VAT anomaly.`);
+         // Discrepancy is explained by underlying tariff findings — suppress the
+         // secondary VAT anomaly (no separate VAT_MISMATCH finding is emitted).
        } else {
          // Direction guard: if billed VAT < expected, municipality under-collected — not an overcharge
          const isVatOvercharge = bill.vatAmount > expectedVat;

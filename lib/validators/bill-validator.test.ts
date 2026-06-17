@@ -60,6 +60,40 @@ describe('bill-validator', () => {
     expect(findings).toHaveLength(0);
   });
 
+  it('does NOT flag VAT_MISMATCH when a non-VAT-able (#) sundry is present', async () => {
+    // Regression: vatBase must EXCLUDE non-VAT-able sundries (interest, dishonour fees).
+    // VAT-able sundry R100 (&) + non-VAT-able sundry R50 (#). Printed VAT R15 = 15% × 100,
+    // i.e. the municipality correctly excludes the # line. Pre-fix the # line was summed
+    // into vatBase (expectedVat = 15% × 150 = 22.50), producing a false "VAT under-applied"
+    // VAT_MISMATCH; post-fix expectedVat = 15.00 and no finding is emitted.
+    const bill: ParsedBill = {
+      invoiceNumber: 'INV-VAT-SUNDRY',
+      billingDate: '15/07/2024',
+      totalDue: 165.00, // 150 sundries + 15 VAT
+      ratesPeriod: null,
+      valuation: null,
+      rates: [],
+      sundryCharges: [
+        { parse_status: 'OK', serviceType: 'sundry', description: 'City-wide cleaning', amount: 100, hasVat: true },
+        { parse_status: 'OK', serviceType: 'sundry', description: 'Returned debit fee', amount: 50, hasVat: false },
+      ],
+      hucCharges: [],
+      returnedDebits: [],
+      dishonourFees: [],
+      meterReadings: [],
+      waterFixedCharges: [],
+      waterTierCharges: [],
+      sewerageCharges: [],
+      refuseCharges: [],
+      subtotals: { ratesNet: 0, water: 0, refuse: 0, sewerage: 0, sundries: 150 },
+      vatAmount: 15.00,
+      canonicalWaterConsumptionKl: 0
+    };
+
+    const findings = await validateBill(bill);
+    expect(findings.filter(f => f.type === 'VAT_MISMATCH')).toHaveLength(0);
+  });
+
   it('flags UNKNOWN_RATE_APPLIED when wrong rate is applied', async () => {
     const bill: ParsedBill = {
       invoiceNumber: 'INV002',

@@ -26,6 +26,8 @@ export interface Section62AppealInput {
   propertyAddress: string;
   municipalityName: string;
   billPeriod: string;
+  /** Date the letter is generated, formatted en-ZA (e.g. "2026/06/17"). Caller-supplied so letters are reproducible. */
+  letterDate: string;
   /** Original dispute reference number from municipality */
   originalReferenceNumber: string;
   /** Date original dispute was sent */
@@ -55,7 +57,7 @@ export function buildSection62AppealLetter(input: Section62AppealInput): string 
   sections.push(
     `SECTION 62 APPEAL — MUNICIPAL SYSTEMS ACT`,
     ``,
-    `Date: ${new Date().toLocaleDateString('en-ZA')}`,
+    `Date: ${input.letterDate}`,
     ``,
     `To: ${input.appealRecipient || `The Municipal Manager, ${input.municipalityName}`}`,
     ``,

@@ -1,4 +1,4 @@
-import { ValidationFinding, BillingError } from '@/types/analysis';
+import { BillingError } from '@/types/analysis';
 import { WardCouncillor } from './wardCouncillorLookup';
 import { buildVerificationBlock, VerificationBlockInput } from '@/lib/letters/verification-block';
 import { formatRand } from '@/lib/letters/citations';
@@ -16,7 +16,8 @@ export interface EscalationLetterInput {
   propertyAddress: string;
   municipalityName: string;
   municipalityCode: string;
-  findings: ValidationFinding[];
+  /** Persisted findings as stored in cases.errors_found (snake_case BillingError). */
+  findings: BillingError[];
   priorLetters: EscalationLetter[];
   wardCouncillor?: WardCouncillor | null;
   verification: VerificationBlockInput;
@@ -35,7 +36,7 @@ export function generateLetter(input: EscalationLetterInput): {
   const reference = `BD-${input.municipalityCode}-${input.caseId.substring(0, 8).toUpperCase()}`;
 
   const formatFindings = () => {
-    return (input.findings as unknown as BillingError[]).map(f =>
+    return input.findings.map(f =>
       `- ${f.issue} (Error on line: ${f.line_item})\n  Billed: ${formatRand(f.amount_charged)}${f.expected_amount ? ` | Expected: ${formatRand(f.expected_amount)}` : ''}`
     ).join('\n\n');
   };
@@ -101,7 +102,7 @@ disputes@billdog.co.za`;
       subject = `Complaint of Maladministration — ${input.municipalityName} — Account ${input.accountNumber}`;
       if (input.wardCouncillor?.email) ccEmails.push(input.wardCouncillor.email);
       // Determine if electricity dispute to cc NERSA
-      const hasElect = input.findings.some(f => f.type === 'HUC_AMOUNT_WRONG' || f.type === 'OVER_APPROVED_INCREASE');
+      const hasElect = input.findings.some(f => f.finding_type === 'HUC_AMOUNT_WRONG' || f.finding_type === 'OVER_APPROVED_INCREASE');
       if (hasElect) ccEmails.push('complaints@nersa.org.za');
       
       body = `To: The Public Protector Provincial Office
