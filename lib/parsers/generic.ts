@@ -80,8 +80,10 @@ export class GenericParser implements BillParser {
     const sectionTexts: Record<string, string> = {};
     const sectionPeriods: Record<string, { start?: string, end?: string }> = {};
     for (const [sectionName, secCfg] of Object.entries(this.config.sections)) {
-      sectionTexts[sectionName] = this._anchorSlice(text, secCfg.anchors).replace(/\s*--\s*\d+\s+of\s+\d+\s*--\s*/g, '\n');
-      
+      sectionTexts[sectionName] = this._reassembleWrappedTierLines(
+        this._anchorSlice(text, secCfg.anchors).replace(/\s*--\s*\d+\s+of\s+\d+\s*--\s*/g, '\n')
+      );
+
       // Extract periodStart and periodEnd if available in section header
       const periodMatch = sectionTexts[sectionName].match(/\(\s*Period\s+(?<periodStart>\d{2}\/\d{2}\/\d{4})(?:\s+to\s+(?<periodEnd>\d{2}\/\d{2}\/\d{4}))?/i);
       if (periodMatch && periodMatch.groups) {
@@ -365,6 +367,58 @@ export class GenericParser implements BillParser {
       }
     }
     return text.substring(startIdx, endIdx);
+  }
+
+  /**
+   * Reassemble multi-tier consumption charges that the PDF text extractor wrapped
+   * across multiple lines. On CoCT bills a tiered water/sewerage charge prints as e.g.:
+   *
+   *   & (1) 5.5230 kl @ R 19.5900 (2) 4.1430 kl @ R 26.9200      <- ends in a rate (4dp)
+   *     (3) 3.3340 kl @ R 36.5800 341.69                          <- continuation + total
+   *
+   * The first line ends in a 4-decimal rate (no 2-decimal total) and would be discarded
+   * by the per-line tokeniser, losing tiers (1)/(2) AND the leading &/# VAT marker, while
+   * the continuation line's total (341.69) is mistaken for tier (3)'s amount alone. This
+   * joins the wrapped fragments back into ONE line ending in the charge total, BEFORE
+   * tokenisation, so all tiers, the &/# indicator, and the single total are captured.
+   *
+   * Two real layouts are handled:
+   *   (a) total INLINE on the last tier fragment ("(3) ... 36.5800 341.69")
+   *   (b) total on a following STANDALONE subtotal line ("(3) ... 36.5800" then "341.69")
+   * In case (b) the standalone line is COPIED onto the merged charge but left in place,
+   * so section-subtotal extraction (which reads the last standalone amount) is unaffected.
+   * Lines without tier segments (rates, fixed charges, sundries) are returned untouched.
+   */
+  private _reassembleWrappedTierLines(chunk: string): string {
+    const TIER_SEG = /\(\d+\)\s*[\d.]+\s*kl\s*@\s*R\s*[\d.]+/i;        // one "(n) qty kl @ R rate" segment
+    const ENDS_IN_TOTAL = /@\s*R\s*[\d.]+\s+-?[\d,]+\.\d{2}\s*$/;       // "...@ R <rate> <2dp total>"
+    const STANDALONE_NUM = /^-?[\d,]+\.\d{2}\s*$/;                      // a lone amount line (page markers already stripped)
+
+    const lines = chunk.split('\n');
+    const out: string[] = [];
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      // Only act on an incomplete tier fragment (has a tier segment but no trailing total).
+      if (!TIER_SEG.test(line) || ENDS_IN_TOTAL.test(line)) {
+        out.push(line);
+        continue;
+      }
+      let merged = line.replace(/\s+$/, '');
+      let j = i;
+      // Absorb following tier-fragment continuation lines until the total appears inline.
+      while (!ENDS_IN_TOTAL.test(merged) && j + 1 < lines.length && TIER_SEG.test(lines[j + 1])) {
+        j++;
+        merged += ' ' + lines[j].trim();
+      }
+      // Layout (b): no inline total yet — borrow the value from the next standalone
+      // subtotal line, but DO NOT consume it (subtotal extraction still needs it).
+      if (!ENDS_IN_TOTAL.test(merged) && j + 1 < lines.length && STANDALONE_NUM.test(lines[j + 1].trim())) {
+        merged += '  ' + lines[j + 1].trim();
+      }
+      out.push(merged);
+      i = j; // resume after the last consumed tier fragment (standalone line, if any, untouched)
+    }
+    return out.join('\n');
   }
 
   private _resolveVatIndicator(indicator: string | undefined, rules: VatRules): boolean {

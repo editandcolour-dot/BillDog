@@ -122,6 +122,12 @@ export function runUniversalChecks(bill: ParsedBill): ValidationFinding[] {
       // is missing lower tiers (e.g. "(3) 0.334 kl @ R 43.44" without Tier 1+2).
       // The billed amount covers ALL tiers, so comparing a single higher tier
       // against the total would produce a false positive. Skip entirely.
+      //
+      // KEPT as defence-in-depth: the PDF line-wrap defect that produced orphan
+      // tiers is now fixed at the parser (_reassembleWrappedTierLines), so in normal
+      // operation this branch is no longer reached. It is retained deliberately — it
+      // has dedicated "SHIP BLOCKER regression" tests and still protects against an
+      // orphan tier arriving from any other source.
       if (tierMatches.length === 1) {
         const tierNum = parseInt(tierMatches[0][1], 10);
         if (tierNum > 1) continue;
