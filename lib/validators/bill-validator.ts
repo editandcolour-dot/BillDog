@@ -334,11 +334,36 @@ export async function validateBill(bill: ParsedBill, municipalityCode: string = 
           const baseDelta = Math.abs((verification.delta || 0) * qty);
           const cascadedOvercharge = parseFloat((baseDelta * 1.15).toFixed(2));
           const overchargeType = (verification.delta || 0) > 0 ? 'WATER_TARIFF_OVERCHARGE' : 'WATER_TARIFF_UNDERCHARGE';
+
+          // billedAmount/expectedAmount must be a like-for-like FULL-CONSUMPTION pair, not
+          // full-total-vs-single-tier. Billed is the actual billed consumption total
+          // (wt.amount == sum of tiers as billed); Expected is the sum over ALL tiers of
+          // (qty × gazetted rate). A tier whose billed rate is correct (PASS/SKIP) bills at
+          // its gazetted rate, so we use the billed rate for it; only a failing tier is
+          // substituted with the approved (gazetted) rate. overchargeZar is unchanged.
+          const tierSegs = [...wt.description.matchAll(/\((\d+)\)\s*([\d.]+)\s*kl\s*@\s*R\s*([\d.]+)/gi)];
+          let expectedConsumptionTotal = 0;
+          for (const seg of tierSegs) {
+            const segTier = parseInt(seg[1], 10);
+            const segQty = parseFloat(seg[2]);
+            const segBilledRate = parseFloat(seg[3]);
+            if (isNaN(segQty) || isNaN(segBilledRate)) continue;
+            const segVerify = verifyWaterTierRate(segBilledRate, segTier, verifyDate, municipalityCode);
+            const gazettedRate = segVerify.result === 'FAIL' && segVerify.approved_rate != null
+              ? segVerify.approved_rate
+              : segBilledRate;
+            expectedConsumptionTotal += segQty * gazettedRate;
+          }
+          // Fallback to the single-tier expected if no tier segments could be parsed.
+          const expectedAmount = tierSegs.length > 0
+            ? parseFloat(expectedConsumptionTotal.toFixed(2))
+            : parseFloat(((verification.approved_rate || 0) * qty).toFixed(2));
+
           findings.push({
             type: overchargeType as any,
             description: `Water tier ${tierNum} rate mismatch. Billed R${billedRate}/kl, expected R${verification.approved_rate}/kl (delta R${verification.delta}/kl × ${qty}kl).`,
             billedAmount: wt.amount,
-            expectedAmount: parseFloat(((verification.approved_rate || 0) * qty).toFixed(2)),
+            expectedAmount,
             overchargeZar: overchargeType === 'WATER_TARIFF_UNDERCHARGE' ? 0 : cascadedOvercharge,
             lineReference: wt.raw_line || wt.description,
             invoiceNumber: bill.invoiceNumber,
