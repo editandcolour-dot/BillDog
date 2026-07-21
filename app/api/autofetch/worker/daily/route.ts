@@ -42,11 +42,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: 'Daily dispatcher already running' }, { status: 200 });
     }
 
-    // Record the dispatcher job
-    const { data: dispatcherJob } = await supabaseAdmin
+    // Record the dispatcher job — a run-level row, tied to no user/credential
+    // (migration 040 relaxed both columns; the old zero-UUID sentinel violated
+    // the profiles FK and the insert failed silently for months).
+    const { data: dispatcherJob, error: dispatcherJobError } = await supabaseAdmin
       .from('scrape_jobs')
       .insert({
-        user_id: '00000000-0000-0000-0000-000000000000', // System user or empty
+        user_id: null,
         credential_id: null,
         job_type: 'daily_dispatcher',
         status: 'running',
@@ -54,6 +56,15 @@ export async function POST(request: NextRequest) {
       })
       .select('id')
       .single();
+
+    if (dispatcherJobError || !dispatcherJob) {
+      // Loud but non-fatal: without this row the in-flight guard and run
+      // accounting are blind, but bill dispatch itself must still proceed.
+      console.error(
+        '[autofetch/daily] Failed to record dispatcher job (in-flight guard inactive this run):',
+        dispatcherJobError?.message
+      );
+    }
 
     const jobId = dispatcherJob?.id;
 

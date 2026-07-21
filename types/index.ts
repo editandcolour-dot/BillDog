@@ -308,8 +308,9 @@ export interface MunicipalCredential {
   updated_at: string;
 }
 
-/** Scrape job type — backfill (initial 36-month) or monthly (recurring). */
-export type ScrapeJobType = 'backfill' | 'monthly';
+/** Scrape job type — backfill (initial 36-month), monthly (recurring
+ * single-bill fetch), or daily_dispatcher (run-level fan-out row). */
+export type ScrapeJobType = 'backfill' | 'monthly' | 'daily_dispatcher';
 
 /** Scrape job status progression. */
 export type ScrapeJobStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';

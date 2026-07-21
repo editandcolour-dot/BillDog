@@ -10,7 +10,8 @@
     "test": "vitest",
     "test:ci": "vitest run --coverage",
     "discover": "npx tsx bin/discover.ts",
-    "check:models": "npx tsx scripts/check-models.ts"
+    "check:models": "npx tsx scripts/check-models.ts",
+    "check:schedules": "npx tsx scripts/check-schedules.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",
