@@ -24,10 +24,3 @@ export function getQstashClient(): Client {
   }
   return _client;
 }
-
-/** @deprecated Use getQstashClient() instead — kept for backward compat with dynamic imports */
-export const qstashClient = new Proxy({} as Client, {
-  get(_target, prop) {
-    return (getQstashClient() as any)[prop];
-  },
-});

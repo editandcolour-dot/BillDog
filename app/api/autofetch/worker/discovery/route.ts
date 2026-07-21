@@ -18,6 +18,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyQStashSignature } from '@/lib/qstash/verify';
+import { getQstashClient } from '@/lib/qstash/client';
 import { decryptCredentials } from '@/lib/crypto/credentials';
 
 export const maxDuration = 300; // 5 minutes for discovery
@@ -143,22 +144,18 @@ export async function POST(request: NextRequest) {
         metadata: { municipality_id: municipality.id, slug: municipality_slug, user_id: credential.user_id },
       });
 
-      // Trigger backfill for the user via QStash
+      // Trigger backfill for the user via QStash — same client + base URL as
+      // every other publish in the app (region comes from QSTASH_URL / the
+      // client default; the old hardcoded EU endpoint failed for a US-region
+      // account with "user not found in this region").
       try {
-        const qstashToken = process.env.QSTASH_TOKEN;
         const workerUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/autofetch/worker/backfill`;
-
-        if (qstashToken && workerUrl) {
-          await fetch('https://qstash.upstash.io/v2/publish/' + encodeURIComponent(workerUrl), {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${qstashToken}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ credential_id }),
-          });
-          console.log(`[discovery] Backfill triggered for credential ${credential_id}`);
-        }
+        await getQstashClient().publish({
+          url: workerUrl,
+          body: JSON.stringify({ credential_id }),
+          retries: 3,
+        });
+        console.log(`[discovery] Backfill triggered for credential ${credential_id}`);
       } catch (backfillErr) {
         console.error('[discovery] Failed to trigger backfill:', backfillErr);
       }

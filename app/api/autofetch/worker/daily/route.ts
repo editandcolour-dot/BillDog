@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { verifyQStashSignature } from '@/lib/qstash/verify';
-import { qstashClient } from '@/lib/qstash/client';
+import { getQstashClient } from '@/lib/qstash/client';
 
 export const maxDuration = 120;
 
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     // 4. Enqueue individual jobs to fetch-latest
     for (const cred of (credentials || [])) {
       try {
-        await qstashClient.publish({
+        await getQstashClient().publish({
           url: `${appUrl}/api/autofetch/worker/fetch-latest`,
           body: JSON.stringify({ credential_id: cred.id }),
           retries: 3,
