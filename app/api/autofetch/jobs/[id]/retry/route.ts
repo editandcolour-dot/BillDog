@@ -1,22 +1,24 @@
 /**
  * POST /api/autofetch/jobs/[id]/retry
  *
- * Retry a failed scrape job by creating a new job row inheriting
- * the original job's credential_id and job_type.
+ * Retry a failed scrape job by ENQUEUEING the worker that owns its job_type
+ * (monthly -> fetch-latest, backfill -> backfill) via QStash. Workers create
+ * and track their own scrape_jobs rows, so no placeholder row is created here
+ * — the old 'queued' row was never executed by anything and is gone.
  *
  * Constraints:
  * - Auth + ownership required
  * - Original job must have status === 'failed'
  * - Rate limited: 3 retries per original job per 24h
- * - Does NOT execute the job — that's Phase 3 (QStash enqueue)
- *
- * Source of truth: implementation_plan Phase 2.
+ * - Fail-closed: a failed enqueue returns 500, never a fake success
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRateLimiter, rateLimitExceededResponse } from '@/lib/rate-limit';
+import { getQstashClient } from '@/lib/qstash/client';
+import { retryWorkerPath } from '@/lib/autofetch/retry-target';
 
 const retryLimiter = getRateLimiter(3, '1 d');
 
@@ -86,27 +88,29 @@ export async function POST(
       );
     }
 
-    // 6. Create new job row inheriting from original
-    const { data: newJob, error: insertError } = await supabaseAdmin
-      .from('scrape_jobs')
-      .insert({
-        user_id: user.id,
-        credential_id: originalJob.credential_id,
-        job_type: originalJob.job_type,
-        status: 'queued',
-      })
-      .select('id')
-      .single();
-
-    if (insertError || !newJob) {
-      console.error('[autofetch/jobs/retry] Insert failed:', insertError?.message);
-      return NextResponse.json({ error: 'Failed to create retry job' }, { status: 500 });
+    // 6. Enqueue the worker that re-executes this job type.
+    const workerPath = retryWorkerPath(originalJob.job_type);
+    if (!workerPath) {
+      return NextResponse.json(
+        { error: `Job type "${originalJob.job_type}" cannot be retried.` },
+        { status: 400 }
+      );
     }
 
-    console.log(`[autofetch/jobs/retry] Created retry job ${newJob.id} from original ${jobId} for user ${user.id}`);
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      await getQstashClient().publish({
+        url: `${appUrl}${workerPath}`,
+        body: JSON.stringify({ credential_id: originalJob.credential_id }),
+        retries: 3,
+      });
+    } catch (enqueueErr) {
+      console.error('[autofetch/jobs/retry] Enqueue failed:', enqueueErr);
+      return NextResponse.json({ error: 'Failed to enqueue retry' }, { status: 500 });
+    }
 
-    // Phase 2: Does NOT execute the job. Phase 3 adds QStash enqueue here.
-    return NextResponse.json({ job_id: newJob.id });
+    console.log(`[autofetch/jobs/retry] Retry of job ${jobId} (${originalJob.job_type}) enqueued for user ${user.id}`);
+    return NextResponse.json({ enqueued: true, job_type: originalJob.job_type });
 
   } catch (error) {
     console.error('[autofetch/jobs/retry] Unexpected error:', error);
