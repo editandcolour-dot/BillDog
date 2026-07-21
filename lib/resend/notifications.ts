@@ -1,6 +1,10 @@
 import { getResendClient } from './client';
 import { RECOVERY_FEE_DISPLAY } from '../constants/fees';
 
+// RESOLUTION EMAILS — fail-closed at the call site: send errors PROPAGATE to
+// the inbound-webhook route, whose 500 makes Resend redeliver the webhook.
+// Nothing here may swallow an error; these confirm money movement.
+
 export async function sendResolutionSuccessEmail(toEmail: string, amount: number, fee: number, caseId: string) {
   const resend = getResendClient();
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'disputes@billdog.co.za';

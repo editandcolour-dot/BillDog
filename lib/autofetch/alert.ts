@@ -53,6 +53,9 @@ export async function evaluateFailureRateAndAlert(): Promise<{ total: number; fa
       </div>
     `;
 
+    // OPTIONAL ADMIN TELEMETRY — fail-open by design: an alerting failure must
+    // not break the alert cron itself (the failure rate is still returned and
+    // logged). Result-bearing user emails are fail-closed elsewhere.
     try {
       await getResendClient().emails.send({
         from: `Billdog System <${FROM_EMAIL}>`,
@@ -62,7 +65,7 @@ export async function evaluateFailureRateAndAlert(): Promise<{ total: number; fa
       });
       sentAlert = true;
     } catch (err) {
-      console.error('[autofetch/alert] Failed to send admin alert email:', err);
+      console.error('[autofetch/alert] Failed to send admin alert email (telemetry, continuing):', err);
     }
   } else {
     console.log(`[autofetch/alert] Failure rate is ${(failureRate * 100).toFixed(2)}% (${failed}/${total}). No alert sent.`);

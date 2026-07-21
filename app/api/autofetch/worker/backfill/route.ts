@@ -428,19 +428,30 @@ export async function POST(request: NextRequest) {
       // Non-fatal â€” fetch-latest will still run on the default daily cadence.
     }
 
-    // 9. Send Summary Email
+    // 9. Send Summary Email — the initial-connect audit RESULT. Fail-closed:
+    // sendAutofetchReportEmail throws on Resend error, and a delivery failure
+    // surfaces on the job row (the audit data itself is already persisted
+    // per-bill, so only the delivery is lost — but the user must not silently
+    // never hear about their audit).
     if (profile?.email && billsAnalysed > 0) {
       const topFindings = allFindings.sort((a, b) => b.amount - a.amount).slice(0, 3);
       const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      await sendAutofetchReportEmail({
-        userEmail: profile.email,
-        userName: profile.full_name || 'User',
-        billsAnalysed,
-        billsSkipped,
-        totalRecoverable,
-        topFindings,
-        dashboardUrl: `${appUrl}/dashboard`
-      });
+      try {
+        await sendAutofetchReportEmail({
+          userEmail: profile.email,
+          userName: profile.full_name || 'User',
+          billsAnalysed,
+          billsSkipped,
+          totalRecoverable,
+          topFindings,
+          dashboardUrl: `${appUrl}/dashboard`
+        });
+      } catch (emailErr) {
+        const msg = emailErr instanceof Error ? emailErr.message : String(emailErr);
+        console.error('[autofetch/backfill] Report email failed:', msg);
+        await markJobFailed(supabaseAdmin, jobId, `Audit complete but report email failed: ${msg}`);
+        return NextResponse.json({ error: 'Audit complete but report email failed' }, { status: 500 });
+      }
     }
 
     // 10. Mark Job Completed

@@ -59,20 +59,19 @@ export async function sendAutofetchReportEmail(data: AutofetchReportData): Promi
     </div>
   `;
 
-  try {
-    const result = await getResendClient().emails.send({
-      from: `Billdog <${FROM_EMAIL}>`,
-      to: userEmail,
-      subject: 'Your 3-Year Bill Audit is Complete',
-      html,
-    });
+  // CRITICAL RESULT EMAIL — fail-closed by design: this is the deliverable of
+  // the initial 3-year audit, so a Resend error THROWS to the caller (backfill
+  // surfaces it on the job row). Never swallowed.
+  const result = await getResendClient().emails.send({
+    from: `Billdog <${FROM_EMAIL}>`,
+    to: userEmail,
+    subject: 'Your 3-Year Bill Audit is Complete',
+    html,
+  });
 
-    if (result.error) {
-      console.error('[resend] Failed to send autofetch report email:', result.error);
-    } else {
-      console.log(`[resend] Sent autofetch report email to ${userEmail}`);
-    }
-  } catch (err) {
-    console.error('[resend] Unexpected error sending autofetch report email:', err);
+  if (result.error) {
+    throw new Error(`Autofetch report email failed: ${result.error.message ?? String(result.error)}`);
   }
+
+  console.log(`[resend] Sent autofetch report email to ${userEmail}`);
 }

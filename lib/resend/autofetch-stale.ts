@@ -72,6 +72,12 @@ export async function sendAutofetchStaleEmail(data: AutofetchStaleData): Promise
     </div>
   `;
 
+  // OPTIONAL COURTESY NOTICE — fail-open BY DESIGN. This reconnect nudge is
+  // sent from a path that is already failing (invalid credentials / MFA); a
+  // send error must not mask or escalate the underlying credential problem,
+  // so it is logged and swallowed deliberately. Do NOT copy this pattern for
+  // result-bearing emails (see autofetch-result.ts / autofetch-report.ts,
+  // which throw).
   try {
     const resend = getResendClient();
     const result = await resend.emails.send({
@@ -82,11 +88,11 @@ export async function sendAutofetchStaleEmail(data: AutofetchStaleData): Promise
     });
 
     if (result.error) {
-      console.error('[resend] Failed to send autofetch stale email:', result.error);
+      console.error('[resend] Failed to send autofetch stale email (optional notice, continuing):', result.error);
     } else {
       console.log(`[resend] Sent autofetch stale email to ${userEmail}`);
     }
   } catch (err) {
-    console.error('[resend] Unexpected error sending autofetch stale email:', err);
+    console.error('[resend] Unexpected error sending autofetch stale email (optional notice, continuing):', err);
   }
 }

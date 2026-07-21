@@ -4,6 +4,11 @@
  *
  * Trigger: POST /api/autofetch/credentials, step 12 (after QStash publish succeeds).
  * NOT sent if QStash fails — user gets a 500 error instead.
+ *
+ * OPTIONAL CONNECT-TIME NOTICE — errors PROPAGATE from here; the caller
+ * (credentials route) catches them and continues, explicitly treating this
+ * send as non-blocking. Result-bearing emails (autofetch-result/-report)
+ * are fail-closed instead — do not model new result emails on this one.
  */
 import { getResendClient } from './client';
 
