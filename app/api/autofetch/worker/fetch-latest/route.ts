@@ -24,6 +24,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { decryptCredentials } from '@/lib/crypto/credentials';
 import { getScraper } from '@/lib/scrapers/registry';
 import { verifyQStashSignature } from '@/lib/qstash/verify';
+import { getQstashClient } from '@/lib/qstash/client';
 import { parseBillFile } from '@/lib/pdf/parse';
 import { classifyFetchOutcome } from '@/lib/autofetch/fetchOutcome';
 import {
@@ -360,17 +361,33 @@ export async function POST(request: NextRequest) {
       console.error('[autofetch/worker] Cycle update failed:', cycleErr);
     }
 
-    // 12. Schedule recovery detection
-    // After the bill is analysed (in a subsequent pipeline step), recovery detection
-    // will compare credit line items against prior month's findings.
-    // For now, mark the case_bill as ready for analysis, and the analysis pipeline
-    // will call detectRecoveries() after parsing + validation completes.
+    // 12. Record the download event
     await supabaseAdmin.from('case_events').insert({
       case_id: caseId,
       event_type: 'autofetch_bill_downloaded',
-      note: `Auto-fetched bill for period "${bill.period}" ready for analysis and recovery detection.`,
+      note: `Auto-fetched bill for period "${bill.period}" ready for analysis.`,
       metadata: { job_id: jobId, case_bill_id: caseBill.id, storage_path: storagePath },
     });
+
+    // 13. Hand off to the analysis worker (parse -> audit -> result email).
+    // Fail-closed: if the hand-off cannot be enqueued, the fetch job is marked
+    // failed so a stored-but-never-audited bill can never read as success.
+    try {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      await getQstashClient().publish({
+        url: `${appUrl}/api/autofetch/worker/analyse`,
+        body: JSON.stringify({ case_bill_id: caseBill.id, job_id: jobId }),
+        retries: 3,
+      });
+      console.log(`[autofetch/worker] Analysis enqueued for case_bill ${caseBill.id}`);
+    } catch (enqueueErr) {
+      console.error('[autofetch/worker] Failed to enqueue analysis:', enqueueErr);
+      await markJobFailed(supabaseAdmin, jobId, 'Bill stored but analysis enqueue failed');
+      return NextResponse.json(
+        { error: 'Bill stored but analysis could not be enqueued' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       job_id: jobId,

@@ -11,35 +11,12 @@ import { classifyMunicipality } from '@/lib/tiers/tierClassifier';
 import { generateTransparencyReport } from '@/lib/tiers/tier3Report';
 import { getCurrentTariffYear } from '@/lib/tariff/tariffLookup';
 import { getParser } from '@/lib/parsers/registry';
+import { round2, roundErrors, aggregateCaseFromBills } from '@/lib/analysis/case-aggregation';
 
 const analyseLimiter = getRateLimiter(100, '1 h');
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5min — up to 36 bills
-
-// Round to cents at the persistence boundary. IEEE-754 residue (e.g. 612.590000000001)
-// must not reach the data layer or downstream consumers (letters, exports, audit).
-const round2 = (n: number) => Math.round(n * 100) / 100;
-const roundErrors = <T extends { overchargeZar?: number }>(errors: T[]): T[] =>
-  errors.map(e => ({
-    ...e,
-    overchargeZar: e.overchargeZar != null ? round2(e.overchargeZar) : e.overchargeZar,
-  }));
-
-// DD/MM/YYYY ↔ Date helpers. Alphabetic sort on DD/MM/YYYY is broken
-// (e.g. "03/08" < "30/03" lexicographically), so we must parse to compare.
-const parseDDMM = (s: string): Date | null => {
-  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (!m) return null;
-  const d = new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
-  return isNaN(d.getTime()) ? null : d;
-};
-const fmtDDMM = (d: Date) =>
-  `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-// Local-component ISO format avoids the toISOString() TZ shift that would
-// turn 30 March SAST into 29 March UTC.
-const fmtISO = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -214,70 +191,35 @@ export async function POST(request: NextRequest) {
     // source of truth: our aggregated deterministic validator findings.
     const crossAnalysis = null;
 
-    // 9. Aggregate & update case
-    const totalRecoverable = analysed.reduce(
-      (sum, b) => sum + (b.analysis.total_recoverable || 0), 0,
-    );
-    const totalBilled = analysed.reduce(
-      (sum, b) => sum + (b.analysis.total_billed || 0), 0,
-    );
-    // Compute chronological min(start) → max(end) across every bill's period.
-    // Each bill_period is "DD/MM/YYYY to DD/MM/YYYY" from analyse-bill output.
-    const periods = analysed
-      .map(b => b.bill_period)
-      .filter(Boolean) as string[];
-    const ranges = periods.flatMap(p => {
-      const m = p.match(/^(\d{2}\/\d{2}\/\d{4})\s+to\s+(\d{2}\/\d{2}\/\d{4})$/);
-      const start = m ? parseDDMM(m[1]) : null;
-      const end = m ? parseDDMM(m[2]) : null;
-      return start && end ? [{ start, end }] : [];
-    });
-    const minStart = ranges.length > 0
-      ? new Date(Math.min(...ranges.map(r => r.start.getTime())))
-      : null;
-    const maxEnd = ranges.length > 0
-      ? new Date(Math.max(...ranges.map(r => r.end.getTime())))
-      : null;
-    const billPeriodSpan = minStart && maxEnd
-      ? `${fmtDDMM(minStart)} to ${fmtDDMM(maxEnd)}`
-      : (periods[0] || null);
+    // 9. Aggregate & update case — via the shared helper (also used by the
+    // autofetch analysis worker) so both paths aggregate identically. The
+    // helper stores the real per-bill deterministic errors in errors_found —
+    // the UI reads errors_found for display and falls back to it when
+    // cross_analysis.recurring_errors is empty or missing.
+    const agg = aggregateCaseFromBills(analysed.map(b => ({
+      bill_period: b.bill_period,
+      errors: (b.analysis.errors || []) as unknown as Array<Record<string, unknown> & { overchargeZar?: number }>,
+      total_billed: b.analysis.total_billed || 0,
+      total_recoverable: b.analysis.total_recoverable || 0,
+    })));
 
-    // ── CRITICAL: Build errors_found from per-bill deterministic errors ──
-    // The cross-analysis Claude call generates `recurring_errors` which may
-    // differ from (or drop) the actual per-bill findings. The DB must store
-    // the real per-bill errors. The UI reads errors_found for display.
-    const allPerBillErrors = analysed.flatMap(b => 
-      (b.analysis.errors || []).map(e => ({
-        ...e,
-        bill_period: b.bill_period,
-      }))
-    );
-
-    // NOTE: We do NOT overwrite crossAnalysis.recurring_errors — it uses the RecurringError type
-    // from Claude which has different fields (months_affected, total_overcharged).
-    // The UI falls back to errors_found (which contains the real per-bill errors) when
-    // cross_analysis.recurring_errors is empty or missing. The important thing is that
-    // errors_found on the cases table contains the deterministic per-bill errors.
-
-    console.log(`[analyse-multi] PIPELINE TRACE: totalRecoverable=${totalRecoverable}, allPerBillErrors=${allPerBillErrors.length}`);
-
-    const finalStatus = allPerBillErrors.length > 0 ? 'letter_ready' : 'closed';
-    console.log(`[analyse-multi] FINAL STATUS: ${finalStatus} (${allPerBillErrors.length} errors, R${totalRecoverable.toFixed(2)} recoverable)`);
+    console.log(`[analyse-multi] PIPELINE TRACE: totalRecoverable=${agg.recoverable}, allPerBillErrors=${agg.errors_found.length}`);
+    console.log(`[analyse-multi] FINAL STATUS: ${agg.status} (${agg.errors_found.length} errors, R${agg.recoverable.toFixed(2)} recoverable)`);
 
     await supabase.from('cases').update({
-      status: finalStatus,
-      errors_found: roundErrors(allPerBillErrors),
-      recoverable: round2(totalRecoverable),
-      total_billed: round2(totalBilled),
-      total_recoverable_all: round2(totalRecoverable),
+      status: agg.status,
+      errors_found: agg.errors_found,
+      recoverable: agg.recoverable,
+      total_billed: agg.total_billed,
+      total_recoverable_all: agg.total_recoverable_all,
       cross_analysis: crossAnalysis,
-      date_range_start: minStart ? fmtISO(minStart) : null,
-      date_range_end: maxEnd ? fmtISO(maxEnd) : null,
-      bill_period: billPeriodSpan,
+      date_range_start: agg.date_range_start,
+      date_range_end: agg.date_range_end,
+      bill_period: agg.bill_period,
       updated_at: new Date().toISOString(),
     }).eq('id', caseId);
 
-    console.log(`[analyse-multi] DB WRITE: status=${finalStatus}, errors_found.length=${allPerBillErrors.length}, recoverable=${totalRecoverable}`);
+    console.log(`[analyse-multi] DB WRITE: status=${agg.status}, errors_found.length=${agg.errors_found.length}, recoverable=${agg.recoverable}`);
 
     const groundTruthCount = analysed.filter(b => b.analysis._meta?.groundTruth).length;
 
@@ -285,11 +227,11 @@ export async function POST(request: NextRequest) {
     await supabase.from('case_events').insert({
       case_id: caseId,
       event_type: 'multi_analysis_complete',
-      note: `${analysed.length} bills analysed (${failedCount} failed). ${groundTruthCount} used Ground Truth. R${totalRecoverable.toFixed(2)} recoverable.`,
+      note: `${analysed.length} bills analysed (${failedCount} failed). ${groundTruthCount} used Ground Truth. R${agg.recoverable.toFixed(2)} recoverable.`,
       metadata: {
         bills_analysed: analysed.length,
         bills_failed: failedCount,
-        total_recoverable: totalRecoverable,
+        total_recoverable: agg.recoverable,
         has_cross_analysis: !!crossAnalysis,
         ground_truth_count: groundTruthCount,
       },
@@ -300,7 +242,7 @@ export async function POST(request: NextRequest) {
       caseId,
       billsAnalysed: analysed.length,
       billsFailed: failedCount,
-      totalRecoverable,
+      totalRecoverable: agg.recoverable,
       hasCrossAnalysis: !!crossAnalysis,
     });
 
