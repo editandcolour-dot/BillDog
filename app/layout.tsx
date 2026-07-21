@@ -22,6 +22,7 @@ const dmSans = DM_Sans({
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  themeColor: '#0B1F3A',
 };
 
 export const metadata: Metadata = {
@@ -32,6 +33,18 @@ export const metadata: Metadata = {
   description:
     'AI-powered municipal billing dispute service for South African property owners. No lawyers. No queues. No nonsense. Just results.',
   metadataBase: new URL('https://www.billdog.co.za'),
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
+  appleWebApp: {
+    capable: true,
+    title: 'Billdog',
+    statusBarStyle: 'black-translucent',
+  },
   openGraph: {
     title: 'Are you owed money by your municipality?',
     description: 'South African homeowners are owed billions in overcharged rates & electricity. No win, no fee. Find out in minutes.',
