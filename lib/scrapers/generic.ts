@@ -9,8 +9,11 @@ const LAUNCH_OPTIONS = {
   args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
 };
 
-// Generic utility to parse dates (carried over from previous scrapers)
-function parsePeriod(text: string): string | null {
+// Generic utility to parse dates (carried over from previous scrapers).
+// Exported for unit tests: MUST return null on unparseable input — a sentinel
+// string here would collide in the worker's period dedup (every unparseable
+// bill would "equal" every other one) and silently corrupt cycle routing.
+export function parsePeriod(text: string): string | null {
   const t = text.trim();
   const yyyyMmRegex = /^(19|20)\d{2}[-/](0[1-9]|1[0-2])$/;
   if (yyyyMmRegex.test(t)) {
@@ -172,12 +175,16 @@ export class GenericScraper implements MunicipalScraper {
     return true;
   }
 
-  private async getBillsFromTable(target: Page | Frame, max: number): Promise<BillDownload[]> {
+  private async getBillsFromTable(
+    target: Page | Frame,
+    max: number
+  ): Promise<{ bills: BillDownload[]; unparseablePeriods: number }> {
     const ext = this.config.extraction;
     const links = await target.$$(ext.pdf_link_selector);
     console.log(`[GenericScraper] Found ${links.length} links using selector ${ext.pdf_link_selector} in frame ${target.url()}`);
     const bills: BillDownload[] = [];
-    
+    let unparseablePeriods = 0;
+
     // Process at most 'max' links
     for (let i = 0; i < Math.min(links.length, max); i++) {
       const link = links[i];
@@ -187,7 +194,16 @@ export class GenericScraper implements MunicipalScraper {
           return row ? (row as HTMLElement).innerText : node.textContent;
         }, ext.row_selector);
 
-        const period = parsePeriod(rowText || '') || 'Unknown Period';
+        const period = parsePeriod(rowText || '');
+        if (!period) {
+          // Fail-closed: NO sentinel period. A fabricated placeholder would
+          // collide in the worker's period dedup (every unparseable bill
+          // "equals" every other) and silently corrupt cycle routing. Count
+          // and skip before downloading; callers surface the count.
+          console.warn(`[GenericScraper] Bill ${i + 1}: row period unparseable — skipping row (row text: ${String(rowText ?? '').slice(0, 60)})`);
+          unparseablePeriods++;
+          continue;
+        }
         const page = 'page' in target ? target.page() : target;
         let pdfBuffer: Buffer | null = null;
 
@@ -249,7 +265,7 @@ export class GenericScraper implements MunicipalScraper {
         console.warn('[GenericScraper] Error extracting bill:', e.message);
       }
     }
-    return bills;
+    return { bills, unparseablePeriods };
   }
 
   public async fetchLatestBill(username: string, password: string): Promise<ScraperResult<BillDownload>> {
@@ -263,9 +279,20 @@ export class GenericScraper implements MunicipalScraper {
       const navTarget = await this.executeSteps(page, this.config.steps.navigate, { username, password });
       await this.executeSteps(navTarget, this.config.steps.filter_latest, { username, password });
 
-      const bills = await this.getBillsFromTable(navTarget, 1);
+      const { bills, unparseablePeriods } = await this.getBillsFromTable(navTarget, 1);
       if (bills.length > 0) {
         return { success: true, data: bills[0] };
+      }
+      if (unparseablePeriods > 0) {
+        // Fail-closed: a bill row EXISTS but its period could not be parsed.
+        // This must surface as a visible failure (failed job + last_login_error),
+        // never as "no bill yet" (which would hunt forever past a real bill)
+        // and never as a sentinel period (which would dedup-collide).
+        return {
+          success: false,
+          error: `Latest bill row found but its period could not be parsed (${unparseablePeriods} row(s)) — needs manual review`,
+          errorCode: 'UNKNOWN',
+        };
       }
       // Logged in and reached the statement table, but no rows are visible --
       // the new period's bill isn't published yet. Success-with-no-data routes
@@ -291,12 +318,15 @@ export class GenericScraper implements MunicipalScraper {
 
       const ext = this.config.extraction;
       const allBills: BillDownload[] = [];
+      let unparseableTotal = 0;
       let pageNumber = 1;
 
       while (allBills.length < monthsBack) {
         const remaining = monthsBack - allBills.length;
-        const pageBills = await this.getBillsFromTable(filterTarget, remaining);
-        
+        const { bills: pageBills, unparseablePeriods: pageSkips } =
+          await this.getBillsFromTable(filterTarget, remaining);
+        unparseableTotal += pageSkips;
+
         if (pageBills.length === 0) break;
         
         allBills.push(...pageBills);
@@ -317,6 +347,17 @@ export class GenericScraper implements MunicipalScraper {
         pageNumber++;
       }
 
+      if (allBills.length === 0 && unparseableTotal > 0) {
+        // Every visible row had an unparseable period — fail-closed, visible.
+        return {
+          success: false,
+          error: `History rows found but all ${unparseableTotal} had unparseable periods — needs manual review`,
+          errorCode: 'UNKNOWN',
+        };
+      }
+      if (unparseableTotal > 0) {
+        console.warn(`[GenericScraper] History fetch SKIPPED ${unparseableTotal} row(s) with unparseable periods (${allBills.length} fetched)`);
+      }
       return { success: true, data: allBills };
     } catch (err: any) {
       return { success: false, error: err.message, errorCode: 'UNKNOWN' };
