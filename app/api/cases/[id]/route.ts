@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { verifyDeletedCount } from '@/lib/cases/soft-delete';
 
 export async function GET(
   request: NextRequest,
@@ -137,50 +138,32 @@ export async function DELETE(
       }, { status: 400 });
     }
 
-    // 3. Delete associated case_bills and their storage files (Bypass RLS using Admin)
+    // 3. Soft-delete — the SAME semantics as bulk-delete (deleted_at set,
+    // rows retained for the audit trail; POPIA erasure happens via account
+    // deletion). The old hard-delete cascade is gone: it was FK-blocked by
+    // scraped_bills -> case_bills for any autofetch case, ignored its child
+    // delete errors, and contradicted the bulk route's soft-delete.
+    // FAIL-CLOSED: the update returns the affected rows and zero rows is a
+    // failure — Supabase answers 200 even when RLS/filters deleted nothing.
     const { createAdminClient } = await import('@/lib/supabase/admin');
     const supabaseAdmin = createAdminClient();
 
-    const { data: caseBills } = await supabaseAdmin
-      .from('case_bills')
-      .select('id, bill_url')
-      .eq('case_id', caseId);
-
-    if (caseBills && caseBills.length > 0) {
-      // Delete storage files for multi-bill uploads
-      const storagePaths = caseBills
-        .map(b => b.bill_url)
-        .filter(Boolean);
-
-      if (storagePaths.length > 0) {
-        await supabaseAdmin.storage.from('bills').remove(storagePaths);
-      }
-
-      // Delete case_bills rows
-      await supabaseAdmin.from('case_bills').delete().eq('case_id', caseId);
-    }
-
-    // 4. Delete the single-bill storage file (if legacy single-bill case)
-    if (caseRecord.bill_url) {
-      await supabaseAdmin.storage.from('bills').remove([caseRecord.bill_url]);
-    }
-
-    // 5. Delete case_events
-    await supabaseAdmin.from('case_events').delete().eq('case_id', caseId);
-
-    // 6. Delete the case itself
-    const { error: deleteError } = await supabaseAdmin
+    const { data: deletedRows, error: deleteError } = await supabaseAdmin
       .from('cases')
-      .delete()
+      .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .eq('id', caseId)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .is('deleted_at', null)
+      .select('id');
 
-    if (deleteError) {
-      console.error('[Cases DELETE] Failed:', deleteError);
-      return NextResponse.json({ error: 'Failed to delete case.' }, { status: 500 });
+    const verdict = verifyDeletedCount(deletedRows, [caseId]);
+
+    if (deleteError || !verdict.ok) {
+      console.error('[Cases DELETE] Soft-delete failed:', deleteError?.message ?? `0 rows affected for case ${caseId}`);
+      return NextResponse.json({ error: 'Failed to delete case — nothing was deleted.' }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, message: 'Case and all associated data deleted.' });
+    return NextResponse.json({ success: true, message: 'Case removed from your account.' });
 
   } catch (err: unknown) {
     console.error('[Cases DELETE Error]', err);

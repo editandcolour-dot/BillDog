@@ -256,12 +256,15 @@ export async function POST(request: NextRequest) {
 
     console.log(`[autofetch/worker] PDF uploaded to: ${storagePath}`);
 
-    // 8. Find or create a case for this user + municipality
+    // 8. Find or create a case for this user + municipality. Admin client
+    // bypasses RLS: exclude soft-deleted cases so a new bill never attaches
+    // to a case the user deleted (a fresh case is created instead).
     const { data: existingCase } = await supabaseAdmin
       .from('cases')
       .select('id')
       .eq('user_id', credential.user_id)
       .eq('municipality', municipality.name)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(1)
       .single();

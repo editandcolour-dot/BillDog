@@ -44,8 +44,9 @@ export function DeleteCaseButton({ caseId, caseStatus }: DeleteCaseButtonProps) 
       <div className="bg-red-50 border border-red-200 rounded-2xl p-6 md:p-8">
         <h3 className="font-display text-xl text-error uppercase tracking-wide mb-2">Delete This Case?</h3>
         <p className="text-sm text-red-900/70 mb-6 font-body">
-          This will permanently delete this dispute, all uploaded bills, and the generated letter.
-          This action cannot be undone.
+          This will remove this dispute, its bills, and the generated letter from your
+          account. A copy is retained for a limited period for audit and legal purposes
+          (POPIA), then purged.
         </p>
 
         {error && (
@@ -60,7 +61,7 @@ export function DeleteCaseButton({ caseId, caseStatus }: DeleteCaseButtonProps) 
             disabled={deleting}
             className="flex-1 min-h-[44px] px-4 py-3 bg-error hover:bg-red-600 text-white font-bold rounded-md transition-all disabled:opacity-50 text-sm"
           >
-            {deleting ? 'Deleting...' : 'Yes, Delete Forever'}
+            {deleting ? 'Deleting...' : 'Yes, Delete Case'}
           </button>
           <button
             onClick={() => { setShowConfirm(false); setError(null); }}

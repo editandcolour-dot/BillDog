@@ -72,14 +72,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Load the case: municipality display name, owner, lifecycle status.
+    // Admin client bypasses RLS: refuse to audit/email a soft-deleted case.
     const { data: caseRecord, error: caseError } = await supabaseAdmin
       .from('cases')
       .select('id, user_id, municipality, status')
       .eq('id', caseBill.case_id)
+      .is('deleted_at', null)
       .single();
 
     if (caseError || !caseRecord) {
-      throw new Error(`Case ${caseBill.case_id} not found for bill ${caseBillId}`);
+      throw new Error(`Case ${caseBill.case_id} not found (or deleted) for bill ${caseBillId}`);
     }
 
     // 1. Download the stored PDF

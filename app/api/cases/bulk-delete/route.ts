@@ -14,6 +14,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { verifyDeletedCount } from '@/lib/cases/soft-delete';
 
 export async function POST(request: NextRequest) {
   try {
@@ -68,23 +69,33 @@ export async function POST(request: NextRequest) {
 
     const deleteIds = toDelete.map((c) => c.id);
 
-    // Soft-delete: set deleted_at
-    const { error: updateError } = await supabaseAdmin
+    // Soft-delete: set deleted_at. FAIL-CLOSED: verify the affected row count
+    // — Supabase returns 200 even when filters/RLS reduced the update to zero
+    // rows, and reporting success on 0 rows is exactly the bug class this
+    // route must never have.
+    const { data: updatedRows, error: updateError } = await supabaseAdmin
       .from('cases')
       .update({ deleted_at: new Date().toISOString() })
       .in('id', deleteIds)
-      .eq('user_id', user.id);
+      .eq('user_id', user.id)
+      .select('id');
 
-    if (updateError) {
-      console.error('[bulk-delete] Update error:', updateError.message);
-      return NextResponse.json({ error: 'Failed to delete cases' }, { status: 500 });
+    const verdict = verifyDeletedCount(updatedRows, deleteIds);
+
+    if (updateError || !verdict.ok) {
+      console.error('[bulk-delete] Update failed:', updateError?.message ?? `missing rows: ${verdict.missing.join(', ')}`);
+      return NextResponse.json({
+        error: 'Delete incomplete — some cases were not deleted.',
+        deleted: verdict.deleted,
+        not_deleted: verdict.missing,
+      }, { status: 500 });
     }
 
-    console.log(`[bulk-delete] Soft-deleted ${deleteIds.length} cases for user ${user.id}`);
+    console.log(`[bulk-delete] Soft-deleted ${verdict.deleted.length} cases for user ${user.id}`);
 
     return NextResponse.json({
       success: true,
-      deleted: deleteIds,
+      deleted: verdict.deleted,
       blocked: blocked.map((c) => c.id),
       already_deleted: alreadyDeleted.map((c) => c.id),
     });

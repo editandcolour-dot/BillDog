@@ -22,7 +22,11 @@ export async function runEscalationEngine(): Promise<void> {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const twentyOneDaysAgo = new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString();
 
-  // Fetch all cases that are unblocked and mapped to a valid Tier (1 or 2)
+  // Fetch all cases that are unblocked and mapped to a valid Tier (1 or 2).
+  // Admin client bypasses RLS, so soft-deleted cases MUST be excluded here
+  // explicitly — without this filter the engine kept escalating cases the
+  // user had deleted (observed live: 4 deleted cases in the daily candidate
+  // set, only the consent gate stopped letters going out).
   const { data: overdueCases, error } = await supabase
     .from('cases')
     .select(`
@@ -30,6 +34,7 @@ export async function runEscalationEngine(): Promise<void> {
       case_bills!inner ( coverage_tier, errors_found )
     `)
     .eq('escalation_blocked', false)
+    .is('deleted_at', null)
     .in('case_bills.coverage_tier', [1, 2])
     .lt('escalation_step', 3);
 
