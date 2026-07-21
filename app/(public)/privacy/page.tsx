@@ -25,7 +25,7 @@ export default function PrivacyPolicyPage() {
           Privacy Policy
         </h1>
         <p className="mt-3 text-grey text-sm font-medium">
-          Version 1.1 &mdash; 1 June 2026 &nbsp;|&nbsp; Effective immediately
+          Version 1.2 &mdash; 21 July 2026 &nbsp;|&nbsp; Effective immediately
         </p>
 
         <div className="mt-10 space-y-12 max-w-3xl text-grey leading-relaxed">
@@ -172,6 +172,7 @@ export default function PrivacyPolicyPage() {
                 <tbody className="divide-y divide-light-grey">
                   <tr><td className="px-4 py-3">Active cases</td><td className="px-4 py-3">While your account is active</td></tr>
                   <tr><td className="px-4 py-3">Resolved cases</td><td className="px-4 py-3">Retained until you request deletion or close your account</td></tr>
+                  <tr><td className="px-4 py-3">Deleted cases</td><td className="px-4 py-3">Removed from your account immediately when you delete a case; a copy is retained for up to 90 days for audit and dispute-integrity purposes, then permanently purged. You may request immediate full erasure at any time via account deletion (Section 7).</td></tr>
                   <tr><td className="px-4 py-3">Bill documents</td><td className="px-4 py-3">Automatically removed 90 days after the case is resolved or closed</td></tr>
                   <tr><td className="px-4 py-3">Profile data</td><td className="px-4 py-3">Deleted on account deletion</td></tr>
                   <tr><td className="px-4 py-3">Payment tokens</td><td className="px-4 py-3">Deleted on account deletion</td></tr>
@@ -193,7 +194,7 @@ export default function PrivacyPolicyPage() {
             <ul className="list-disc list-inside space-y-2">
               <li><strong>Access</strong> &mdash; request a copy of all personal data we hold about you</li>
               <li><strong>Correction</strong> &mdash; update or correct your personal information at any time</li>
-              <li><strong>Deletion</strong> &mdash; request that we permanently delete all your personal data</li>
+              <li><strong>Deletion</strong> &mdash; request that we permanently delete all your personal data; account deletion erases everything immediately, including any 90-day audit copies of deleted cases</li>
               <li><strong>Objection</strong> &mdash; object to processing of your data for marketing purposes</li>
               <li><strong>Data portability</strong> &mdash; receive your data in a machine-readable format (JSON)</li>
             </ul>
