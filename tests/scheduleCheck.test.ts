@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { findDailySchedule, cronToPlainEnglish } from '@/lib/qstash/schedule-check';
+import {
+  findScheduleByPath,
+  cronToPlainEnglish,
+  EXPECTED_SCHEDULES,
+  DAILY_WORKER_PATH,
+} from '@/lib/qstash/schedule-check';
 
 describe('cronToPlainEnglish', () => {
   it('translates a daily cron with the SAST equivalent', () => {
@@ -23,20 +28,36 @@ describe('cronToPlainEnglish', () => {
   });
 });
 
-describe('findDailySchedule', () => {
+describe('findScheduleByPath', () => {
   const daily = { destination: 'https://billdog.co.za/api/autofetch/worker/daily', cron: '0 4 * * *' };
-  const other = { destination: 'https://billdog.co.za/api/autofetch/worker/monthly-alert', cron: '0 6 * * *' };
+  const alert = { destination: 'https://billdog.co.za/api/autofetch/worker/monthly-alert', cron: '0 5 * * *' };
 
-  it('finds the schedule targeting the daily worker path', () => {
-    expect(findDailySchedule([other, daily])).toBe(daily);
+  it('finds the schedule targeting the requested worker path', () => {
+    expect(findScheduleByPath([alert, daily], DAILY_WORKER_PATH)).toBe(daily);
+    expect(findScheduleByPath([alert, daily], '/api/autofetch/worker/monthly-alert')).toBe(alert);
   });
 
   it('matches by URL pathname, not substring', () => {
     const decoy = { destination: 'https://evil.example/api/autofetch/worker/daily-fake', cron: '0 4 * * *' };
-    expect(findDailySchedule([decoy])).toBeNull();
+    expect(findScheduleByPath([decoy], DAILY_WORKER_PATH)).toBeNull();
   });
 
-  it('returns null when nothing targets the daily worker', () => {
-    expect(findDailySchedule([other])).toBeNull();
+  it('returns null when nothing targets the path', () => {
+    expect(findScheduleByPath([alert], DAILY_WORKER_PATH)).toBeNull();
+  });
+});
+
+describe('EXPECTED_SCHEDULES', () => {
+  it('expects the daily dispatcher at 04:00 UTC and monthly-alert at 05:00 UTC', () => {
+    const byPath = Object.fromEntries(EXPECTED_SCHEDULES.map(e => [e.path, e.cron]));
+    expect(byPath['/api/autofetch/worker/daily']).toBe('0 4 * * *');
+    expect(byPath['/api/autofetch/worker/monthly-alert']).toBe('0 5 * * *');
+  });
+
+  it('every expectation targets an autofetch worker and has a translatable cron', () => {
+    for (const e of EXPECTED_SCHEDULES) {
+      expect(e.path.startsWith('/api/autofetch/worker/')).toBe(true);
+      expect(cronToPlainEnglish(e.cron)).not.toContain('unrecognised');
+    }
   });
 });

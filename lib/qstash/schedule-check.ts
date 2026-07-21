@@ -1,19 +1,44 @@
 /**
- * Pure helpers for verifying the autofetch daily QStash schedule.
+ * Pure helpers for verifying the autofetch QStash schedules.
  * Used by scripts/check-schedules.ts (the deploy gate) and unit tests —
  * no network or env access here.
  */
 
 export const DAILY_WORKER_PATH = '/api/autofetch/worker/daily';
+export const MONTHLY_ALERT_PATH = '/api/autofetch/worker/monthly-alert';
+
+export interface ScheduleExpectation {
+  path: string;        // worker route pathname
+  cron: string;        // UTC cron the schedule should run on
+  purpose: string;     // one-line human description for gate output
+}
 
 /**
- * Find the schedule whose destination targets the daily dispatcher.
+ * Every QStash schedule this system requires. check:schedules verifies each
+ * and (with --create) registers the missing ones — the single code-side truth
+ * for what must exist in the dashboard.
+ */
+export const EXPECTED_SCHEDULES: ScheduleExpectation[] = [
+  {
+    path: DAILY_WORKER_PATH,
+    cron: '0 4 * * *', // 04:00 UTC = 06:00 SAST
+    purpose: 'daily autofetch dispatcher (fans out due credentials to fetch-latest)',
+  },
+  {
+    path: MONTHLY_ALERT_PATH,
+    cron: '0 5 * * *', // 05:00 UTC = 07:00 SAST, an hour after the dispatcher
+    purpose: 'failure-rate admin alert (100% failed fetch jobs in 24h)',
+  },
+];
+
+/**
+ * Find the schedule whose destination targets the given worker path.
  * Matches by URL pathname (never substring) so a look-alike destination
  * cannot satisfy the gate.
  */
-export function findDailySchedule<T extends { destination: string }>(
+export function findScheduleByPath<T extends { destination: string }>(
   schedules: T[],
-  workerPath: string = DAILY_WORKER_PATH
+  workerPath: string
 ): T | null {
   for (const s of schedules) {
     try {
