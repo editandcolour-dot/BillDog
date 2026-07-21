@@ -1,7 +1,8 @@
 import { getClaudeClient } from './client';
 import type { AnalysisResult, CrossAnalysis } from '@/types/analysis';
+import { CLAUDE_MODEL } from './model';
 
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = CLAUDE_MODEL;
 const CLAUDE_TIMEOUT_MS = 60_000; // 60s for cross-analysis
 
 const CROSS_ANALYSIS_SYSTEM_PROMPT = `You are a South African municipal billing expert.

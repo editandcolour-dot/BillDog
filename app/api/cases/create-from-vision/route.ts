@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { checkPrescription } from '@/lib/validators/prescription';
 import type { ServiceType } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
+import { CLAUDE_MODEL } from '@/lib/claude/model';
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       event_type: 'analysed',
       note: `Bill analysed natively with Vision. ${analysis.errors.length} issues found.`,
       metadata: {
-        model: 'claude-sonnet-4-vision',
+        model: CLAUDE_MODEL,
         confidence: analysis.confidence,
         account_confidence: analysis.account_confidence,
         total_confidence: analysis.total_confidence,

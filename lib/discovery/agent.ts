@@ -2,11 +2,12 @@ import { chromium, Browser, Page, Frame, Download } from 'playwright-core';
 import Anthropic from '@anthropic-ai/sdk';
 import { getSimplifiedDOM } from './dom-utils';
 import { DISCOVERY_SYSTEM_PROMPT } from './prompt';
+import { CLAUDE_MODEL } from '../claude/model';
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Claude Sonnet model specified in rules
-const VISION_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-20250514';
+// Model from the app-wide constant; ANTHROPIC_MODEL env overrides if set.
+const VISION_MODEL = process.env.ANTHROPIC_MODEL || CLAUDE_MODEL;
 
 const INPUT_COST_PER_M = 3.00;
 const OUTPUT_COST_PER_M = 15.00;

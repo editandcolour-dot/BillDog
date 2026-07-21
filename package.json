@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest",
     "test:ci": "vitest run --coverage",
-    "discover": "npx tsx bin/discover.ts"
+    "discover": "npx tsx bin/discover.ts",
+    "check:models": "npx tsx scripts/check-models.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.82.0",

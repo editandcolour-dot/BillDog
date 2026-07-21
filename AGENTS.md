@@ -80,7 +80,7 @@ Never deviate from the Bebas Neue / DM Sans font pairing.
 ## 7. AI Call Rules
 
 All Claude API calls must follow the patterns in `directives/ai.md` and ARCHITECTURE.md Section 6.
-Always use `claude-sonnet-4-20250514`. Never hardcode a different model without approval.
+Do NOT pin to the retired `claude-sonnet-4-20250514` (it returns 404 and is gone). App modules source their model from the single constant `CLAUDE_MODEL` in `lib/claude/model.ts`; the VeriCite engine will source from `VERICITE_MODEL` in `lib/tariff/vericite/model.ts` (its stage files' migration lands with the pending VeriCite change set). Never hardcode a model without approval. `npm run check:models` verifies all model constants against Anthropic's live model list.
 Always wrap in try/catch. Never let AI failures crash the app.
 
 ---

@@ -1,7 +1,8 @@
 import { getClaudeClient } from './client';
 import { AnalysisResult } from '@/types/analysis';
+import { CLAUDE_MODEL } from './model';
 
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = CLAUDE_MODEL;
 
 const VISION_SYSTEM_PROMPT = `You are an expert South African municipal billing analyst.
 You specialise in identifying overcharges, incorrect tariffs, and billing errors in

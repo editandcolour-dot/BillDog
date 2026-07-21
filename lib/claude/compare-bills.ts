@@ -1,6 +1,7 @@
 import { getClaudeClient } from './client';
+import { CLAUDE_MODEL } from './model';
 
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = CLAUDE_MODEL;
 const TIMEOUT_MS = 110_000; // maxDuration is 120s
 
 export interface BillComparisonResult {

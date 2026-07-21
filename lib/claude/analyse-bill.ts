@@ -6,8 +6,10 @@ import { buildGroundedSystemPrompt } from './grounded-prompt';
 import { classifyDisputeChannel, mapServiceToChargeType } from '@/lib/disputes/classify-channel';
 import { checkPrescription } from '@/lib/validators/prescription';
 
+import { CLAUDE_MODEL } from './model';
+
 const CLAUDE_TIMEOUT_MS = 45_000;
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = CLAUDE_MODEL;
 
 const ANALYSIS_SYSTEM_PROMPT = `You are an expert South African municipal billing analyst.
 You specialise in identifying overcharges, incorrect tariffs, and billing errors in

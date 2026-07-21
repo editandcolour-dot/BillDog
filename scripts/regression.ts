@@ -6,6 +6,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { parseBillFile } from '../lib/pdf/parse';
 import { getParser } from '../lib/parsers/registry';
 import { validateBill } from '../lib/validators/bill-validator';
+import { CLAUDE_MODEL } from '../lib/claude/model';
 
 if (!process.env.SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_URL) {
   process.env.SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -130,7 +131,7 @@ async function writeFix(diagnosis: string) {
         let responseText = '';
         try {
             const response = await anthropic.messages.create({
-                model: 'claude-sonnet-4-20250514',
+                model: CLAUDE_MODEL,
                 max_tokens: 8192,
                 system: 'You return ONLY raw typescript source code strings. Do not emit markdown block wrappers.',
                 messages: [{ role: 'user', content: prompt }]

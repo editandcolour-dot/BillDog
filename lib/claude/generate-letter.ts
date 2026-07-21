@@ -6,7 +6,7 @@
  *   - buildSection102Letter() handles all amounts, citations, legal text deterministically.
  *   - buildVerificationBlock() is prepended for account-holder auth.
  *
- * Model: claude-sonnet-4-20250514 (non-negotiable)
+ * Model: CLAUDE_MODEL (single source of truth in ./model.ts)
  * Output: plain text only — no markdown, no HTML
  *
  * Multi-bill letters remain Claude-generated end-to-end. Acceptable for now because:
@@ -21,8 +21,9 @@ import { getClaudeClient } from './client';
 import { buildVerificationBlock, VerificationBlockInput } from '@/lib/letters/verification-block';
 import { buildSection102Letter, Section102LetterInput } from '@/lib/letters/section-102-template';
 import type { BillingError } from '@/types/analysis';
+import { CLAUDE_MODEL } from './model';
 
-const MODEL = 'claude-sonnet-4-20250514';
+const MODEL = CLAUDE_MODEL;
 const LETTER_TIMEOUT_MS = 60_000;
 
 // ── Summary-Only Prompt ─────────────────────────────────────────────────────

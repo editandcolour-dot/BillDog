@@ -1,4 +1,5 @@
 import { getClaudeClient } from './client';
+import { CLAUDE_MODEL } from './model';
 
 export async function extractTextFromImage(
   base64Data: string,
@@ -7,7 +8,7 @@ export async function extractTextFromImage(
   const client = getClaudeClient();
 
   const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
+    model: CLAUDE_MODEL,
     max_tokens: 4096,
     messages: [
       {
