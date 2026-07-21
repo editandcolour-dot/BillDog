@@ -97,6 +97,10 @@ export interface MunicipalScraper {
 
   /**
    * Download the most recent bill only.
+   *
+   * Resolves success WITHOUT `data` when the portal is reachable and login
+   * succeeds but no statement rows exist yet (bill not yet published).
+   * Callers must treat that as "not yet published" -- not an error.
    */
   fetchLatestBill(
     username: string,

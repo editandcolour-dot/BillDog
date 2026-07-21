@@ -267,7 +267,10 @@ export class GenericScraper implements MunicipalScraper {
       if (bills.length > 0) {
         return { success: true, data: bills[0] };
       }
-      return { success: false, error: 'No bills found', errorCode: 'UNKNOWN' };
+      // Logged in and reached the statement table, but no rows are visible --
+      // the new period's bill isn't published yet. Success-with-no-data routes
+      // the worker to the daily hunt (NOT_YET_PUBLISHED), not the error path.
+      return { success: true };
     } catch (err: any) {
       return { success: false, error: err.message, errorCode: 'UNKNOWN' };
     } finally {

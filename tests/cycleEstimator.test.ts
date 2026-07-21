@@ -4,6 +4,7 @@ import {
   estimateExpectedDay,
   computeNextCheckAt,
   rollEstimate,
+  lastDayOfMonth,
 } from '@/lib/autofetch/cycleEstimator';
 
 describe('extractIssueDate', () => {
@@ -161,5 +162,64 @@ describe('computeNextCheckAt', () => {
     });
     // Should jump to next month's expected+1 = 15 June 2026 (Mon).
     expect(next.toISOString().slice(0, 10)).toBe('2026-06-15');
+  });
+});
+
+describe('computeNextCheckAt — month-length-aware clamp (late-month billers)', () => {
+  it('schedules on/after the expected day when the target month has 31 days', () => {
+    const next = computeNextCheckAt({
+      expectedDay: 30,
+      confidence: 'tight',
+      fromDate: new Date(Date.UTC(2026, 6, 30)), // Thu 30 Jul 2026
+      justFoundBill: true,
+    });
+    // Aug has 31 days → expected+1 = Mon 31 Aug 2026. A clamp to the 28th would
+    // probe two days BEFORE issuance and permanently stall this credential.
+    expect(next.toISOString().slice(0, 10)).toBe('2026-08-31');
+  });
+
+  it('clamps a 31st-biller into a 30-day target month', () => {
+    const next = computeNextCheckAt({
+      expectedDay: 31,
+      confidence: 'tight',
+      fromDate: new Date(Date.UTC(2026, 7, 31)), // Mon 31 Aug 2026
+      justFoundBill: true,
+    });
+    // Sep has 30 days → expected+1 = 32 clamps to Wed 30 Sep 2026.
+    expect(next.toISOString().slice(0, 10)).toBe('2026-09-30');
+  });
+
+  it('still clamps to the real end of February', () => {
+    const next = computeNextCheckAt({
+      expectedDay: 30,
+      confidence: 'tight',
+      fromDate: new Date(Date.UTC(2026, 0, 30)), // Fri 30 Jan 2026
+      justFoundBill: true,
+    });
+    // Feb 2026 has 28 days → Sat 28 Feb → weekend-skip → Mon 2 Mar.
+    expect(next.toISOString().slice(0, 10)).toBe('2026-03-02');
+  });
+
+  it('cap-expiry jump also lands on/after the expected day next month', () => {
+    const next = computeNextCheckAt({
+      expectedDay: 30,
+      confidence: 'tight',
+      fromDate: new Date(Date.UTC(2026, 8, 15)), // Tue 15 Sep 2026
+      justFoundBill: false,
+      chasingSince: new Date(Date.UTC(2026, 7, 30)), // chase began Sun 30 Aug
+    });
+    // Past the +14 cap (13 Sep) → jump to Oct's expected+1 = Sat 31 Oct → Mon 2 Nov.
+    expect(next.toISOString().slice(0, 10)).toBe('2026-11-02');
+  });
+});
+
+describe('lastDayOfMonth', () => {
+  it('knows leap February', () => {
+    expect(lastDayOfMonth(2028, 1)).toBe(29);
+    expect(lastDayOfMonth(2026, 1)).toBe(28);
+  });
+
+  it('normalises a month index past December into the next year', () => {
+    expect(lastDayOfMonth(2026, 12)).toBe(31); // Jan 2027
   });
 });

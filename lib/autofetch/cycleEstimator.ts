@@ -207,11 +207,14 @@ export function computeNextCheckAt(opts: {
 
   if (justFoundBill) {
     // Schedule for the same day next month, plus 1 day buffer, plus safety
-    // margin for loose cycles, weekend-skipped.
+    // margin for loose cycles, weekend-skipped. Clamp to the TARGET month's real
+    // length — a fixed 28 would probe late-month billers (29th–31st) days before
+    // their bill can exist, land on the stale prior statement every month, and
+    // stall the credential permanently.
     const next = new Date(Date.UTC(
       fromDate.getUTCFullYear(),
       fromDate.getUTCMonth() + 1,
-      Math.min(expectedDay + 1, 28) // clamp to avoid Feb-31 wrap
+      Math.min(expectedDay + 1, lastDayOfMonth(fromDate.getUTCFullYear(), fromDate.getUTCMonth() + 1))
     ));
     if (confidence === 'loose') {
       next.setUTCDate(next.getUTCDate() - 2);
@@ -233,16 +236,26 @@ export function computeNextCheckAt(opts: {
     if (tomorrow > capDay) {
       // Past the +14 cap — schedule for next month's expected day so the
       // dispatcher stops chasing this one. Alerting is handled separately.
+      // Same month-length-aware clamp as the justFoundBill branch.
       const next = new Date(Date.UTC(
         fromDate.getUTCFullYear(),
         fromDate.getUTCMonth() + 1,
-        Math.min(expectedDay + 1, 28)
+        Math.min(expectedDay + 1, lastDayOfMonth(fromDate.getUTCFullYear(), fromDate.getUTCMonth() + 1))
       ));
       return skipWeekends(next);
     }
   }
 
   return skipWeekends(tomorrow);
+}
+
+/**
+ * Last day-of-month for (year, monthIndex), UTC. monthIndex may overflow past
+ * 11 — Date.UTC normalises it into the following year, so callers can pass
+ * `getUTCMonth() + 1` directly when targeting "next month".
+ */
+export function lastDayOfMonth(year: number, monthIndex: number): number {
+  return new Date(Date.UTC(year, monthIndex + 1, 0)).getUTCDate();
 }
 
 /** Roll a date forward to the next weekday if it lands on Sat/Sun. */
