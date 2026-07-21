@@ -12,6 +12,17 @@
  *                                       skipping weekends + margin for loose cycles
  *
  * Pure functions only. No DB access. Easy to test.
+ *
+ * TIMEZONE BASIS: every date computation here is UTC (`Date.UTC`, `getUTC*`),
+ * and `next_check_at` is stored/compared in UTC. South Africa is UTC+2 with no
+ * DST, so a "day" in this module flips at 02:00 SAST, not at SA midnight.
+ * Bounded consequences: an issue date observed between 00:00–01:59 SAST lands
+ * on the PREVIOUS UTC day (expected_issue_day can drift by at most one), and
+ * the weekend skip evaluates the UTC weekday. Both self-heal via the daily
+ * hunt (+1-day re-checks until the bill is found). A full SAST re-basing was
+ * considered and deliberately deferred — it would re-interpret every stored
+ * next_check_at/expected_issue_day and touch the workers' comparisons; see the
+ * Phase-5 item-7 proposal in the rebuild plan before attempting it.
  */
 
 export type CycleConfidence = 'tight' | 'loose' | 'unknown';
