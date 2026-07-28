@@ -277,9 +277,12 @@ export class GenericScraper implements MunicipalScraper {
       await page.goto('https://eservices.capetown.gov.za/irj/portal', { waitUntil: 'domcontentloaded' });
       await this.executeSteps(page, this.config.steps.login, { username, password });
       const navTarget = await this.executeSteps(page, this.config.steps.navigate, { username, password });
-      await this.executeSteps(navTarget, this.config.steps.filter_latest, { username, password });
+      // filter_latest starts with a switchFrame into isolatedWorkArea — the
+      // returned target IS that frame. Extracting from navTarget instead
+      // searched the outer portal shell and found 0 links every time.
+      const filterTarget = await this.executeSteps(navTarget, this.config.steps.filter_latest, { username, password });
 
-      const { bills, unparseablePeriods } = await this.getBillsFromTable(navTarget, 1);
+      const { bills, unparseablePeriods } = await this.getBillsFromTable(filterTarget, 1);
       if (bills.length > 0) {
         return { success: true, data: bills[0] };
       }
